@@ -1,96 +1,53 @@
-# Obsidian Sample Plugin
+# Obsidian Tab Selector
 
-This is a sample plugin for Obsidian (https://obsidian.md).
-
-This project uses Typescript to provide type checking and documentation.
-The repo depends on the latest plugin API (obsidian.d.ts) in Typescript Definition format, which contains TSDoc comments describing what it does.
-
-**Note:** The Obsidian API is still in early alpha and is subject to change at any time!
-
-This sample plugin demonstrates some of the basic functionality the plugin API can do.
-- Adds a ribbon icon, which shows a Notice when clicked.
-- Adds a command "Open Sample Modal" which opens a Modal.
-- Adds a plugin setting tab to the settings page.
-- Registers a global click event and output 'click' to the console.
-- Registers a global interval which logs 'setInterval' to the console.
-
-## First time developing plugins?
-
-Quick starting guide for new plugin devs:
-
-- Check if [someone already developed a plugin for what you want](https://obsidian.md/plugins)! There might be an existing plugin similar enough that you can partner up with.
-- Make a copy of this repo as a template with the "Use this template" button (login to GitHub if you don't see it).
-- Clone your repo to a local development folder. For convenience, you can place this folder in your `.obsidian/plugins/your-plugin-name` folder.
-- Install NodeJS, then run `npm i` in the command line under your repo folder.
-- Run `npm run dev` to compile your plugin from `main.ts` to `main.js`.
-- Make changes to `main.ts` (or create new `.ts` files). Those changes should be automatically compiled into `main.js`.
-- Reload Obsidian to load the new version of your plugin.
-- Enable plugin in settings window.
-- For updates to the Obsidian API run `npm update` in the command line under your repo folder.
-
-## Releasing new releases
-
-- Update your `manifest.json` with your new version number, such as `1.0.1`, and the minimum Obsidian version required for your latest release.
-- Update your `versions.json` file with `"new-plugin-version": "minimum-obsidian-version"` so older versions of Obsidian can download an older version of your plugin that's compatible.
-- Create new GitHub release using your new version number as the "Tag version". Use the exact version number, don't include a prefix `v`. See here for an example: https://github.com/obsidianmd/obsidian-sample-plugin/releases
-- Upload the files `manifest.json`, `main.js`, `styles.css` as binary attachments. Note: The manifest.json file must be in two places, first the root path of your repository and also in the release.
-- Publish the release.
-
-> You can simplify the version bump process by running `npm version patch`, `npm version minor` or `npm version major` after updating `minAppVersion` manually in `manifest.json`.
-> The command will bump version in `manifest.json` and `package.json`, and add the entry for the new version to `versions.json`
-
-## Adding your plugin to the community plugin list
-
-- Check https://github.com/obsidianmd/obsidian-releases/blob/master/plugin-review.md
-- Publish an initial version.
-- Make sure you have a `README.md` file in the root of your repo.
-- Make a pull request at https://github.com/obsidianmd/obsidian-releases to add your plugin.
+This is an [Obsidian](https://obsidian.md/) plugin which can switch to the desired tab in about two actions without leaving the home position on the keyboard.
 
 ## How to use
 
-- Clone this repo.
-- Make sure your NodeJS is at least v16 (`node --version`).
-- `npm i` or `yarn` to install dependencies.
-- `npm run dev` to start compilation in watch mode.
+1. Call the modal in one of the following ways.
+	- Using hotkey. (**recommend**)
+	- Selecting `Tab Selector: Open tab selector` from the command palette.
+1. Select the tab you want to switch to in one of the following ways.
+	- Press the one-letter key displayed to the left of the tab name. (**recommend**)
+	- Move the cursor with arrow keys and select the tab.
+	- Click on the tab name with the mouse cursor.
 
-## Manually installing the plugin
+![demo](https://raw.githubusercontent.com/namikaze-40p/obsidian-tab-selector/main/demo/switch-tab.gif)
 
-- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
+**Note:** 
+- Supported: Switch tabs in the same window.
+- Not supported: Switch tabs between different windows.
 
-## Improve code quality with eslint (optional)
-- [ESLint](https://eslint.org/) is a tool that analyzes your code to quickly find problems. You can run ESLint against your plugin to find common bugs and ways to improve your code. 
-- To use eslint with this project, make sure to install eslint from terminal:
-  - `npm install -g eslint`
-- To use eslint to analyze this project use this command:
-  - `eslint main.ts`
-  - eslint will then create a report with suggestions for code improvement by file and line number.
-- If your source code is in a folder, such as `src`, you can use eslint with this command to analyze all files in that folder:
-  - `eslint .\src\`
+## Installation
 
-## Funding URL
+Install the plugin in one of the following ways.
 
-You can include funding URLs where people who use your plugin can financially support it.
+- [Community Plugins browser (In preparation)](#community-plugins-browser-in-preparation)
+- [Manually](#manually)
+- [BRAT Plugin Manager](#brat-plugin-manager)
 
-The simple way is to set the `fundingUrl` field to your link in your `manifest.json` file:
+### Community Plugins browser (In preparation)
 
-```json
-{
-    "fundingUrl": "https://buymeacoffee.com"
-}
-```
+It's not on the community plugin yet, because now waiting Obsidian team for review.
 
-If you have multiple URLs, you can also do:
+### Manually
 
-```json
-{
-    "fundingUrl": {
-        "Buy Me a Coffee": "https://buymeacoffee.com",
-        "GitHub Sponsor": "https://github.com/sponsors",
-        "Patreon": "https://www.patreon.com/"
-    }
-}
-```
+If you want to use this plugin, you can install in the following way.
 
-## API Documentation
+1. Access to [Releases](https://github.com/namikaze-40p/obsidian-tab-selector/releases), and download the 3 files(`main.js`, `manifest.json`, `style.css`) of latest version.
+1. Create a new folder named `tab-selector`.
+1. Move download the 3 files to the `tab-selector` folder.
+1. Place the folder in your `.obsidian/plugins` directory. If you don't know where that is, you can go to Community Plugins inside Obsidian. There is a folder icon on the right of Installed Plugins. Click that and it opens your plugins folder.
+1. Reload plugins. (the easiest way is just restarting Obsidian)
+1. Activate the plugin as normal.
 
-See https://github.com/obsidianmd/obsidian-api
+### BRAT Plugin Manager
+
+If you want to use this plugin, you can install it using the BRAT plugin.
+
+1. Install BRAT using the Obsidian Plugin manager
+1. In your Obsidian settings on the left, select BRAT in the list.
+1. In BRAT settings, click the button Add Beta Plugin
+1. In the textbox, supply the URL to this repo
+	- https://github.com/namikaze-40p/obsidian-tab-selector
+1. Once `Tab Selector` is installed, activate it in your Obsidian settings.

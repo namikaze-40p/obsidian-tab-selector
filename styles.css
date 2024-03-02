@@ -1,8 +1,71 @@
-/*
+.ts-setting-is-invalid {
+	border-color: red !important;
+}
 
-This CSS file will be included with your plugin, and
-available in the app when your plugin is enabled.
+.modal.tab-selector-modal {
+	& .ts-header {
+		display: flex;
+		gap: 0.25rem;
+		position: absolute;
+		top: 0.5rem;
+	}
 
-If your plugin does not need CSS, delete this file.
+	& .ts-buttons-view {
+		margin-top: 1.5rem;
+	}
+	
+	& .ts-leaf-row {
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
+		margin: 0.5rem 0;
 
-*/
+		& .ts-shortcut-btn {
+			font-weight: bold;
+			font-size: 1.5rem;
+			width: 2rem;	
+		}
+		
+		& .ts-leaf-name-btn {
+			width: calc(100% - 2.25rem);
+			display: flex;
+			justify-content: flex-start;
+
+			& .ts-leaf-name {
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+		}
+	}
+	
+	& .ts-footer {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem 1rem;
+		opacity: 0.8;
+		&:has(div) {
+			margin-top: 1rem;
+		}
+
+		& .ts-page-nav {
+			width: 100%;
+			display: flex;
+			justify-content: center;
+			gap: 0.5rem;
+
+			& .ts-nav-btn {
+				width: 4rem;
+				font-weight: bold;
+			}
+		}
+
+		& .ts-legend {
+			display: flex;
+			gap: 0.25rem;
+
+			& .ts-keys {
+				font-weight: bold;
+			}	
+		}
+	}
+}
