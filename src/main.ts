@@ -9,7 +9,7 @@ export default class TabSelector extends Plugin {
 	async onload() {
 		await this.loadSettings();
 
-		this.addRibbonIcon('files', 'Tab Selector', () => this.openTabSelectorModal());
+		this.addRibbonIcon('file-check-2', 'Open tab selector', () => this.openTabSelectorModal());
 
 		this.addCommand({
 			id: 'open-tab-selector',
