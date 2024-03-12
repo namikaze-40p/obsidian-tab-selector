@@ -5,16 +5,18 @@ This is an [Obsidian](https://obsidian.md/) plugin which can switch to the desir
 ## How to use
 
 1. Call the modal in one of the following ways.
-	- Using hotkey. (**recommend**)
-	- Selecting `Tab Selector: Open tab selector` from the command palette.
+    1. Using hotkey. (**recommend**)
+    1. Click the icon(`Open tab selector`) from the [Ribbon](https://help.obsidian.md/User+interface/Ribbon).
+    1. Selecting `Tab Selector: Open tab selector` from the command palette.
 1. Select the tab you want to switch to in one of the following ways.
-	- Press the one-letter key displayed to the left of the tab name. (**recommend**)
-	- Move the cursor with arrow keys and select the tab.
-	- Click on the tab name with the mouse cursor.
+    1. Press the one-letter key displayed to the left of the tab name. (**recommend**)
+    1. Move the cursor with arrow keys and select the tab.
+    1. Click on the tab name with the mouse cursor.
 
 ![demo](https://raw.githubusercontent.com/namikaze-40p/obsidian-tab-selector/main/demo/switch-tab.gif)
 
-**Note:** 
+**Note:**
+
 - Supported: Switch tabs in the same window.
 - Not supported: Switch tabs between different windows.
 
@@ -22,17 +24,22 @@ This is an [Obsidian](https://obsidian.md/) plugin which can switch to the desir
 
 Install the plugin in one of the following ways.
 
-- [Community Plugins browser (In preparation)](#community-plugins-browser-in-preparation)
+- [Community Plugins browser](#community-plugins-browser)
 - [Manually](#manually)
 - [BRAT Plugin Manager](#brat-plugin-manager)
 
-### Community Plugins browser (In preparation)
+### Community Plugins browser
 
-It's not on the community plugin yet, because now waiting Obsidian team for review.
+This plugin is available in Obsidian's Community Plugins Browser.
+
+1. Launch the Obsidian application.
+1. Open the `Settings`, select `Community Plugins`, and select `Browse`.
+1. Search for `Tab Selector`, and click it.
+1. Click the `Install`.
 
 ### Manually
 
-If you want to use this plugin, you can install in the following way.
+You can also install this plugin manually.
 
 1. Access to [Releases](https://github.com/namikaze-40p/obsidian-tab-selector/releases), and download the 3 files(`main.js`, `manifest.json`, `style.css`) of latest version.
 1. Create a new folder named `tab-selector`.
@@ -43,11 +50,10 @@ If you want to use this plugin, you can install in the following way.
 
 ### BRAT Plugin Manager
 
-If you want to use this plugin, you can install it using the BRAT plugin.
+You can also install this plugin using the BRAT plugin.
 
 1. Install BRAT using the Obsidian Plugin manager
 1. In your Obsidian settings on the left, select BRAT in the list.
 1. In BRAT settings, click the button Add Beta Plugin
-1. In the textbox, supply the URL to this repo
-	- https://github.com/namikaze-40p/obsidian-tab-selector
+1. In the textbox, supply the URL to this repo => `https://github.com/namikaze-40p/obsidian-tab-selector`
 1. Once `Tab Selector` is installed, activate it in your Obsidian settings.
