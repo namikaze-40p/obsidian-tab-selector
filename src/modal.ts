@@ -86,7 +86,7 @@ export class TabSelectorModal extends Modal {
 
 	private generateFooter(contentEl: HTMLElement): void {
 		contentEl.createDiv('ts-footer', el => {
-			if (this.settings.showPaginationButton && this.leaves.length > this.chars.length) {
+			if (this.settings.showPaginationButtons && this.leaves.length > this.chars.length) {
 				el.createDiv('ts-page-nav', navEl => {
 					const prevBtnEl = navEl.createEl('button', { text: '←' });
 					prevBtnEl.setAttr('tabIndex', -1);
@@ -100,9 +100,9 @@ export class TabSelectorModal extends Modal {
 				});
 			}
 
-			if (this.settings.showLegend) {
+			if (this.settings.showLegends) {
 				FOOTER_ITEMS.forEach(item => {
-					el.createDiv('ts-legend', el => {
+					el.createDiv('ts-legends', el => {
 						el.createSpan('ts-keys').setText(item.keys || `${this.chars.slice(0, 2).join(' / ')} / ... / ${this.chars.slice(-2).join(' / ')}`);
 						el.createSpan('ts-description').setText(item.description);
 					});

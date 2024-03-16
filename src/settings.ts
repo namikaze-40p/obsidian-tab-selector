@@ -3,15 +3,15 @@ import TabSelector from './main';
 import { createStyles, deleteStyles } from './util';
 
 export interface Settings {
-	showPaginationButton: boolean;
-	showLegend: boolean;
+	showPaginationButtons: boolean;
+	showLegends: boolean;
 	focusColor: string;
 	characters: string;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-	showPaginationButton: true,
-	showLegend: true,
+	showPaginationButtons: true,
+	showLegends: true,
 	focusColor: '#00b4e0',
 	characters: 'asdfghjkl;'
 } as const;
@@ -33,22 +33,24 @@ export class SettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 
+		containerEl.createEl('h2').setText('Tab Selector - Settings');
+
 		new Setting(containerEl)
-			.setName(`Show pagination button`)
-			.setDesc('When enabled, show pagination button on modal.')
-			.addToggle(toggle => toggle.setValue(this.plugin.settings.showPaginationButton)
+			.setName(`Show pagination buttons`)
+			.setDesc('When enabled, show pagination buttons on modal.')
+			.addToggle(toggle => toggle.setValue(this.plugin.settings.showPaginationButtons)
 				.onChange(async value => {
-					this.plugin.settings.showPaginationButton = value;
+					this.plugin.settings.showPaginationButtons = value;
 					await this.plugin.saveData(this.plugin.settings);
 				}),
 			);
 		
 		new Setting(containerEl)
-			.setName(`Show legend`)
-			.setDesc('When enabled, show legend on modal.')
-			.addToggle(toggle => toggle.setValue(this.plugin.settings.showLegend)
+			.setName(`Show legends`)
+			.setDesc('When enabled, show legends on modal.')
+			.addToggle(toggle => toggle.setValue(this.plugin.settings.showLegends)
 				.onChange(async value => {
-					this.plugin.settings.showLegend = value;
+					this.plugin.settings.showLegends = value;
 					await this.plugin.saveData(this.plugin.settings);
 				}),
 			);
