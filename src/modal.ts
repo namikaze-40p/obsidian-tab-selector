@@ -1,4 +1,4 @@
-import { App, MarkdownView, Modal, WorkspaceLeaf } from 'obsidian';
+import { App, MarkdownView, Modal, TFile, View, WorkspaceLeaf, setIcon } from 'obsidian';
 import { Settings } from './settings';
 
 export const UP_KEY = 'ArrowUp';
@@ -75,6 +75,17 @@ export class TabSelectorModal extends Modal {
 				itemBtnEl.addClass('ts-leaf-name-btn');
 				itemBtnEl.addEventListener('click', () => this.clickLeafButton(leaf));
 				itemBtnEl.createSpan('ts-leaf-name').setText(leaf.getDisplayText());
+
+				if (this.settings.showPaths) {
+					el.addClass('ts-leaf-row-with-path');
+					const pathWrapperEl = itemBtnEl.createDiv('ts-path-wrapper');
+					setIcon(pathWrapperEl, 'folder-closed');
+					const { file } = leaf.getViewState().state;
+					const fullPath = typeof file === 'string' ? file.split(leaf.getDisplayText())[0] || '/' : '-';
+					const splitPaths = fullPath.split('/').map(path => path.length > 20 ? `${path.slice(0, 20)}...` : path);
+					const displayPath = splitPaths.length > 3 ? `.../${splitPaths.at(-3)}/${splitPaths.at(-2)}/` : splitPaths.join('/');
+					pathWrapperEl.createEl('small').setText(displayPath);
+				}
 
 				this.buttonMap.set(leaf.id || '', itemBtnEl);
 			});

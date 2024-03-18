@@ -26,18 +26,65 @@
 		& .ts-shortcut-btn {
 			font-weight: bold;
 			font-size: 1.5rem;
-			width: 2rem;	
+			min-width: 2rem;
+			max-width: 2rem;
+			min-height: 2rem;
+			max-height: 2rem;
 		}
 		
 		& .ts-leaf-name-btn {
-			width: calc(100% - 2.25rem);
 			display: flex;
 			justify-content: flex-start;
+			width: calc(100% - 2.25rem);
+			min-height: 2rem;
+			max-height: 2rem;
 
 			& .ts-leaf-name {
 				overflow: hidden;
 				text-overflow: ellipsis;
 			}
+		}
+
+		&.ts-leaf-row-with-path {
+			& .ts-shortcut-btn {
+				min-width: 2.5rem;
+				max-width: 2.5rem;
+				min-height: 2.5rem;
+				max-height: 2.5rem;
+			}
+			
+			& .ts-leaf-name-btn {
+				justify-content: initial;
+				flex-direction: column;
+				align-items: start;
+				width: calc(100% - 2.75rem);
+				min-height: 2.5rem;
+				max-height: 2.5rem;
+
+				& .ts-leaf-name {
+					text-align: start;
+					width: 100%;
+					line-height: 1.2rem;
+				}
+
+				& .ts-path-wrapper {
+					display: flex;
+					align-items: center;
+					width: 100%;
+
+					& svg {
+						height: 0.75rem;
+						width: 0.75rem;
+						margin-right: 0.1rem;
+					}
+
+					& small {
+						overflow: hidden;
+						text-overflow: ellipsis;
+						color: var(--text-muted);
+					}
+				}
+			}	
 		}
 	}
 	

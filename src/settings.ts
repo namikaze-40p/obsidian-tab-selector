@@ -3,6 +3,7 @@ import TabSelector from './main';
 import { createStyles, deleteStyles } from './util';
 
 export interface Settings {
+	showPaths: boolean;
 	showPaginationButtons: boolean;
 	showLegends: boolean;
 	focusColor: string;
@@ -10,6 +11,7 @@ export interface Settings {
 }
 
 export const DEFAULT_SETTINGS: Settings = {
+	showPaths: false,
 	showPaginationButtons: true,
 	showLegends: true,
 	focusColor: '#00b4e0',
@@ -35,6 +37,17 @@ export class SettingTab extends PluginSettingTab {
 
 		containerEl.createEl('h2').setText('Tab Selector - Settings');
 
+		new Setting(containerEl)
+			.setName(`Show paths`)
+			.setDesc(`When enabled, show file's paths on button`)
+			.addToggle(toggle => toggle.setValue(this.plugin.settings.showPaths)
+				.onChange(async value => {
+					this.plugin.settings.showPaths = value;
+					await this.plugin.saveData(this.plugin.settings);
+					this.updateStyleSheet();
+				}),
+			);
+		
 		new Setting(containerEl)
 			.setName(`Show pagination buttons`)
 			.setDesc('When enabled, show pagination buttons on modal.')
@@ -110,10 +123,11 @@ export class SettingTab extends PluginSettingTab {
 			return;
 		}
 
-		const { characters, focusColor } = this.plugin.settings;
+		const { characters, focusColor, showPaths } = this.plugin.settings;
+		const buttonHeight = showPaths ? 40 : 32;
 		createStyles([
-			// 30 is button's height. 8 is margin of between buttons.
-			{ selector: '.ts-buttons-view', property: 'min-height', value: `${30 * characters.length + 8 * (characters.length - 1)}px` },
+			// 8 is margin of between buttons.
+			{ selector: '.ts-buttons-view', property: 'min-height', value: `${buttonHeight * characters.length + 8 * (characters.length - 1)}px` },
 			{ selector: '.ts-leaf-name-btn:focus', property: 'outline', value: `2px solid ${focusColor}` },
 		]);
 	}
