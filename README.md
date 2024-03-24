@@ -15,10 +15,10 @@ This is an [Obsidian](https://obsidian.md/) plugin which can switch to the desir
 
 ![demo](https://raw.githubusercontent.com/namikaze-40p/obsidian-tab-selector/main/demo/switch-tab.gif)
 
-**Note:**
-
-- Supported: Switch tabs in the same window.
-- Not supported: Switch tabs between different windows.
+> [!NOTE]
+>
+> - Supported: Switch tabs in the same window.
+> - Not supported: Switch tabs between different windows.
 
 ## Installation
 
