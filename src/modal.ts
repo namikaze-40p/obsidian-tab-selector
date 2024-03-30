@@ -1,4 +1,4 @@
-import { App, MarkdownView, Modal, TFile, View, WorkspaceLeaf, setIcon } from 'obsidian';
+import { App, MarkdownView, Modal, View, WorkspaceLeaf, setIcon } from 'obsidian';
 import { Settings } from './settings';
 
 export const UP_KEY = 'ArrowUp';
@@ -11,6 +11,17 @@ export const FOOTER_ITEMS = [
 	{ keys: 'Enter / Space', description: 'Switch to focused tab' },
 	{ keys: '', description: 'Quick switch tab' },
 ];
+
+type Property = {
+	key: string,
+	type: string,
+	value: string | string[],
+}
+type CustomView = View & {
+	metadataEditor?: {
+		properties?: Property[],
+	},
+}
 
 export class TabSelectorModal extends Modal {
 	settings: Settings;
@@ -74,18 +85,11 @@ export class TabSelectorModal extends Modal {
 				const itemBtnEl = el.createEl('button');
 				itemBtnEl.addClass('ts-leaf-name-btn');
 				itemBtnEl.addEventListener('click', () => this.clickLeafButton(leaf));
-				itemBtnEl.createSpan('ts-leaf-name').setText(leaf.getDisplayText());
 
-				if (this.settings.showPaths) {
-					el.addClass('ts-leaf-row-with-path');
-					const pathWrapperEl = itemBtnEl.createDiv('ts-path-wrapper');
-					setIcon(pathWrapperEl, 'folder-closed');
-					const { file } = leaf.getViewState().state;
-					const fullPath = typeof file === 'string' ? file.split(leaf.getDisplayText())[0] || '/' : '-';
-					const splitPaths = fullPath.split('/').map(path => path.length > 20 ? `${path.slice(0, 20)}...` : path);
-					const displayPath = splitPaths.length > 3 ? `.../${splitPaths.at(-3)}/${splitPaths.at(-2)}/` : splitPaths.join('/');
-					pathWrapperEl.createEl('small').setText(displayPath);
-				}
+				const itemNameEl = itemBtnEl.createSpan('ts-leaf-name');
+				itemNameEl.setText(leaf.getDisplayText());
+
+				this.reflectOptions(leaf, el, itemBtnEl, itemNameEl);
 
 				this.buttonMap.set(leaf.id || '', itemBtnEl);
 			});
@@ -94,6 +98,57 @@ export class TabSelectorModal extends Modal {
 		(this.buttonMap.get(this.currentLeaves.at(0)?.id || '') as HTMLElement).focus();
 		this.updatePageCount();
 	}
+
+	private reflectOptions(leaf: WorkspaceLeaf, el: HTMLDivElement, itemBtnEl: HTMLButtonElement, itemNameEl: HTMLSpanElement): void {
+		if((this.settings.showAliases && !this.settings.replaceToAliases) || this.settings.showPaths) {
+			el.addClass('ts-leaf-row-added-options');
+		}
+
+		if (this.settings.showAliases) {
+			const props = (leaf.view as CustomView)?.metadataEditor?.properties || [];
+			const aliases = props.filter(prop => prop.key === 'aliases').flatMap(prop => prop.value).filter(value => value != null);
+	
+			if (this.settings.replaceToAliases) {
+				this.replaceLeafName(aliases, itemBtnEl, itemNameEl);
+			} else {
+				this.addAliasesEl(aliases, itemBtnEl);
+			}
+		}
+
+		if (this.settings.showPaths) {
+			this.addPathEl(leaf, itemBtnEl);
+		}
+	}
+
+	private replaceLeafName(aliases: string[], itemBtnEl: HTMLButtonElement, itemNameEl: HTMLSpanElement): void {
+		if (aliases.length) {
+			itemNameEl.detach();
+			const wrapperEl = itemBtnEl.createDiv('ts-option-wrapper');
+			setIcon(wrapperEl, 'corner-up-right');
+	
+			wrapperEl.createSpan('ts-leaf-alias').setText(aliases.join(' | '));
+		}
+	}
+
+	private addAliasesEl(aliases: string[], itemBtnEl: HTMLButtonElement): void {
+		const wrapperEl = itemBtnEl.createDiv('ts-option-wrapper');
+		setIcon(wrapperEl, 'corner-up-right');
+
+		wrapperEl.createEl('small').setText(aliases.join(' | '));
+	}
+
+	private addPathEl(leaf: WorkspaceLeaf, itemBtnEl: HTMLButtonElement): void {
+		const wrapperEl = itemBtnEl.createDiv('ts-option-wrapper');
+		setIcon(wrapperEl, 'folder-closed');
+
+		const { file } = leaf.getViewState().state;
+		const fullPath = typeof file === 'string' ? file.split(leaf.getDisplayText())[0] || '/' : '-';
+		const splitPaths = fullPath.split('/').map(path => path.length > 20 ? `${path.slice(0, 20)}...` : path);
+		const displayPath = splitPaths.length > 3 ? `.../${splitPaths.at(-3)}/${splitPaths.at(-2)}/` : splitPaths.join('/');
+
+		wrapperEl.createEl('small').setText(displayPath);
+	}
+
 
 	private generateFooter(contentEl: HTMLElement): void {
 		contentEl.createDiv('ts-footer', el => {

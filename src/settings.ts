@@ -3,6 +3,8 @@ import TabSelector from './main';
 import { createStyles, deleteStyles } from './util';
 
 export interface Settings {
+	showAliases: boolean;
+	replaceToAliases: boolean;
 	showPaths: boolean;
 	showPaginationButtons: boolean;
 	showLegends: boolean;
@@ -11,6 +13,8 @@ export interface Settings {
 }
 
 export const DEFAULT_SETTINGS: Settings = {
+	showAliases: false,
+	replaceToAliases: false,
 	showPaths: false,
 	showPaginationButtons: true,
 	showLegends: true,
@@ -38,8 +42,33 @@ export class SettingTab extends PluginSettingTab {
 		containerEl.createEl('h2').setText('Tab Selector - Settings');
 
 		new Setting(containerEl)
+			.setName(`Show aliases`)
+			.setDesc(`When enabled, show file's aliases on button.`)
+			.addToggle(toggle => toggle.setValue(this.plugin.settings.showAliases)
+				.onChange(async value => {
+					this.plugin.settings.showAliases = value;
+					this.plugin.settings.replaceToAliases = false;
+					await this.plugin.saveData(this.plugin.settings);
+					this.updateStyleSheet();
+					this.display();
+				}),
+			);
+
+		new Setting(containerEl)
+			.setName(`Replace the filename to aliases`)
+			.setDesc(`When enabled, if aliases is set the file, replace the filename to aliases.`)
+			.addToggle(toggle => toggle.setValue(this.plugin.settings.replaceToAliases)
+				.onChange(async value => {
+					this.plugin.settings.replaceToAliases = value;
+					await this.plugin.saveData(this.plugin.settings);
+					this.updateStyleSheet();
+				}),
+			)
+			.setDisabled(!this.plugin.settings.showAliases);
+
+		new Setting(containerEl)
 			.setName(`Show paths`)
-			.setDesc(`When enabled, show file's paths on button`)
+			.setDesc(`When enabled, show file's paths on button.`)
 			.addToggle(toggle => toggle.setValue(this.plugin.settings.showPaths)
 				.onChange(async value => {
 					this.plugin.settings.showPaths = value;
@@ -123,8 +152,10 @@ export class SettingTab extends PluginSettingTab {
 			return;
 		}
 
-		const { characters, focusColor, showPaths } = this.plugin.settings;
-		const buttonHeight = showPaths ? 40 : 32;
+		const { showAliases, replaceToAliases, showPaths, focusColor, characters } = this.plugin.settings;
+		const aliasesHeight = showAliases && !replaceToAliases ? (showPaths ? 14 : 10) : 0;
+		const pathHeight = showPaths ? 10 : 0;
+		const buttonHeight = 32 + aliasesHeight + pathHeight;
 		createStyles([
 			// 8 is margin of between buttons.
 			{ selector: '.ts-buttons-view', property: 'min-height', value: `${buttonHeight * characters.length + 8 * (characters.length - 1)}px` },

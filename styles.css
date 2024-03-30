@@ -1,5 +1,11 @@
-.ts-setting-is-invalid {
-	border-color: red !important;
+.setting-item {
+	& .ts-setting-is-invalid {
+		border-color: red !important;
+	}
+
+	&.is-disabled {
+		opacity: 0.5;
+	}
 }
 
 .modal.tab-selector-modal {
@@ -16,7 +22,7 @@
 	
 	& .ts-leaf-row {
 		display: flex;
-		align-items: center;
+		align-items: stretch;
 		gap: 0.25rem;
 
 		&:not(:last-child) {
@@ -30,11 +36,13 @@
 			max-width: 2rem;
 			min-height: 2rem;
 			max-height: 2rem;
+			height: inherit;
 		}
 		
 		& .ts-leaf-name-btn {
 			display: flex;
 			justify-content: flex-start;
+			gap: 0.15rem;
 			width: calc(100% - 2.25rem);
 			min-height: 2rem;
 			max-height: 2rem;
@@ -43,14 +51,43 @@
 				overflow: hidden;
 				text-overflow: ellipsis;
 			}
+
+			& .ts-option-wrapper {
+				display: flex;
+				align-items: center;
+				width: 100%;
+
+				& svg {
+					height: 0.75rem;
+					width: 0.75rem;
+					min-width: 0.75rem;
+					margin-right: 0.1rem;
+				}
+
+				& .ts-leaf-alias {
+					overflow: hidden;
+					text-overflow: ellipsis;
+					text-align: start;
+					width: 100%;
+					line-height: 1.2rem;
+				}
+
+				& small {
+					overflow: hidden;
+					text-overflow: ellipsis;
+					color: var(--text-muted);
+					line-height: 0.75rem;
+				}
+			}
 		}
 
-		&.ts-leaf-row-with-path {
+		&.ts-leaf-row-added-options {
+
 			& .ts-shortcut-btn {
 				min-width: 2.5rem;
 				max-width: 2.5rem;
-				min-height: 2.5rem;
-				max-height: 2.5rem;
+				min-height: initial;
+				max-height: initial;
 			}
 			
 			& .ts-leaf-name-btn {
@@ -58,31 +95,14 @@
 				flex-direction: column;
 				align-items: start;
 				width: calc(100% - 2.75rem);
-				min-height: 2.5rem;
-				max-height: 2.5rem;
+				min-height: initial;
+				max-height: initial;
+				height: max-content;
 
 				& .ts-leaf-name {
 					text-align: start;
 					width: 100%;
 					line-height: 1.2rem;
-				}
-
-				& .ts-path-wrapper {
-					display: flex;
-					align-items: center;
-					width: 100%;
-
-					& svg {
-						height: 0.75rem;
-						width: 0.75rem;
-						margin-right: 0.1rem;
-					}
-
-					& small {
-						overflow: hidden;
-						text-overflow: ellipsis;
-						color: var(--text-muted);
-					}
 				}
 			}	
 		}
