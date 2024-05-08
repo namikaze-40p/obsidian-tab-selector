@@ -6,10 +6,10 @@ export const DOWN_KEY = 'ArrowDown';
 export const LEFT_KEY = 'ArrowLeft';
 export const RIGHT_KEY = 'ArrowRight';
 export const FOOTER_ITEMS = [
-	{ keys: '↑ / ↓', description: 'Move focus' },
-	{ keys: '← / →', description: 'Switch pages' },
-	{ keys: 'Enter / Space', description: 'Switch to focused tab' },
-	{ keys: '', description: 'Quick switch tab' },
+	{ keys: '↑ | ↓', description: 'Move focus' },
+	{ keys: '← | →', description: 'Switch pages' },
+	{ keys: 'Enter | Space', description: 'Switch to focused tab' },
+	{ keys: '', description: 'Quickly switch tab' },
 ];
 
 type Property = {
@@ -169,7 +169,7 @@ export class TabSelectorModal extends Modal {
 			if (this.settings.showLegends) {
 				FOOTER_ITEMS.forEach(item => {
 					el.createDiv('ts-legends', el => {
-						el.createSpan('ts-keys').setText(item.keys || `${this.chars.slice(0, 2).join(' / ')} / ... / ${this.chars.slice(-2).join(' / ')}`);
+						el.createSpan('ts-keys').setText(item.keys || `${this.chars.slice(0, 2).join(' | ')} | ... | ${this.chars.slice(-2).join(' | ')}`);
 						el.createSpan('ts-description').setText(item.description);
 					});
 				});
