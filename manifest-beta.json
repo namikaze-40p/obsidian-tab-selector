@@ -1,8 +1,8 @@
 {
 	"id": "tab-selector",
 	"name": "Tab Selector",
-	"version": "0.3.0",
-	"minAppVersion": "1.5.8",
+	"version": "0.4.0-beta.2",
+	"minAppVersion": "1.5.12",
 	"description": "Switch to the desired tab in about two actions without leaving the home position on the keyboard.",
 	"author": "namikaze-40p",
 	"authorUrl": "https://github.com/namikaze-40p",
