@@ -10,6 +10,7 @@ export interface Settings {
 	showLegends: boolean;
 	focusColor: string;
 	characters: string;
+	enableClose: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -19,7 +20,8 @@ export const DEFAULT_SETTINGS: Settings = {
 	showPaginationButtons: true,
 	showLegends: true,
 	focusColor: '#00b4e0',
-	characters: 'asdfghjkl;'
+	characters: 'asdfghjkl;',
+	enableClose: true,
 } as const;
 
 export const CHAR_LENGTH = {
@@ -144,6 +146,16 @@ export class SettingTab extends PluginSettingTab {
 				return textComponent;
 			})
 			.then(settingEl => this.addResetButton(settingEl, 'characters'));
+
+		new Setting(containerEl)
+			.setName(`Enable tabs close`)
+			.setDesc('When enabled, the operation of closing tabs is enabled.')
+			.addToggle(toggle => toggle.setValue(this.plugin.settings.enableClose)
+				.onChange(async value => {
+					this.plugin.settings.enableClose = value;
+					await this.plugin.saveData(this.plugin.settings);
+				}),
+			);
 	}
 
 	updateStyleSheet(isTeardown = false): void {
@@ -153,8 +165,8 @@ export class SettingTab extends PluginSettingTab {
 		}
 
 		const { showAliases, replaceToAliases, showPaths, focusColor, characters } = this.plugin.settings;
-		const aliasesHeight = showAliases && !replaceToAliases ? (showPaths ? 14 : 10) : 0;
-		const pathHeight = showPaths ? 10 : 0;
+		const aliasesHeight = showAliases && !replaceToAliases ? (showPaths ? 12 : 8) : 0;
+		const pathHeight = showPaths ? 8 : 0;
 		const buttonHeight = 32 + aliasesHeight + pathHeight;
 		createStyles([
 			// 8 is margin of between buttons.

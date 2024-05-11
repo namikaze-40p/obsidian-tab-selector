@@ -5,11 +5,15 @@ export const UP_KEY = 'ArrowUp';
 export const DOWN_KEY = 'ArrowDown';
 export const LEFT_KEY = 'ArrowLeft';
 export const RIGHT_KEY = 'ArrowRight';
+export const BACKSPACE_KEY = 'Backspace';
+export const DELETE_KEY = 'Delete';
 export const FOOTER_ITEMS = [
 	{ keys: '↑ | ↓', description: 'Move focus' },
 	{ keys: '← | →', description: 'Switch pages' },
 	{ keys: 'Enter | Space', description: 'Switch to focused tab' },
+	{ keys: 'BS | Delete', description: 'Close focused tab' },
 	{ keys: '', description: 'Quickly switch tab' },
+	{ keys: '', description: 'Quickly close tab', modifier: true },
 ];
 
 type Property = {
@@ -22,26 +26,46 @@ type CustomView = View & {
 		properties?: Property[],
 	},
 }
+type CustomLeaf = WorkspaceLeaf & {
+	id?: string,
+	name?: string,
+	aliases?: string[],
+	path?: string,
+	deleted?: boolean,
+}
 
 export class TabSelectorModal extends Modal {
 	settings: Settings;
-	leaves: (WorkspaceLeaf & { id?: string })[] = [];
+	leaves: CustomLeaf[] = [];
 	chars: string[] = [];
-	buttonMap: Map<string, HTMLButtonElement> = new Map();
+	leafButtonMap: Map<string, HTMLButtonElement> = new Map();
+	closeButtonMap: Map<string, HTMLButtonElement> = new Map();
 	focusPosition = 0;
 	pagePosition = 0;
 	buttonsViewEl: HTMLDivElement;
 	pageCounterEl: HTMLSpanElement;
 	eventListenerFunc: (ev: KeyboardEvent) => void;
 
-	get currentLeaves(): (WorkspaceLeaf & { id?: string })[] {
+	get currentLeaves(): CustomLeaf[] {
 		return this.leaves.slice(0 + this.pagePosition * this.chars.length, this.chars.length + this.pagePosition * this.chars.length);
 	}
 
-	constructor(app: App, settings: Settings, leaves: WorkspaceLeaf[]) {
+	constructor(app: App, settings: Settings, leaves: CustomLeaf[]) {
 		super(app);
 		this.settings = settings;
-		this.leaves = leaves;
+		this.leaves = leaves.map(leaf => {
+			leaf.name = leaf.getDisplayText();
+
+			const props = (leaf.view as CustomView)?.metadataEditor?.properties || [];
+			leaf.aliases = props.filter(prop => prop.key === 'aliases').flatMap(prop => prop.value).filter(value => value != null);
+
+			const { file } = leaf.getViewState().state;
+			const fullPath = typeof file === 'string' ? file.split(leaf.getDisplayText())[0] || '/' : '-';
+			const splitPaths = fullPath.split('/').map(path => path.length > 20 ? `${path.slice(0, 20)}...` : path);
+			leaf.path = splitPaths.length > 3 ? `.../${splitPaths.at(-3)}/${splitPaths.at(-2)}/` : splitPaths.join('/');
+
+			return leaf;
+		});
 		this.chars = [...this.settings.characters];
 	}
 
@@ -71,7 +95,7 @@ export class TabSelectorModal extends Modal {
 		});
 	}
 
-	private generateButtons(contentEl: HTMLElement, leaves: (WorkspaceLeaf & { id?: string })[]): void {
+	private generateButtons(contentEl: HTMLElement, leaves: CustomLeaf[]): void {
 		this.focusPosition = 0;
 		this.buttonsViewEl.empty();
 
@@ -80,38 +104,49 @@ export class TabSelectorModal extends Modal {
 				const shortcutBtnEl = el.createEl('button', { text: this.chars.at(idx) });
 				shortcutBtnEl.setAttr('tabIndex', -1);
 				shortcutBtnEl.addClass('ts-shortcut-btn');
-				shortcutBtnEl.addEventListener('click', () => this.clickLeafButton(leaf));
-
+				shortcutBtnEl.addEventListener('click', () => this.clickLeafButton(leaf, shortcutBtnEl));
+				
 				const itemBtnEl = el.createEl('button');
 				itemBtnEl.addClass('ts-leaf-name-btn');
-				itemBtnEl.addEventListener('click', () => this.clickLeafButton(leaf));
+				itemBtnEl.addEventListener('click', () => this.clickLeafButton(leaf, itemBtnEl));
 
 				const itemNameEl = itemBtnEl.createSpan('ts-leaf-name');
-				itemNameEl.setText(leaf.getDisplayText());
+				itemNameEl.setText(leaf.name || '');
 
 				this.reflectOptions(leaf, el, itemBtnEl, itemNameEl);
 
-				this.buttonMap.set(leaf.id || '', itemBtnEl);
+				this.leafButtonMap.set(leaf.id || '', itemBtnEl);
+
+				if (this.settings.enableClose) {
+					const closeBtnEl = el.createEl('button');
+					setIcon(closeBtnEl, 'x');
+					closeBtnEl.setAttr('tabIndex', -1);
+					closeBtnEl.addClass('ts-close-btn');
+					closeBtnEl.addEventListener('click', () => this.clickCloseLeafButton(leaf, el));
+					this.closeButtonMap.set(leaf.id || '', closeBtnEl);
+
+					el.addClass('ts-leaf-row-deletable');
+					if (leaf.deleted) {
+						el.addClass('deleted');
+					}
+				}
 			});
 		});
 
-		(this.buttonMap.get(this.currentLeaves.at(0)?.id || '') as HTMLElement).focus();
+		(this.leafButtonMap.get(this.currentLeaves.at(0)?.id || '') as HTMLElement).focus();
 		this.updatePageCount();
 	}
 
-	private reflectOptions(leaf: WorkspaceLeaf, el: HTMLDivElement, itemBtnEl: HTMLButtonElement, itemNameEl: HTMLSpanElement): void {
+	private reflectOptions(leaf: CustomLeaf, el: HTMLDivElement, itemBtnEl: HTMLButtonElement, itemNameEl: HTMLSpanElement): void {
 		if((this.settings.showAliases && !this.settings.replaceToAliases) || this.settings.showPaths) {
 			el.addClass('ts-leaf-row-added-options');
 		}
 
 		if (this.settings.showAliases) {
-			const props = (leaf.view as CustomView)?.metadataEditor?.properties || [];
-			const aliases = props.filter(prop => prop.key === 'aliases').flatMap(prop => prop.value).filter(value => value != null);
-	
 			if (this.settings.replaceToAliases) {
-				this.replaceLeafName(aliases, itemBtnEl, itemNameEl);
+				this.replaceLeafName(leaf.aliases || [], itemBtnEl, itemNameEl);
 			} else {
-				this.addAliasesEl(aliases, itemBtnEl);
+				this.addAliasesEl(leaf.aliases || [], itemBtnEl);
 			}
 		}
 
@@ -137,16 +172,10 @@ export class TabSelectorModal extends Modal {
 		wrapperEl.createEl('small').setText(aliases.join(' | '));
 	}
 
-	private addPathEl(leaf: WorkspaceLeaf, itemBtnEl: HTMLButtonElement): void {
+	private addPathEl(leaf: CustomLeaf, itemBtnEl: HTMLButtonElement): void {
 		const wrapperEl = itemBtnEl.createDiv('ts-option-wrapper');
 		setIcon(wrapperEl, 'folder-closed');
-
-		const { file } = leaf.getViewState().state;
-		const fullPath = typeof file === 'string' ? file.split(leaf.getDisplayText())[0] || '/' : '-';
-		const splitPaths = fullPath.split('/').map(path => path.length > 20 ? `${path.slice(0, 20)}...` : path);
-		const displayPath = splitPaths.length > 3 ? `.../${splitPaths.at(-3)}/${splitPaths.at(-2)}/` : splitPaths.join('/');
-
-		wrapperEl.createEl('small').setText(displayPath);
+		wrapperEl.createEl('small').setText(leaf.path || '');
 	}
 
 
@@ -168,8 +197,16 @@ export class TabSelectorModal extends Modal {
 
 			if (this.settings.showLegends) {
 				FOOTER_ITEMS.forEach(item => {
+					if (item.modifier && !this.settings.enableClose) {
+						return;
+					}
 					el.createDiv('ts-legends', el => {
-						el.createSpan('ts-keys').setText(item.keys || `${this.chars.slice(0, 2).join(' | ')} | ... | ${this.chars.slice(-2).join(' | ')}`);
+						const text = item.keys || (
+							item.modifier
+								? `Ctrl + ${this.chars.slice(0, 2).join(' | ')} | ... | ${this.chars.slice(-2).join(' | ')}`
+								: `${this.chars.slice(0, 2).join(' | ')} | ... | ${this.chars.slice(-2).join(' | ')}`
+							);
+						el.createSpan('ts-keys').setText(text);
 						el.createSpan('ts-description').setText(item.description);
 					});
 				});
@@ -181,7 +218,10 @@ export class TabSelectorModal extends Modal {
 		this.pageCounterEl.setText(`${this.pagePosition + 1}`);
 	}
 
-	private clickLeafButton(leaf: WorkspaceLeaf) {
+	private clickLeafButton(leaf: CustomLeaf, itemBtnEl: HTMLButtonElement) {
+		if (itemBtnEl.classList.contains('deleted')) {
+			return;
+		}
 		this.close();
 		this.app.workspace.setActiveLeaf(leaf);
 		const view = this.app.workspace.getActiveViewOfType(MarkdownView);
@@ -190,9 +230,27 @@ export class TabSelectorModal extends Modal {
 		}
 	}
 
+	private clickCloseLeafButton(leaf: CustomLeaf, divEl: HTMLDivElement) {
+		if (leaf.deleted) {
+			return;
+		}
+		divEl.addClass('deleted');
+		leaf.deleted = true;
+		leaf.detach();
+		const idx = this.currentLeaves.findIndex(({ id }) => id === leaf.id);
+		this.focusPosition = idx >= 0 ? idx : 0;
+		(this.leafButtonMap.get(leaf?.id || '') as HTMLElement).focus();
+	}
+
 	private handlingKeyupEvent(ev: KeyboardEvent): void {
 		if (this.chars.includes(ev.key)) {
-			this.keyupShortcutKeys(ev.key);
+			this.keyupShortcutKeys(ev.key, ev.ctrlKey);
+			ev.preventDefault();
+			return;
+		}
+
+		if ([BACKSPACE_KEY, DELETE_KEY].includes(ev.key)) {
+			this.keyUpCloseKeys();
 			ev.preventDefault();
 			return;
 		}
@@ -204,28 +262,40 @@ export class TabSelectorModal extends Modal {
 		}
 	}
 
-	private keyupShortcutKeys(key: string): void {
+	private keyupShortcutKeys(key: string, isModifier: boolean): void {
 		const idx = this.chars.indexOf(key);
-		this.buttonMap.get(this.currentLeaves.at(idx)?.id || '')?.click();
+		if (isModifier) {
+			this.keyUpCloseKeys(idx)
+		} else {
+			this.leafButtonMap.get(this.currentLeaves.at(idx)?.id || '')?.click();
+		}
+	}
+
+	private keyUpCloseKeys(index?: number): void {
+		if (index == null && !this.leaves.some(leaf => this.leafButtonMap.get(leaf.id || '') === document.activeElement)) {
+			return;
+		}
+		const idx = index ?? this.focusPosition;
+		this.closeButtonMap.get(this.currentLeaves.at(idx)?.id || '')?.click();
 	}
 
 	private keyupArrowKeys(key: string): void {
 		switch (key) {
 			case UP_KEY:
 				if (this.focusPosition === 0) {
-					(this.buttonMap.get(this.currentLeaves.at(-1)?.id || '') as HTMLElement).focus();
+					(this.leafButtonMap.get(this.currentLeaves.at(-1)?.id || '') as HTMLElement).focus();
 					this.focusPosition = this.currentLeaves.length - 1;
 				} else {
-					(this.buttonMap.get(this.currentLeaves[this.focusPosition - 1].id || '') as HTMLElement).focus();
+					(this.leafButtonMap.get(this.currentLeaves[this.focusPosition - 1].id || '') as HTMLElement).focus();
 					this.focusPosition -= 1;
 				}
 				break;
 			case DOWN_KEY:
 				if (this.focusPosition === this.currentLeaves.length - 1) {
-					(this.buttonMap.get(this.currentLeaves.at(0)?.id || '') as HTMLElement).focus();
+					(this.leafButtonMap.get(this.currentLeaves.at(0)?.id || '') as HTMLElement).focus();
 					this.focusPosition = 0;
 				} else {
-					(this.buttonMap.get(this.currentLeaves[this.focusPosition + 1].id || '') as HTMLElement).focus();
+					(this.leafButtonMap.get(this.currentLeaves[this.focusPosition + 1].id || '') as HTMLElement).focus();
 					this.focusPosition += 1;
 				}
 				break;

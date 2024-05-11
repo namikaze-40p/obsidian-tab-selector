@@ -21,35 +21,40 @@
 	}
 	
 	& .ts-leaf-row {
-		display: flex;
-		align-items: stretch;
+		display: grid;
+		grid-template-columns: 2rem 1fr;
+		grid-template-rows: 2rem;
 		gap: 0.25rem;
+
+		&.ts-leaf-row-deletable {
+			grid-template-columns: 2rem 1fr 2rem;
+		}
 
 		&:not(:last-child) {
 			margin-bottom: 0.5rem;
 		}
 
-		& .ts-shortcut-btn {
+		& .ts-shortcut-btn,
+		& .ts-close-btn {
 			font-weight: bold;
 			font-size: 1.5rem;
-			min-width: 2rem;
-			max-width: 2rem;
-			min-height: 2rem;
-			max-height: 2rem;
 			height: inherit;
+			padding: 0;
 		}
 		
 		& .ts-leaf-name-btn {
 			display: flex;
 			justify-content: flex-start;
-			gap: 0.15rem;
-			width: calc(100% - 2.25rem);
-			min-height: 2rem;
-			max-height: 2rem;
+			gap: 0 0.15rem;
+			height: 2rem;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			text-align: start;
 
 			& .ts-leaf-name {
 				overflow: hidden;
 				text-overflow: ellipsis;
+				width: 100%;
 			}
 
 			& .ts-option-wrapper {
@@ -67,7 +72,6 @@
 				& .ts-leaf-alias {
 					overflow: hidden;
 					text-overflow: ellipsis;
-					text-align: start;
 					width: 100%;
 					line-height: 1.2rem;
 				}
@@ -81,30 +85,28 @@
 			}
 		}
 
-		&.ts-leaf-row-added-options {
+		&.deleted button {
+			opacity: 0.5;
+		}
 
-			& .ts-shortcut-btn {
-				min-width: 2.5rem;
-				max-width: 2.5rem;
-				min-height: initial;
-				max-height: initial;
+		&.ts-leaf-row-added-options {
+			grid-template-columns: 2.5rem 1fr;
+			grid-template-rows: initial;
+
+			&.ts-leaf-row-deletable {
+				grid-template-columns: 2.5rem 1fr 2.5rem;
 			}
 			
 			& .ts-leaf-name-btn {
 				justify-content: initial;
 				flex-direction: column;
 				align-items: start;
-				width: calc(100% - 2.75rem);
-				min-height: initial;
-				max-height: initial;
-				height: max-content;
+				height: initial;
 
 				& .ts-leaf-name {
-					text-align: start;
-					width: 100%;
 					line-height: 1.2rem;
 				}
-			}	
+			}
 		}
 	}
 	
