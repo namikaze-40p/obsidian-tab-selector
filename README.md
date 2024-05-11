@@ -12,6 +12,10 @@ This is an [Obsidian](https://obsidian.md/) plugin which can switch to the desir
     1. Press the one-letter key displayed to the left of the tab name. (**recommend**)
     1. Move the cursor with arrow keys and select the tab.
     1. Click on the tab name with the mouse cursor.
+1. If you want to close a tab, you can do in one of the following ways.
+    1. Hold down the control key, press the one-letter key displayed to the left of the tab name.
+    1. Move the cursor with arrow keys and press `Backspace` or `Delete` key.
+    1. Click on the `X` button with the mouse cursor.
 
 ![demo](https://raw.githubusercontent.com/namikaze-40p/obsidian-tab-selector/main/demo/switch-tab.gif)
 
