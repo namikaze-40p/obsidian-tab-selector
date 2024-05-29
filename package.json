@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-tab-selector",
-	"version": "0.4.0",
+	"version": "0.4.1",
 	"description": "This is an Obsidian plugin which can switch to the desired tab in about two actions without leaving the home position on the keyboard.",
 	"main": "main.js",
 	"scripts": {
