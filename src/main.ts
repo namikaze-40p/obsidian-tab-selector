@@ -1,6 +1,7 @@
-import { Plugin, WorkspaceItem, WorkspaceLeaf } from 'obsidian';
+import { Plugin } from 'obsidian';
 import { DEFAULT_SETTINGS, SettingTab, Settings } from './settings';
 import { TabSelectorModal } from './modal';
+import { CustomWsItem, CustomWsLeaf } from './type';
 
 export default class TabSelector extends Plugin {
 	settings: Settings;
@@ -36,17 +37,17 @@ export default class TabSelector extends Plugin {
 
 	private openTabSelectorModal(): void {
 		const rootLeafIds: string[] = [];
-		this.app.workspace.iterateRootLeaves(leaf => {
-			rootLeafIds.push((leaf as WorkspaceLeaf & { id: string }).id)
+		this.app.workspace.iterateRootLeaves((leaf: CustomWsLeaf) => {
+			rootLeafIds.push(leaf?.id || '');
 		});
 
-		const targetLeaves: WorkspaceLeaf[] = [];
-		const { id: rootId, type: rootType } = (this.app.workspace.getMostRecentLeaf()?.getRoot()) as WorkspaceItem & { id: string, type: string };
-		this.app.workspace.iterateAllLeaves((leaf: WorkspaceLeaf & { id: string }) => {
-			if (rootId !== (leaf.getRoot() as WorkspaceItem & { id: string }).id) {
+		const targetLeaves: CustomWsLeaf[] = [];
+		const { id: rootId, type: rootType } = (this.app.workspace.getMostRecentLeaf()?.getRoot()) as CustomWsItem;
+		this.app.workspace.iterateAllLeaves((leaf: CustomWsLeaf) => {
+			if (rootId !== (leaf.getRoot() as CustomWsItem).id) {
 				return;
 			}
-			if (rootLeafIds.includes(leaf.id) || rootType === 'floating') {
+			if ((leaf.id && rootLeafIds.includes(leaf.id)) || rootType === 'floating') {
 				targetLeaves.push(leaf);
 			}
 		});

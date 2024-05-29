@@ -1,5 +1,6 @@
-import { App, MarkdownView, Modal, View, WorkspaceLeaf, setIcon } from 'obsidian';
+import { App, MarkdownView, Modal, setIcon } from 'obsidian';
 import { Settings } from './settings';
+import { CustomWsLeaf, CustomView } from './type';
 
 export const UP_KEY = 'ArrowUp';
 export const DOWN_KEY = 'ArrowDown';
@@ -16,27 +17,9 @@ export const FOOTER_ITEMS = [
 	{ keys: '', description: 'Quickly close tab', modifier: true },
 ];
 
-type Property = {
-	key: string,
-	type: string,
-	value: string | string[],
-}
-type CustomView = View & {
-	metadataEditor?: {
-		properties?: Property[],
-	},
-}
-type CustomLeaf = WorkspaceLeaf & {
-	id?: string,
-	name?: string,
-	aliases?: string[],
-	path?: string,
-	deleted?: boolean,
-}
-
 export class TabSelectorModal extends Modal {
 	settings: Settings;
-	leaves: CustomLeaf[] = [];
+	leaves: CustomWsLeaf[] = [];
 	chars: string[] = [];
 	leafButtonMap: Map<string, HTMLButtonElement> = new Map();
 	closeButtonMap: Map<string, HTMLButtonElement> = new Map();
@@ -46,11 +29,11 @@ export class TabSelectorModal extends Modal {
 	pageCounterEl: HTMLSpanElement;
 	eventListenerFunc: (ev: KeyboardEvent) => void;
 
-	get currentLeaves(): CustomLeaf[] {
+	get currentLeaves(): CustomWsLeaf[] {
 		return this.leaves.slice(0 + this.pagePosition * this.chars.length, this.chars.length + this.pagePosition * this.chars.length);
 	}
 
-	constructor(app: App, settings: Settings, leaves: CustomLeaf[]) {
+	constructor(app: App, settings: Settings, leaves: CustomWsLeaf[]) {
 		super(app);
 		this.settings = settings;
 		this.leaves = leaves.map(leaf => {
@@ -95,7 +78,7 @@ export class TabSelectorModal extends Modal {
 		});
 	}
 
-	private generateButtons(contentEl: HTMLElement, leaves: CustomLeaf[]): void {
+	private generateButtons(contentEl: HTMLElement, leaves: CustomWsLeaf[]): void {
 		this.focusPosition = 0;
 		this.buttonsViewEl.empty();
 
@@ -137,7 +120,7 @@ export class TabSelectorModal extends Modal {
 		this.updatePageCount();
 	}
 
-	private reflectOptions(leaf: CustomLeaf, el: HTMLDivElement, itemBtnEl: HTMLButtonElement, itemNameEl: HTMLSpanElement): void {
+	private reflectOptions(leaf: CustomWsLeaf, el: HTMLDivElement, itemBtnEl: HTMLButtonElement, itemNameEl: HTMLSpanElement): void {
 		if((this.settings.showAliases && !this.settings.replaceToAliases) || this.settings.showPaths) {
 			el.addClass('ts-leaf-row-added-options');
 		}
@@ -172,7 +155,7 @@ export class TabSelectorModal extends Modal {
 		wrapperEl.createEl('small').setText(aliases.join(' | '));
 	}
 
-	private addPathEl(leaf: CustomLeaf, itemBtnEl: HTMLButtonElement): void {
+	private addPathEl(leaf: CustomWsLeaf, itemBtnEl: HTMLButtonElement): void {
 		const wrapperEl = itemBtnEl.createDiv('ts-option-wrapper');
 		setIcon(wrapperEl, 'folder-closed');
 		wrapperEl.createEl('small').setText(leaf.path || '');
@@ -218,7 +201,7 @@ export class TabSelectorModal extends Modal {
 		this.pageCounterEl.setText(`${this.pagePosition + 1}`);
 	}
 
-	private clickLeafButton(leaf: CustomLeaf, itemBtnEl: HTMLButtonElement) {
+	private clickLeafButton(leaf: CustomWsLeaf, itemBtnEl: HTMLButtonElement) {
 		if (itemBtnEl.classList.contains('deleted')) {
 			return;
 		}
@@ -230,7 +213,7 @@ export class TabSelectorModal extends Modal {
 		}
 	}
 
-	private clickCloseLeafButton(leaf: CustomLeaf, divEl: HTMLDivElement) {
+	private clickCloseLeafButton(leaf: CustomWsLeaf, divEl: HTMLDivElement) {
 		if (leaf.deleted) {
 			return;
 		}
