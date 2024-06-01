@@ -367,7 +367,7 @@ export class SettingTab extends PluginSettingTab {
 			el.createDiv('th-settings-description', divEl => {
 				divEl.createSpan('th-description-title').setText('How to use');
 				divEl.createSpan('').setText('1. Configure the above settings.');
-				divEl.createSpan('').setText('2. Set the hotkeys for the following commands.');
+				divEl.createSpan('').setText('2. Set the hotkeys to match for the following commands.');
 			});
 
 			const { mainModifierKey, subModifierKey, actionKey, backActionKey, howToPreviousTab } = this.plugin.settings;
