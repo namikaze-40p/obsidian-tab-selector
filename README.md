@@ -4,6 +4,8 @@ This is an [Obsidian](https://obsidian.md/) plugin which can switch to the desir
 
 ## How to use
 
+### Open tab selector
+
 1. Call the modal in one of the following ways.
     1. Using hotkey. (**recommend**)
     1. Click the icon(`Open tab selector`) from the [Ribbon](https://help.obsidian.md/User+interface/Ribbon).
@@ -18,6 +20,18 @@ This is an [Obsidian](https://obsidian.md/) plugin which can switch to the desir
     1. Click on the `X` button with the mouse cursor.
 
 ![demo](https://raw.githubusercontent.com/namikaze-40p/obsidian-tab-selector/main/demo/switch-tab.gif)
+
+### Go to next/previous tab
+
+1. Set up the "Go to next/previous tab" command in the plugin's settings.
+    1. In the default configuration, each command are as follows.
+        1. Tab Selector: Go to next tab: `^Tab` or `Ctrl + Tab`
+        1. Tab Selector: Go to previous tab: `^⇧Tab` or `Ctrl + Shift + Tab`
+    1. Don't use shortcut keys reserved by the OS. OS shortcut keys take precedence and don't work properly.
+1. Set hotkeys to match the command settings implemented above.
+1. From then on you can switch tabs using hotkeys.
+
+![demo](https://raw.githubusercontent.com/namikaze-40p/obsidian-tab-selector/main/demo/ver-0.5.0/switch-tab-in-history.gif)
 
 > [!NOTE]
 >
