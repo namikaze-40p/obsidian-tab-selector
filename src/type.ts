@@ -1,4 +1,15 @@
-import { View, WorkspaceItem, WorkspaceLeaf } from 'obsidian';
+import { App, View, WorkspaceItem, WorkspaceLeaf } from 'obsidian';
+
+export type CustomApp = App & {
+	hotkeyManager?: {
+		customKeys: {
+			[key: string]: {
+				key: string,
+				modifiers: string[]
+			}[],
+		},
+	},
+};
 
 type Property = {
 	key: string,
@@ -20,6 +31,7 @@ export type CustomWsItem = WorkspaceItem & {
 export type CustomWsLeaf = WorkspaceLeaf & {
 	id?: string,
 	name?: string,
+	activeTime?: number,
 	aliases?: string[],
 	path?: string,
 	deleted?: boolean,

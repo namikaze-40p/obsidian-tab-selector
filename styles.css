@@ -1,10 +1,69 @@
-.setting-item {
-	& .ts-setting-is-invalid {
-		border-color: red !important;
+.ts-settings {
+	& .setting-item {
+		& .ts-setting-is-invalid {
+			border-color: red !important;
+		}
+	
+		&.is-disabled {
+			opacity: 0.5;
+		}
 	}
 
-	&.is-disabled {
-		opacity: 0.5;
+	& details {
+		font-size: var(--font-ui-medium);
+		margin-bottom: 1rem;
+		border: 1px solid #aaa;
+	    padding: 0.5rem;
+
+		&:last-child {
+			margin-bottom: 0;
+		}
+
+		& .th-how-to-use {
+			border: 1px solid #aaa;
+			padding: 0.5rem;
+
+			& .th-settings-description {
+				display: flex;
+				flex-direction: column;
+				margin-bottom: 0.5rem;
+
+				& .th-description-title {
+					font-weight: bold;
+				}
+			}
+	
+			& .th-hotkey-preview {
+				display: flex;
+				justify-content: space-between;
+				padding: 0 1rem;
+
+				& .th-hotkey-preview-value {
+					font-weight: bold;
+				}
+			}
+	
+			& .th-settings-caution {
+				display: flex;
+				flex-direction: column;
+				margin-top: 0.5rem;
+
+				& .th-settings-caution-title {
+					font-weight: bold;
+				}
+			}
+		}
+	}
+}
+
+body.is-phone .ts-settings {
+	& .th-hotkey-preview {
+		flex-direction: column;
+		align-items: end;
+
+		& .th-hotkey-preview-label {
+			width: 100%;
+		}
 	}
 }
 
@@ -139,6 +198,36 @@
 			& .ts-keys {
 				font-weight: bold;
 			}	
+		}
+	}
+}
+
+.modal.tab-history-modal {
+	position: absolute;
+	top: 10%;
+	padding: 0.5rem;
+	min-height: 0;
+	max-height: 60%;
+
+	.modal-close-button {
+		display: none;
+	}
+
+	.th-leaves {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+
+		& .th-leaf-name-btn {
+			display: flex;
+			justify-content: flex-start;
+			text-align: start;
+
+			& .th-leaf-name {
+				overflow: hidden;
+				text-overflow: ellipsis;
+				width: 100%;
+			}
 		}
 	}
 }

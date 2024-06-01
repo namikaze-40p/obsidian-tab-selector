@@ -1,7 +1,8 @@
 import { Plugin } from 'obsidian';
 import { DEFAULT_SETTINGS, SettingTab, Settings } from './settings';
-import { TabSelectorModal } from './modal';
+import { TabSelectorModal } from './tab-selector-modal';
 import { CustomWsItem, CustomWsLeaf } from './type';
+import { TabHistoryModal } from './tab-history-modal';
 
 export default class TabSelector extends Plugin {
 	settings: Settings;
@@ -16,6 +17,18 @@ export default class TabSelector extends Plugin {
 			id: 'open-tab-selector',
 			name: 'Open tab selector',
 			callback: () => this.openTabSelectorModal(),
+		});
+
+		this.addCommand({
+			id: 'go-to-next-tab',
+			name: 'Go to next tab',
+			callback: () => this.openTabHistoryModal(),
+		});
+
+		this.addCommand({
+			id: 'go-to-previous-tab',
+			name: 'Go to previous tab',
+			callback: () => this.openTabHistoryModal(),
 		});
 
 		this.settingTab = new SettingTab(this.app, this);
@@ -36,6 +49,16 @@ export default class TabSelector extends Plugin {
 	}
 
 	private openTabSelectorModal(): void {
+		const leaves = this.generateLeaves();
+		new TabSelectorModal(this.app, this.settings, leaves).open();
+	}
+
+	private openTabHistoryModal(): void {
+		const leaves = this.generateLeaves();
+		new TabHistoryModal(this.app, this.settings, leaves).open();
+	}
+
+	private generateLeaves(): CustomWsLeaf[] {
 		const rootLeafIds: string[] = [];
 		this.app.workspace.iterateRootLeaves((leaf: CustomWsLeaf) => {
 			rootLeafIds.push(leaf?.id || '');
@@ -51,6 +74,6 @@ export default class TabSelector extends Plugin {
 				targetLeaves.push(leaf);
 			}
 		});
-		new TabSelectorModal(this.app, this.settings, targetLeaves).open();
+		return targetLeaves;
 	}
 }
