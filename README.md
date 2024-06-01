@@ -15,7 +15,7 @@ This is an [Obsidian](https://obsidian.md/) plugin which can switch to the desir
     1. Move the cursor with arrow keys and select the tab.
     1. Click on the tab name with the mouse cursor.
 1. If you want to close a tab, you can do in one of the following ways.
-    1. Hold down the control key, press the one-letter key displayed to the left of the tab name.
+    1. Hold down the `Control` key, press the one-letter key displayed to the left of the tab name.
     1. Move the cursor with arrow keys and press `Backspace` or `Delete` key.
     1. Click on the `X` button with the mouse cursor.
 
@@ -23,11 +23,12 @@ This is an [Obsidian](https://obsidian.md/) plugin which can switch to the desir
 
 ### Go to next/previous tab
 
-1. Set up the "Go to next/previous tab" command in the plugin's settings.
+1. Set up the `Go to next/previous tab` command in the plugin's settings.
     1. In the default configuration, each command are as follows.
         1. Tab Selector: Go to next tab: `^Tab` or `Ctrl + Tab`
         1. Tab Selector: Go to previous tab: `^⇧Tab` or `Ctrl + Shift + Tab`
     1. Don't use shortcut keys reserved by the OS. OS shortcut keys take precedence and don't work properly.
+        1. In case MacOS, `⌘Tab` and `⌥Tab` etc… can't use.
 1. Set hotkeys to match the command settings implemented above.
 1. From then on you can switch tabs using hotkeys.
 
