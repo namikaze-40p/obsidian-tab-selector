@@ -21,12 +21,12 @@ This is an [Obsidian](https://obsidian.md/) plugin which can switch to the desir
 
 ![demo](https://raw.githubusercontent.com/namikaze-40p/obsidian-tab-selector/main/demo/switch-tab.gif)
 
-### Go to next/previous tab
+### Go to previous/next tab
 
-1. Set up the `Go to next/previous tab` command in the plugin's settings.
+1. Set up the `Go to previous/next tab` command in the plugin's settings.
     1. In the default configuration, each command are as follows.
-        1. Tab Selector: Go to next tab: `^Tab` or `Ctrl + Tab`
-        1. Tab Selector: Go to previous tab: `^⇧Tab` or `Ctrl + Shift + Tab`
+        1. Tab Selector: Go to previous tab: `^Tab` or `Ctrl + Tab`
+        1. Tab Selector: Go to next tab: `^⇧Tab` or `Ctrl + Shift + Tab`
     1. Don't use shortcut keys reserved by the OS. OS shortcut keys take precedence and don't work properly.
         1. In case MacOS, `⌘Tab` and `⌥Tab` etc… can't use.
 1. Set hotkeys to match the command settings implemented above.

@@ -20,14 +20,14 @@ export default class TabSelector extends Plugin {
 		});
 
 		this.addCommand({
-			id: 'go-to-next-tab',
-			name: 'Go to next tab',
+			id: 'go-to-previous-tab',
+			name: 'Go to previous tab',
 			callback: () => this.openTabHistoryModal(),
 		});
 
 		this.addCommand({
-			id: 'go-to-previous-tab',
-			name: 'Go to previous tab',
+			id: 'go-to-next-tab',
+			name: 'Go to next tab',
 			callback: () => this.openTabHistoryModal(),
 		});
 

@@ -1,6 +1,6 @@
 import { App, MarkdownView, Modal, Notice } from 'obsidian';
 import { CustomWsLeaf, CustomApp } from './type';
-import { HOW_TO_PREVIOUS_TAB, MODIFIER_KEY, Settings } from './settings';
+import { HOW_TO_NEXT_TAB, MODIFIER_KEY, Settings } from './settings';
 
 const compareActiveTime = (a: CustomWsLeaf, b: CustomWsLeaf) => {
 	if (a.activeTime == null || b.activeTime == null) {
@@ -42,7 +42,7 @@ export class TabHistoryModal extends Modal {
 
 	onOpen() {
 		if (!this.isEnabled) {
-			new Notice('"Tab Selector" plugin has incorrect settings. Please review the [For "Go to next/previous tab" command] settings.', 0);
+			new Notice('"Tab Selector" plugin has incorrect settings. Please review the [For "Go to previous/next tab" command] settings.', 0);
 			this.close();
 			return;
 		}
@@ -70,32 +70,32 @@ export class TabHistoryModal extends Modal {
 
 	private isValidSetting(): boolean {
 		const customKeys = (this.app as CustomApp).hotkeyManager?.customKeys;
-		const toNextHotkeys = customKeys && customKeys['tab-selector:go-to-next-tab'] || [];
 		const toPrevHotkeys = customKeys && customKeys['tab-selector:go-to-previous-tab'] || [];
+		const toNextHotkeys = customKeys && customKeys['tab-selector:go-to-next-tab'] || [];
 
-		if (!toNextHotkeys[0] || !toPrevHotkeys[0] || toNextHotkeys.length > 1 || toPrevHotkeys.length > 1) {
+		if (!toPrevHotkeys[0] || !toNextHotkeys[0] || toPrevHotkeys.length > 1 || toNextHotkeys.length > 1) {
 			return false;
 		}
 
-		const toNextHotkey = toNextHotkeys[0];
 		const toPrevHotkey = toPrevHotkeys[0];
-		const { mainModifierKey, subModifierKey, actionKey, backActionKey, howToPreviousTab } = this.settings;
+		const toNextHotkey = toNextHotkeys[0];
+		const { mainModifierKey, subModifierKey, actionKey, reverseActionKey, howToNextTab } = this.settings;
 		const mainModKey = this.convertToHotkeyModifier(mainModifierKey);
 		const subModKey = this.convertToHotkeyModifier(subModifierKey);
-		const useSubModifier = howToPreviousTab === HOW_TO_PREVIOUS_TAB.useSubModifierKey;
+		const useSubModifier = howToNextTab === HOW_TO_NEXT_TAB.useSubModifierKey;
 
-		if (toNextHotkey.modifiers[0] !== mainModKey) {
+		if (toPrevHotkey.modifiers[0] !== mainModKey) {
 			return false;
 		}
 		if (useSubModifier) {
-			if (toNextHotkey.key !== actionKey || toPrevHotkey.key !== actionKey) {
+			if (toPrevHotkey.key !== actionKey || toNextHotkey.key !== actionKey) {
 				return false;
 			}
-			if (toPrevHotkey.modifiers.filter(modifier => modifier === subModKey).length !== 1) {
+			if (toNextHotkey.modifiers.filter(modifier => modifier === subModKey).length !== 1) {
 				return false;
 			}
 		} else {
-			if (toNextHotkey.key !== actionKey || toPrevHotkey.key !== backActionKey) {
+			if (toPrevHotkey.key !== actionKey || toNextHotkey.key !== reverseActionKey) {
 				return false;
 			}
 		}
@@ -132,21 +132,21 @@ export class TabHistoryModal extends Modal {
 	}
 
 	private moveFocus(ev: KeyboardEvent): void {
-		if (this.settings.howToPreviousTab === HOW_TO_PREVIOUS_TAB.useSubModifierKey) {
+		if (this.settings.howToNextTab === HOW_TO_NEXT_TAB.useSubModifierKey) {
 			if (ev.key === this.settings.actionKey) {
 				if (this.isHoldDownSubModifierKey(ev, this.settings.subModifierKey)) {
-					this.focusToPreviousTab();
-				} else {
 					this.focusToNextTab();
+				} else {
+					this.focusToPreviousTab();
 				}
 			}
 		} 
-		if (this.settings.howToPreviousTab === HOW_TO_PREVIOUS_TAB.useBackActionKey) {
-			if (ev.key === this.settings.backActionKey) {
-				this.focusToPreviousTab();
+		if (this.settings.howToNextTab === HOW_TO_NEXT_TAB.useReverseActionKey) {
+			if (ev.key === this.settings.reverseActionKey) {
+				this.focusToNextTab();
 			} 
 			if (ev.key === this.settings.actionKey) {
-				this.focusToNextTab();
+				this.focusToPreviousTab();
 			}
 		}
 	}
@@ -166,7 +166,7 @@ export class TabHistoryModal extends Modal {
 		}
 	}
 
-	private focusToPreviousTab(): void {
+	private focusToNextTab(): void {
 		if (this.focusPosition === 0) {
 			(this.leafButtonMap.get(this.leaves.at(-1)?.id || '') as HTMLElement).focus();
 			this.focusPosition = this.leaves.length - 1;
@@ -176,7 +176,7 @@ export class TabHistoryModal extends Modal {
 		}
 	}
 
-	private focusToNextTab(): void {
+	private focusToPreviousTab(): void {
 		if (this.focusPosition === this.leaves.length - 1) {
 			(this.leafButtonMap.get(this.leaves.at(0)?.id || '') as HTMLElement).focus();
 			this.focusPosition = 0;

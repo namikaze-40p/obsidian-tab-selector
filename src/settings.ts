@@ -32,14 +32,14 @@ const DISPLAY_ACTION_KEY: Record<string, string> = {
 	arrowRight: '→',
 } as const;
 
-export const HOW_TO_PREVIOUS_TAB: Record<string, string> = {
+export const HOW_TO_NEXT_TAB: Record<string, string> = {
 	useSubModifierKey: 'useSubModifierKey',
-	useBackActionKey: 'useBackActionKey',
+	useReverseActionKey: 'useReverseActionKey',
 } as const;
 
-const DISPLAY_HOW_TO_PREVIOUS_TAB: Record<string, string> = {
+const DISPLAY_HOW_TO_NEXT_TAB: Record<string, string> = {
 	useSubModifierKey: 'Sub modifier key',
-	useBackActionKey: 'Back action key',
+	useReverseActionKey: 'Reverse action key',
 } as const;
 
 export interface Settings {
@@ -52,13 +52,13 @@ export interface Settings {
 	focusColor: string;
 	characters: string;
 	enableClose: boolean;
-	// Settings for "Go to next/previous tab" commands
+	// Settings for "Go to previous/next tab" commands
 	thFocusColor: string;
 	mainModifierKey: keyof typeof MODIFIER_KEY;
 	subModifierKey: keyof typeof MODIFIER_KEY;
 	actionKey: keyof typeof ACTION_KEY;
-	backActionKey: keyof typeof ACTION_KEY;
-	howToPreviousTab: keyof typeof HOW_TO_PREVIOUS_TAB;
+	reverseActionKey: keyof typeof ACTION_KEY;
+	howToNextTab: keyof typeof HOW_TO_NEXT_TAB;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -71,13 +71,13 @@ export const DEFAULT_SETTINGS: Settings = {
 	focusColor: '#00b4e0',
 	characters: 'asdfghjkl;',
 	enableClose: true,
-	// Settings for "Go to next/previous tab" commands
+	// Settings for "Go to previous/next tab" commands
 	thFocusColor: '#00b4e0',
 	mainModifierKey: MODIFIER_KEY.ctrl,
 	subModifierKey: MODIFIER_KEY.shift,
 	actionKey: ACTION_KEY.tab,
-	backActionKey: ACTION_KEY.arrowLeft,
-	howToPreviousTab: HOW_TO_PREVIOUS_TAB.useSubModifierKey,
+	reverseActionKey: ACTION_KEY.arrowLeft,
+	howToNextTab: HOW_TO_NEXT_TAB.useSubModifierKey,
 } as const;
 
 export const CHAR_LENGTH = {
@@ -120,14 +120,14 @@ export class SettingTab extends PluginSettingTab {
 		{
 			const detailsEl = containerEl.createEl('details', '', el => {
 				el.createEl('summary', '', summaryEl => {
-					summaryEl.setText('For "Go to next/previous tab" command');
+					summaryEl.setText('For "Go to previous/next tab" command');
 				});
 			});
 			if (this.isOpen.secondDetails) {
 				detailsEl.setAttr('open', true);
 			}
 			detailsEl.addEventListener("toggle", () => this.isOpen.secondDetails = detailsEl.open);
-			this.setForGoToNextPrevTabCommands(detailsEl);
+			this.setForGoToPrevNextTabCommands(detailsEl);
 		}
 
 	}
@@ -266,7 +266,7 @@ export class SettingTab extends PluginSettingTab {
 			);
 	}
 
-	private setForGoToNextPrevTabCommands(detailsEl: HTMLDetailsElement): void {
+	private setForGoToPrevNextTabCommands(detailsEl: HTMLDetailsElement): void {
 		new Setting(detailsEl)
 			.setName('Color of button frame on focus')
 			.setDesc('Choose your favorite color.')
@@ -295,7 +295,7 @@ export class SettingTab extends PluginSettingTab {
 
 		new Setting(detailsEl)
 			.setName('Action key')
-			.setDesc('Press this key while holding down the Main modifier key moves to the next tab.')
+			.setDesc('Press this key while holding down the Main modifier key moves to the previous tab.')
 			.addDropdown(item => item
 				.addOptions(Object.keys(ACTION_KEY).reduce((obj, key) => (obj[key] = DISPLAY_ACTION_KEY[key], obj), {} as typeof ACTION_KEY))
 				.setValue(this.convertToKey(this.plugin.settings.actionKey, ACTION_KEY))
@@ -308,25 +308,25 @@ export class SettingTab extends PluginSettingTab {
 			.then(settingEl => this.addResetButton(settingEl, 'actionKey'));
 		
 		new Setting(detailsEl)
-			.setName('Choose how to go to the previous tab')
+			.setName('Choose how to go to the next tab')
 			.setDesc(`
-				When go to the previous tab, if you want to use the same key as the Action key, choose “Sub modifier key”.
-				If you want to use a different key from the Action key, choose “Back action key".
+				When go to the next tab, if you want to use the same key as the Action key, choose “Sub modifier key”.
+				If you want to use a different key from the Action key, choose “Reverse action key".
 			`)
 			.addDropdown(item => item
-				.addOptions(Object.keys(HOW_TO_PREVIOUS_TAB).reduce((obj, key) => (obj[key] = DISPLAY_HOW_TO_PREVIOUS_TAB[key], obj), {} as typeof HOW_TO_PREVIOUS_TAB))
-				.setValue(this.convertToKey(this.plugin.settings.howToPreviousTab, HOW_TO_PREVIOUS_TAB))
+				.addOptions(Object.keys(HOW_TO_NEXT_TAB).reduce((obj, key) => (obj[key] = DISPLAY_HOW_TO_NEXT_TAB[key], obj), {} as typeof HOW_TO_NEXT_TAB))
+				.setValue(this.convertToKey(this.plugin.settings.howToNextTab, HOW_TO_NEXT_TAB))
 				.onChange(async value => {
-					this.plugin.settings.howToPreviousTab = value as keyof typeof HOW_TO_PREVIOUS_TAB;
+					this.plugin.settings.howToNextTab = value as keyof typeof HOW_TO_NEXT_TAB;
 					await this.plugin.saveData(this.plugin.settings);
 					this.display();
 				}),
 			)
-			.then(settingEl => this.addResetButton(settingEl, 'howToPreviousTab'));
+			.then(settingEl => this.addResetButton(settingEl, 'howToNextTab'));
 
 		new Setting(detailsEl)
 			.setName('Sub modifier key')
-			.setDesc('Pressing the Action key while holding this key down moves to the previous tab.')
+			.setDesc('Pressing the Action key while holding this key down moves to the next tab.')
 			.addDropdown(item => item
 				.addOptions(Object.keys(MODIFIER_KEY).reduce((obj, key) => (obj[key] = DISPLAY_MODIFIER_KEY[key], obj), {} as typeof MODIFIER_KEY))
 				.setValue(this.convertToKey(this.plugin.settings.subModifierKey, MODIFIER_KEY))
@@ -336,30 +336,30 @@ export class SettingTab extends PluginSettingTab {
 					this.display();
 				}),
 			)
-			.setDisabled(this.plugin.settings.howToPreviousTab !== HOW_TO_PREVIOUS_TAB.useSubModifierKey)
+			.setDisabled(this.plugin.settings.howToNextTab !== HOW_TO_NEXT_TAB.useSubModifierKey)
 			.then(settingEl => {
-				if (this.plugin.settings.howToPreviousTab === HOW_TO_PREVIOUS_TAB.useSubModifierKey) {
+				if (this.plugin.settings.howToNextTab === HOW_TO_NEXT_TAB.useSubModifierKey) {
 					this.addResetButton(settingEl, 'subModifierKey')
 				}
 			});
 
 
 		new Setting(detailsEl)
-			.setName('Back action key')
-			.setDesc('Press this key while holding down the Main modifier key moves to the previous tab.')
+			.setName('Reverse action key')
+			.setDesc('Press this key while holding down the Main modifier key moves to the next tab.')
 			.addDropdown(item => item
 				.addOptions(Object.keys(ACTION_KEY).reduce((obj, key) => (obj[key] = DISPLAY_ACTION_KEY[key], obj), {} as typeof ACTION_KEY))
-				.setValue(this.convertToKey(this.plugin.settings.backActionKey, ACTION_KEY))
+				.setValue(this.convertToKey(this.plugin.settings.reverseActionKey, ACTION_KEY))
 				.onChange(async value => {
-					this.plugin.settings.backActionKey = this.convertToSettingValue(value, ACTION_KEY, DISPLAY_ACTION_KEY);
+					this.plugin.settings.reverseActionKey = this.convertToSettingValue(value, ACTION_KEY, DISPLAY_ACTION_KEY);
 					await this.plugin.saveData(this.plugin.settings);
 					this.display();
 				}),
 			)
-			.setDisabled(this.plugin.settings.howToPreviousTab !== HOW_TO_PREVIOUS_TAB.useBackActionKey)
+			.setDisabled(this.plugin.settings.howToNextTab !== HOW_TO_NEXT_TAB.useReverseActionKey)
 			.then(settingEl => {
-				if (this.plugin.settings.howToPreviousTab === HOW_TO_PREVIOUS_TAB.useBackActionKey) {
-					this.addResetButton(settingEl, 'backActionKey')
+				if (this.plugin.settings.howToNextTab === HOW_TO_NEXT_TAB.useReverseActionKey) {
+					this.addResetButton(settingEl, 'reverseActionKey')
 				}
 			});
 
@@ -370,21 +370,21 @@ export class SettingTab extends PluginSettingTab {
 				divEl.createSpan('').setText('2. Set the hotkeys to match for the following commands.');
 			});
 
-			const { mainModifierKey, subModifierKey, actionKey, backActionKey, howToPreviousTab } = this.plugin.settings;
+			const { mainModifierKey, subModifierKey, actionKey, reverseActionKey, howToNextTab } = this.plugin.settings;
 			const mainModifier = this.convertToDisplayText(mainModifierKey, MODIFIER_KEY, DISPLAY_MODIFIER_KEY);
 			const subModifier = this.convertToDisplayText(subModifierKey, MODIFIER_KEY, DISPLAY_MODIFIER_KEY);
 			const action = this.convertToDisplayText(actionKey, ACTION_KEY, DISPLAY_ACTION_KEY);
-			const backAction = this.convertToDisplayText(backActionKey, ACTION_KEY, DISPLAY_ACTION_KEY);
-			const useSubModifier = howToPreviousTab === HOW_TO_PREVIOUS_TAB.useSubModifierKey;
+			const reverseAction = this.convertToDisplayText(reverseActionKey, ACTION_KEY, DISPLAY_ACTION_KEY);
+			const useSubModifier = howToNextTab === HOW_TO_NEXT_TAB.useSubModifierKey;
 			const isApple = Platform.isMacOS || Platform.isIosApp;
 
 			el.createDiv('th-hotkey-preview', divEl => {
-				divEl.createSpan('th-hotkey-preview-label').setText('"Tab Selector: Go to next tab": ');
+				divEl.createSpan('th-hotkey-preview-label').setText('"Tab Selector: Go to previous tab": ');
 				divEl.createSpan('th-hotkey-preview-value').setText([mainModifier, action].join(isApple ? '' : ' + '));
 			});
 			el.createDiv('th-hotkey-preview', divEl => {
-				divEl.createSpan('th-hotkey-preview-label').setText('"Tab Selector: Go to previous tab": ');
-				divEl.createSpan('th-hotkey-preview-value').setText((useSubModifier ? [mainModifier, subModifier, action] : [mainModifier, backAction]).join(isApple ? '' : ' + '));
+				divEl.createSpan('th-hotkey-preview-label').setText('"Tab Selector: Go to next tab": ');
+				divEl.createSpan('th-hotkey-preview-value').setText((useSubModifier ? [mainModifier, subModifier, action] : [mainModifier, reverseAction]).join(isApple ? '' : ' + '));
 			});
 
 			el.createDiv('th-settings-caution', divEl => {
@@ -401,15 +401,15 @@ export class SettingTab extends PluginSettingTab {
 		return chars.some((char, idx) => chars.slice(idx + 1).includes(char));
 	}
 
-	private convertToKey(value: string, valueTexts: typeof MODIFIER_KEY | typeof ACTION_KEY | typeof HOW_TO_PREVIOUS_TAB): string {
+	private convertToKey(value: string, valueTexts: typeof MODIFIER_KEY | typeof ACTION_KEY | typeof HOW_TO_NEXT_TAB): string {
 		const modifier = Object.entries(valueTexts).find(([, val]) => val === value);
 		return modifier ? modifier[0] : '';
 	}
 
 	private convertToSettingValue(
 		value: string,
-		valueTexts: typeof MODIFIER_KEY | typeof ACTION_KEY | typeof HOW_TO_PREVIOUS_TAB,
-		displayTexts: typeof DISPLAY_MODIFIER_KEY | typeof DISPLAY_ACTION_KEY | typeof DISPLAY_HOW_TO_PREVIOUS_TAB,
+		valueTexts: typeof MODIFIER_KEY | typeof ACTION_KEY | typeof HOW_TO_NEXT_TAB,
+		displayTexts: typeof DISPLAY_MODIFIER_KEY | typeof DISPLAY_ACTION_KEY | typeof DISPLAY_HOW_TO_NEXT_TAB,
 	): string {
 		const key = Object.keys(displayTexts).find(key => key === value);
 		return key ? valueTexts[key] : '';
@@ -417,8 +417,8 @@ export class SettingTab extends PluginSettingTab {
 
 	private convertToDisplayText(
 		value: string,
-		valueTexts: typeof MODIFIER_KEY | typeof ACTION_KEY | typeof HOW_TO_PREVIOUS_TAB,
-		displayTexts: typeof DISPLAY_MODIFIER_KEY | typeof DISPLAY_ACTION_KEY | typeof DISPLAY_HOW_TO_PREVIOUS_TAB,
+		valueTexts: typeof MODIFIER_KEY | typeof ACTION_KEY | typeof HOW_TO_NEXT_TAB,
+		displayTexts: typeof DISPLAY_MODIFIER_KEY | typeof DISPLAY_ACTION_KEY | typeof DISPLAY_HOW_TO_NEXT_TAB,
 	): string {
 		return displayTexts[this.convertToKey(value, valueTexts)];
 	}
