@@ -1,4 +1,4 @@
-import { App } from 'obsidian';
+import { App, Platform } from 'obsidian';
 import { CustomApp } from './type';
 import { HOW_TO_NEXT_TAB, MODIFIER_KEY, Settings } from './settings';
 
@@ -16,13 +16,11 @@ export const isValidSetting = (app: App, settings: Settings): boolean => {
 	const toPrevHotkey = toPrevHotkeys[0];
 	const toNextHotkey = toNextHotkeys[0];
 	const { mainModifierKey, subModifierKey, actionKey, reverseActionKey, howToNextTab } = settings;
-	const mainModKey = convertToHotkeyModifier(mainModifierKey);
-	const subModKey = convertToHotkeyModifier(subModifierKey);
 	const useSubModifier = howToNextTab === HOW_TO_NEXT_TAB.useSubModifierKey;
 
-	if (toPrevHotkey.modifiers[0] !== mainModKey) {
+	if (convertModifierKey(toPrevHotkey.modifiers[0]) !== mainModifierKey) {
 		console.error(`Hotkey's modifier key and main modifier key mismatch.`);
-		console.table({ hotkeyModifier: toPrevHotkey.modifiers[0], mainModifierKey, mainModKey });
+		console.table({ hotkeyModifier: toPrevHotkey.modifiers[0], mainModifierKey });
 		return false;
 	}
 	if (useSubModifier) {
@@ -37,9 +35,9 @@ export const isValidSetting = (app: App, settings: Settings): boolean => {
 			}
 			return false;
 		}
-		if (toNextHotkey.modifiers.filter(modifier => modifier === subModKey).length !== 1) {
+		if (toNextHotkey.modifiers.filter(modifier => convertModifierKey(modifier) === subModifierKey).length !== 1) {
 			console.error(`In case "Use sub modifier" | Hotkey's modifier keys are unexpected.`);
-			console.table({ hotkeyModifiers: toNextHotkey.modifiers, subModKey });
+			console.table({ hotkeyModifiers: toNextHotkey.modifiers, subModifierKey });
 			return false;
 		}
 	} else {
@@ -58,14 +56,15 @@ export const isValidSetting = (app: App, settings: Settings): boolean => {
 	return true;
 }
 
-const convertToHotkeyModifier = (key: string): string => {
+const convertModifierKey = (key: string): string => {
 	switch (key) {
-		case MODIFIER_KEY.ctrl:
-			return 'Ctrl';
-		case MODIFIER_KEY.meta:
-			return 'Mod';
-		case MODIFIER_KEY.alt:
-		case MODIFIER_KEY.shift:
+		case 'Mod':
+			return Platform.isMacOS || Platform.isIosApp ? MODIFIER_KEY.meta : MODIFIER_KEY.ctrl;
+		case 'Ctrl':
+			return MODIFIER_KEY.ctrl
+		case 'Meta':
+		case 'Shift':
+		case 'Alt':
 		default:
 			return key;
 	}
