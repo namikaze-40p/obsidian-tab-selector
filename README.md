@@ -23,11 +23,6 @@ This is an [Obsidian](https://obsidian.md/) plugin which can switch to the desir
 
 ### Go to previous/next tab
 
-> [!CAUTION]
->
-> In case Windows, this commands has bug. So it may not work correctly.  
-> Sorry, I'm currently investigating the cause.
-
 1. Set up the `Go to previous/next tab` command in the plugin's settings.
     1. In the default configuration, each command are as follows.
         1. Tab Selector: Go to previous tab: `^Tab` or `Ctrl + Tab`
