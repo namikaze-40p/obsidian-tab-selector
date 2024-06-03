@@ -379,12 +379,12 @@ export class SettingTab extends PluginSettingTab {
 			const isApple = Platform.isMacOS || Platform.isIosApp;
 
 			el.createDiv('th-hotkey-preview', divEl => {
-				divEl.createSpan('th-hotkey-preview-label').setText('"Tab Selector: Go to previous tab": ');
-				divEl.createSpan('th-hotkey-preview-value').setText([mainModifier, action].join(isApple ? '' : ' + '));
-			});
-			el.createDiv('th-hotkey-preview', divEl => {
 				divEl.createSpan('th-hotkey-preview-label').setText('"Tab Selector: Go to next tab": ');
 				divEl.createSpan('th-hotkey-preview-value').setText((useSubModifier ? [mainModifier, subModifier, action] : [mainModifier, reverseAction]).join(isApple ? '' : ' + '));
+			});
+			el.createDiv('th-hotkey-preview', divEl => {
+				divEl.createSpan('th-hotkey-preview-label').setText('"Tab Selector: Go to previous tab": ');
+				divEl.createSpan('th-hotkey-preview-value').setText([mainModifier, action].join(isApple ? '' : ' + '));
 			});
 
 			el.createDiv('th-settings-caution', divEl => {
