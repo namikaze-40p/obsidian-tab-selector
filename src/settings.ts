@@ -1,6 +1,6 @@
-import { App, Platform, PluginSettingTab, Setting } from 'obsidian';
+import { App, Platform, PluginSettingTab, Setting, setIcon } from 'obsidian';
 import TabSelector from './main';
-import { createStyles, deleteStyles } from './util';
+import { createStyles, deleteStyles, isValidSetting } from './util';
 
 export const MODIFIER_KEY: Record<string, string> = {
 	ctrl: 'Control',
@@ -385,6 +385,13 @@ export class SettingTab extends PluginSettingTab {
 			el.createDiv('th-hotkey-preview', divEl => {
 				divEl.createSpan('th-hotkey-preview-label').setText('"Tab Selector: Go to previous tab": ');
 				divEl.createSpan('th-hotkey-preview-value').setText([mainModifier, action].join(isApple ? '' : ' + '));
+			});
+
+			el.createDiv('th-match-state', divEl => {
+				const isMatchKeys = isValidSetting(this.app, this.plugin.settings);
+				divEl.addClass(isMatchKeys ? 'is-match' : 'is-mismatch');
+				divEl.createSpan('th-match-icon', spanEl => setIcon(spanEl, isMatchKeys ? 'check' : 'x'));
+				divEl.createSpan('').setText(`Currently hotkeys ${isMatchKeys ? 'match' : 'mismatch'} the above commands.`);
 			});
 
 			el.createDiv('th-settings-caution', divEl => {

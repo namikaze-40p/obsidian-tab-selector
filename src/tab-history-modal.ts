@@ -1,6 +1,7 @@
 import { App, MarkdownView, Modal, Notice } from 'obsidian';
-import { CustomWsLeaf, CustomApp } from './type';
+import { CustomWsLeaf } from './type';
 import { HOW_TO_NEXT_TAB, MODIFIER_KEY, Settings } from './settings';
+import { isValidSetting } from './util';
 
 const compareActiveTime = (a: CustomWsLeaf, b: CustomWsLeaf) => {
 	if (a.activeTime == null || b.activeTime == null) {
@@ -27,7 +28,7 @@ export class TabHistoryModal extends Modal {
 	constructor(app: App, settings: Settings, leaves: CustomWsLeaf[]) {
 		super(app);
 		this.settings = settings;
-		this.isEnabled = this.isValidSetting();
+		this.isEnabled = isValidSetting(app, settings);
 
 		this.leaves = leaves.map(leaf => {
 			leaf.name = leaf.getDisplayText();
@@ -66,53 +67,6 @@ export class TabHistoryModal extends Modal {
 		window.removeEventListener('keydown', this.eventListenerFunc.keydown);
 		window.removeEventListener('keyup', this.eventListenerFunc.keyup);
 		this.contentEl.empty();
-	}
-
-	private isValidSetting(): boolean {
-		const customKeys = (this.app as CustomApp).hotkeyManager?.customKeys;
-		const toPrevHotkeys = customKeys && customKeys['tab-selector:go-to-previous-tab'] || [];
-		const toNextHotkeys = customKeys && customKeys['tab-selector:go-to-next-tab'] || [];
-
-		if (!toPrevHotkeys[0] || !toNextHotkeys[0] || toPrevHotkeys.length > 1 || toNextHotkeys.length > 1) {
-			return false;
-		}
-
-		const toPrevHotkey = toPrevHotkeys[0];
-		const toNextHotkey = toNextHotkeys[0];
-		const { mainModifierKey, subModifierKey, actionKey, reverseActionKey, howToNextTab } = this.settings;
-		const mainModKey = this.convertToHotkeyModifier(mainModifierKey);
-		const subModKey = this.convertToHotkeyModifier(subModifierKey);
-		const useSubModifier = howToNextTab === HOW_TO_NEXT_TAB.useSubModifierKey;
-
-		if (toPrevHotkey.modifiers[0] !== mainModKey) {
-			return false;
-		}
-		if (useSubModifier) {
-			if (toPrevHotkey.key !== actionKey || toNextHotkey.key !== actionKey) {
-				return false;
-			}
-			if (toNextHotkey.modifiers.filter(modifier => modifier === subModKey).length !== 1) {
-				return false;
-			}
-		} else {
-			if (toPrevHotkey.key !== actionKey || toNextHotkey.key !== reverseActionKey) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	private convertToHotkeyModifier(key: string): string {
-		switch (key) {
-			case MODIFIER_KEY.ctrl:
-				return 'Ctrl';
-			case MODIFIER_KEY.meta:
-				return 'Mod';
-			case MODIFIER_KEY.alt:
-			case MODIFIER_KEY.shift:
-			default:
-				return key;
-		}
 	}
 
 	private keydown(ev: KeyboardEvent): void {

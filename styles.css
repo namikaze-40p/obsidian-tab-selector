@@ -42,11 +42,35 @@
 					font-weight: bold;
 				}
 			}
+
+			& .th-match-state {
+				display: flex;
+				justify-content: center;
+				gap: 0.5rem;
+				width: max-content;
+				max-width: 100%;
+				border: 2px solid var(--color-red);
+				margin: 0.5rem auto;
+				padding: 0.5rem;
+
+				& .th-match-icon {
+					display: flex;
+				    align-items: center;
+					color: var(--color-red);
+				}
+
+				&.is-match {
+					border-color: var(--color-green);
+
+					& .th-match-icon {
+						color: var(--color-green);
+					}
+				}
+			}
 	
 			& .th-settings-caution {
 				display: flex;
 				flex-direction: column;
-				margin-top: 0.5rem;
 
 				& .th-settings-caution-title {
 					font-weight: bold;

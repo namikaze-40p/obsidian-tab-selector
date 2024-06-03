@@ -1,4 +1,55 @@
+import { App } from 'obsidian';
+import { CustomApp } from './type';
+import { HOW_TO_NEXT_TAB, MODIFIER_KEY, Settings } from './settings';
+
 const STYLES_ID = 'tab-selector-styles';
+
+export const isValidSetting = (app: App, settings: Settings): boolean => {
+	const customKeys = (app as CustomApp).hotkeyManager?.customKeys;
+	const toPrevHotkeys = customKeys && customKeys['tab-selector:go-to-previous-tab'] || [];
+	const toNextHotkeys = customKeys && customKeys['tab-selector:go-to-next-tab'] || [];
+
+	if (!toPrevHotkeys[0] || !toNextHotkeys[0] || toPrevHotkeys.length > 1 || toNextHotkeys.length > 1) {
+		return false;
+	}
+
+	const toPrevHotkey = toPrevHotkeys[0];
+	const toNextHotkey = toNextHotkeys[0];
+	const { mainModifierKey, subModifierKey, actionKey, reverseActionKey, howToNextTab } = settings;
+	const mainModKey = convertToHotkeyModifier(mainModifierKey);
+	const subModKey = convertToHotkeyModifier(subModifierKey);
+	const useSubModifier = howToNextTab === HOW_TO_NEXT_TAB.useSubModifierKey;
+
+	if (toPrevHotkey.modifiers[0] !== mainModKey) {
+		return false;
+	}
+	if (useSubModifier) {
+		if (toPrevHotkey.key !== actionKey || toNextHotkey.key !== actionKey) {
+			return false;
+		}
+		if (toNextHotkey.modifiers.filter(modifier => modifier === subModKey).length !== 1) {
+			return false;
+		}
+	} else {
+		if (toPrevHotkey.key !== actionKey || toNextHotkey.key !== reverseActionKey) {
+			return false;
+		}
+	}
+	return true;
+}
+
+const convertToHotkeyModifier = (key: string): string => {
+	switch (key) {
+		case MODIFIER_KEY.ctrl:
+			return 'Ctrl';
+		case MODIFIER_KEY.meta:
+			return 'Mod';
+		case MODIFIER_KEY.alt:
+		case MODIFIER_KEY.shift:
+		default:
+			return key;
+	}
+}
 
 export const deleteStyles = () => {
 	const styleElm = document.getElementById(STYLES_ID);
