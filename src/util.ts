@@ -21,17 +21,37 @@ export const isValidSetting = (app: App, settings: Settings): boolean => {
 	const useSubModifier = howToNextTab === HOW_TO_NEXT_TAB.useSubModifierKey;
 
 	if (toPrevHotkey.modifiers[0] !== mainModKey) {
+		console.error(`Hotkey's modifier key and main modifier key mismatch.`);
+		console.table({ hotkeyModifier: toPrevHotkey.modifiers[0], mainModifierKey, mainModKey });
 		return false;
 	}
 	if (useSubModifier) {
 		if (toPrevHotkey.key !== actionKey || toNextHotkey.key !== actionKey) {
+			if (toPrevHotkey.key !== actionKey) {
+				console.error(`In case "Use sub modifier" | Hotkey's action key and action key mismatch.`);
+				console.table({ hotkeyAction: toPrevHotkey.key, actionKey });
+			}
+			if (toNextHotkey.key !== actionKey) {
+				console.error(`In case "Use sub modifier" | Hotkey's reverse action key and action key mismatch.`);
+				console.table({ hotkeyAction: toNextHotkey.key, actionKey });
+			}
 			return false;
 		}
 		if (toNextHotkey.modifiers.filter(modifier => modifier === subModKey).length !== 1) {
+			console.error(`In case "Use sub modifier" | Hotkey's modifier keys are unexpected.`);
+			console.table({ hotkeyModifiers: toNextHotkey.modifiers, subModKey });
 			return false;
 		}
 	} else {
 		if (toPrevHotkey.key !== actionKey || toNextHotkey.key !== reverseActionKey) {
+			if (toPrevHotkey.key !== actionKey) {
+				console.error(`In case "Use reverse action key" | Hotkey's action key and action key mismatch.`);
+				console.table({ hotkeyAction: toPrevHotkey.key, actionKey });
+			}
+			if (toNextHotkey.key !== reverseActionKey) {
+				console.error(`In case "Use reverse action key" | Hotkey's reverse action key and reverse action key mismatch.`);
+				console.table({ hotkeyAction: toNextHotkey.key, reverseActionKey });
+			}
 			return false;
 		}
 	}
