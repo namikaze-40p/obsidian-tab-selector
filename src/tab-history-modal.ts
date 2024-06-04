@@ -1,4 +1,4 @@
-import { App, MarkdownView, Modal, Notice } from 'obsidian';
+import { App, MarkdownView, Modal, Notice, Platform } from 'obsidian';
 import { CustomWsLeaf } from './type';
 import { HOW_TO_NEXT_TAB, MODIFIER_KEY, Settings } from './settings';
 import { isValidSetting } from './util';
@@ -55,6 +55,10 @@ export class TabHistoryModal extends Modal {
 		this.leaves.forEach(leaf => {
 			const btnEl = divEl.createEl('button');
 			btnEl.addClass('th-leaf-name-btn');
+			btnEl.addEventListener('click', () => this.switchToFocusedTab(leaf));
+			if ((Platform.isMacOS || Platform.isIosApp) && this.settings.mainModifierKey === MODIFIER_KEY.ctrl) {
+				btnEl.addEventListener('contextmenu', (ev: MouseEvent) => (ev.preventDefault(), this.switchToFocusedTab(leaf)));
+			}
 
 			const itemNameEl = btnEl.createSpan('th-leaf-name');
 			itemNameEl.setText(leaf.name || '');
@@ -81,7 +85,6 @@ export class TabHistoryModal extends Modal {
 		if (ev.key === this.settings.mainModifierKey) {
 			const leaf = this.leaves[this.focusPosition];
 			this.switchToFocusedTab(leaf);
-			this.close();
 		}
 	}
 
@@ -146,5 +149,6 @@ export class TabHistoryModal extends Modal {
 		if (view) {
 			view.editor.focus();
 		}
+		this.close();
 	}
 }
