@@ -1,6 +1,6 @@
 import { App, Platform, PluginSettingTab, Setting, setIcon } from 'obsidian';
 import TabSelector from './main';
-import { createStyles, deleteStyles, isValidSetting } from './util';
+import { createStyles, deleteStyles, isValidSettings } from './util';
 
 export const MODIFIER_KEY: Record<string, string> = {
 	ctrl: 'Control',
@@ -388,7 +388,7 @@ export class SettingTab extends PluginSettingTab {
 			});
 
 			el.createDiv('th-match-state', divEl => {
-				const isMatchKeys = isValidSetting(this.app, this.plugin.settings);
+				const isMatchKeys = isValidSettings(this.app, this.plugin.settings, false);
 				divEl.addClass(isMatchKeys ? 'is-match' : 'is-mismatch');
 				divEl.createSpan('th-match-icon', spanEl => setIcon(spanEl, isMatchKeys ? 'check' : 'x'));
 				divEl.createSpan('').setText(`Currently hotkeys ${isMatchKeys ? 'match' : 'mismatch'} the above commands.`);

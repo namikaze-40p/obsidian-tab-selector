@@ -1,12 +1,14 @@
 import { App, View, WorkspaceItem, WorkspaceLeaf } from 'obsidian';
 
+export type CustomKey = {
+		key: string,
+		modifiers: string[]
+};
+
 export type CustomApp = App & {
 	hotkeyManager?: {
 		customKeys: {
-			[key: string]: {
-				key: string,
-				modifiers: string[]
-			}[],
+			[key: string]: CustomKey[],
 		},
 	},
 };

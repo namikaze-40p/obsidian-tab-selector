@@ -1,15 +1,20 @@
 import { App, Platform } from 'obsidian';
 import { CustomApp } from './type';
 import { HOW_TO_NEXT_TAB, MODIFIER_KEY, Settings } from './settings';
+import { KeySettingsError } from './error';
 
 const STYLES_ID = 'tab-selector-styles';
 
-export const isValidSetting = (app: App, settings: Settings): boolean => {
+export const isValidSettings = (app: App, settings: Settings, isThrowError = true): boolean => {
 	const customKeys = (app as CustomApp).hotkeyManager?.customKeys;
-	const toPrevHotkeys = customKeys && customKeys['tab-selector:go-to-previous-tab'] || [];
+	const toPrevHotkeys = (customKeys && customKeys['tab-selector:go-to-previous-tab'] || []);
 	const toNextHotkeys = customKeys && customKeys['tab-selector:go-to-next-tab'] || [];
+	const details = { settings, toPrevHotkeys, toNextHotkeys };
 
 	if (!toPrevHotkeys[0] || !toNextHotkeys[0] || toPrevHotkeys.length > 1 || toNextHotkeys.length > 1) {
+		if (isThrowError) {
+			throw new KeySettingsError('Invalid settings: Case1', details);
+		}
 		return false;
 	}
 
@@ -18,42 +23,27 @@ export const isValidSetting = (app: App, settings: Settings): boolean => {
 	const { mainModifierKey, subModifierKey, actionKey, reverseActionKey, howToNextTab } = settings;
 	const useSubModifier = howToNextTab === HOW_TO_NEXT_TAB.useSubModifierKey;
 
+	let errCaseNo = 0;
+
 	if (convertModifierKey(toPrevHotkey.modifiers[0]) !== mainModifierKey) {
-		console.error(`Hotkey's modifier key and main modifier key mismatch.`);
-		console.table({ hotkeyModifier: toPrevHotkey.modifiers[0], mainModifierKey });
-		return false;
+		errCaseNo = errCaseNo || 2
 	}
 	if (useSubModifier) {
 		if (toPrevHotkey.key !== actionKey || toNextHotkey.key !== actionKey) {
-			if (toPrevHotkey.key !== actionKey) {
-				console.error(`In case "Use sub modifier" | Hotkey's action key and action key mismatch.`);
-				console.table({ hotkeyAction: toPrevHotkey.key, actionKey });
-			}
-			if (toNextHotkey.key !== actionKey) {
-				console.error(`In case "Use sub modifier" | Hotkey's reverse action key and action key mismatch.`);
-				console.table({ hotkeyAction: toNextHotkey.key, actionKey });
-			}
-			return false;
+			errCaseNo = errCaseNo || toPrevHotkey.key !== actionKey ? 3 : 4;
 		}
 		if (toNextHotkey.modifiers.filter(modifier => convertModifierKey(modifier) === subModifierKey).length !== 1) {
-			console.error(`In case "Use sub modifier" | Hotkey's modifier keys are unexpected.`);
-			console.table({ hotkeyModifiers: toNextHotkey.modifiers, subModifierKey });
-			return false;
+			errCaseNo = errCaseNo || 5;
 		}
 	} else {
 		if (toPrevHotkey.key !== actionKey || toNextHotkey.key !== reverseActionKey) {
-			if (toPrevHotkey.key !== actionKey) {
-				console.error(`In case "Use reverse action key" | Hotkey's action key and action key mismatch.`);
-				console.table({ hotkeyAction: toPrevHotkey.key, actionKey });
-			}
-			if (toNextHotkey.key !== reverseActionKey) {
-				console.error(`In case "Use reverse action key" | Hotkey's reverse action key and reverse action key mismatch.`);
-				console.table({ hotkeyAction: toNextHotkey.key, reverseActionKey });
-			}
-			return false;
+			errCaseNo = errCaseNo || toPrevHotkey.key !== actionKey ? 6 : 7;
 		}
 	}
-	return true;
+	if (errCaseNo > 0 && isThrowError) {
+		throw new KeySettingsError(`Invalid settings: Case${errCaseNo}`, details);
+	}
+	return errCaseNo === 0;
 }
 
 const convertModifierKey = (key: string): string => {

@@ -1,7 +1,7 @@
 import { App, MarkdownView, Modal, Notice, Platform } from 'obsidian';
 import { CustomWsLeaf } from './type';
 import { HOW_TO_NEXT_TAB, MODIFIER_KEY, Settings } from './settings';
-import { isValidSetting } from './util';
+import { isValidSettings } from './util';
 
 const compareActiveTime = (a: CustomWsLeaf, b: CustomWsLeaf) => {
 	if (a.activeTime == null || b.activeTime == null) {
@@ -27,9 +27,14 @@ export class TabHistoryModal extends Modal {
 
 	constructor(app: App, settings: Settings, leaves: CustomWsLeaf[]) {
 		super(app);
-		this.settings = settings;
-		this.isEnabled = isValidSetting(app, settings);
 
+		try {
+			this.isEnabled = isValidSettings(app, settings);
+		} catch (e) {
+			console.error(e);
+		}
+
+		this.settings = settings;
 		this.leaves = leaves.map(leaf => {
 			leaf.name = leaf.getDisplayText();
 			return leaf;
