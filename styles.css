@@ -242,16 +242,35 @@ body.is-phone .ts-settings {
 		flex-direction: column;
 		gap: 2px;
 
-		& .th-leaf-name-btn {
-			display: flex;
-			justify-content: flex-start;
-			text-align: start;
-
-			& .th-leaf-name {
-				overflow: hidden;
-				text-overflow: ellipsis;
-				width: 100%;
+		& .th-leaf-row {
+			display: grid;
+	
+			& .th-leaf-name-btn {
+				display: grid;
+				grid-template-columns: 1fr 2rem;
+				align-content: center;
+				text-align: start;
+				padding-right: 0;
+	
+				& .th-leaf-name {
+					overflow: hidden;
+					text-overflow: ellipsis;
+					width: 100%;
+				}
 			}
+
+			& .th-close-btn {
+				height: inherit;
+				width: 2rem;
+				padding: 0;
+				box-shadow: none;
+				background-color: transparent;
+				color: var(--text-muted);
+
+				&:hover {
+					border: 2px dashed var(--input-focus-border-color);
+				}
+			}				
 		}
 	}
 }

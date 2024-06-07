@@ -1,4 +1,4 @@
-import { App, MarkdownView, Modal, Notice, Platform } from 'obsidian';
+import { App, MarkdownView, Modal, Notice, Platform, setIcon } from 'obsidian';
 import { CustomWsLeaf } from './type';
 import { HOW_TO_NEXT_TAB, MODIFIER_KEY, Settings } from './settings';
 import { isValidSettings } from './util';
@@ -14,6 +14,7 @@ export class TabHistoryModal extends Modal {
 	settings: Settings;
 	leaves: CustomWsLeaf[] = [];
 	leafButtonMap: Map<string, HTMLButtonElement> = new Map();
+	closeButtonMap: Map<string, HTMLButtonElement> = new Map();
 	focusPosition = 0;
 	isEnabled = false;
 	isInitialAct = true;
@@ -55,27 +56,42 @@ export class TabHistoryModal extends Modal {
 
 		this.modalEl.addClasses(['tab-history-modal', 'th-modal']);
 
-		const divEl = this.contentEl.createDiv('th-leaves');
+		const buttonsViewEl = this.contentEl.createDiv('th-leaves');
 
-		this.leaves.forEach(leaf => {
-			const btnEl = divEl.createEl('button');
-			btnEl.addClass('th-leaf-name-btn');
-			btnEl.addEventListener('click', () => this.switchToFocusedTab(leaf));
-			if ((Platform.isMacOS || Platform.isIosApp) && this.settings.mainModifierKey === MODIFIER_KEY.ctrl) {
-				btnEl.addEventListener('contextmenu', (ev: MouseEvent) => (ev.preventDefault(), this.switchToFocusedTab(leaf)));
-			}
-
-			const itemNameEl = btnEl.createSpan('th-leaf-name');
-			itemNameEl.setText(leaf.name || '');
-
-			this.leafButtonMap.set(leaf.id || '', btnEl);
-		});
+		this.generateButtons(buttonsViewEl, this.leaves);
 	}
 
 	onClose() {
 		window.removeEventListener('keydown', this.eventListenerFunc.keydown);
 		window.removeEventListener('keyup', this.eventListenerFunc.keyup);
 		this.contentEl.empty();
+	}
+
+	private generateButtons(contentEl: HTMLElement, leaves: CustomWsLeaf[]): void {
+		leaves.forEach(leaf => {
+			contentEl.createDiv('th-leaf-row', el => {
+				const leafBtnEl = el.createEl('button');
+				leafBtnEl.addClass('th-leaf-name-btn');
+				leafBtnEl.addEventListener('click', (ev: MouseEvent) => (ev.preventDefault(), this.switchToFocusedTab(leaf)));
+
+				const itemNameEl = leafBtnEl.createSpan('th-leaf-name');
+				itemNameEl.setText(leaf.name || '');
+	
+				this.leafButtonMap.set(leaf.id || '', leafBtnEl);
+				
+				const closeBtnEl = leafBtnEl.createEl('button');
+				setIcon(closeBtnEl, 'x');
+				closeBtnEl.setAttr('tabIndex', -1);
+				closeBtnEl.addClass('th-close-btn');
+				closeBtnEl.addEventListener('click', (ev: MouseEvent) => (ev.stopPropagation(), this.clickCloseLeafButton(leaf, el)));
+				this.closeButtonMap.set(leaf.id || '', closeBtnEl);
+
+				if ((Platform.isMacOS || Platform.isIosApp) && this.settings.mainModifierKey === MODIFIER_KEY.ctrl) {
+					leafBtnEl.addEventListener('contextmenu', (ev: MouseEvent) => (ev.preventDefault(), this.switchToFocusedTab(leaf)));
+					closeBtnEl.addEventListener('contextmenu', (ev: MouseEvent) => (ev.stopPropagation(), this.clickCloseLeafButton(leaf, el)));
+				}
+			});
+		});
 	}
 
 	private keydown(ev: KeyboardEvent): void {
@@ -155,5 +171,25 @@ export class TabHistoryModal extends Modal {
 			view.editor.focus();
 		}
 		this.close();
+	}
+
+	private clickCloseLeafButton(leaf: CustomWsLeaf, divEl: HTMLDivElement) {
+		const idx = this.leaves.findIndex(({ id }) => id === leaf.id);
+		this.focusPosition = idx < this.focusPosition ? this.focusPosition - 1 : this.focusPosition;
+
+		this.leafButtonMap.delete(leaf.id || '');
+		this.leaves = this.leaves.filter(({ id }) => id !== leaf.id);
+		divEl.remove();
+		leaf.detach();
+
+		if (!this.leaves.length) {
+			this.close();
+			return;
+		}
+
+		setTimeout(() => {
+			const focusLeaf = this.leaves[this.focusPosition];
+			(this.leafButtonMap.get(focusLeaf?.id || '') as HTMLElement).focus();
+		}, 1);
 	}
 }
