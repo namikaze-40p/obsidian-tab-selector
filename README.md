@@ -2,6 +2,11 @@
 
 This is an [Obsidian](https://obsidian.md/) plugin which can switch to the desired tab in about two actions without leaving the home position on the keyboard.
 
+> [!NOTE]
+>
+> - Supported: Switch tabs in the same window.
+> - Not supported: Switch tabs between different windows.
+
 ## How to use
 
 ### Open tab selector
@@ -33,11 +38,6 @@ This is an [Obsidian](https://obsidian.md/) plugin which can switch to the desir
 1. From then on you can switch tabs using hotkeys.
 
 ![demo](https://raw.githubusercontent.com/namikaze-40p/obsidian-tab-selector/main/demo/ver-0.5.0/switch-tab-in-history.gif)
-
-> [!NOTE]
->
-> - Supported: Switch tabs in the same window.
-> - Not supported: Switch tabs between different windows.
 
 ## Installation
 
