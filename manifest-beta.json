@@ -1,7 +1,7 @@
 {
 	"id": "tab-selector",
 	"name": "Tab Selector",
-	"version": "0.5.6-beta.1",
+	"version": "0.5.6",
 	"minAppVersion": "1.5.12",
 	"description": "Switch to the desired tab in about two actions without leaving the home position on the keyboard.",
 	"author": "namikaze-40p",
