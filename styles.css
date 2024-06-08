@@ -138,6 +138,7 @@ body.is-phone .ts-settings {
 				overflow: hidden;
 				text-overflow: ellipsis;
 				width: 100%;
+				font-size: 1rem;
 			}
 
 			& .ts-option-wrapper {
@@ -226,6 +227,12 @@ body.is-phone .ts-settings {
 	}
 }
 
+body.is-mobile .modal.tab-selector-modal {
+	& .ts-leaf-row .ts-leaf-name-btn .ts-leaf-name {
+		font-size: var(--font-ui-small);
+	}
+}
+
 .modal.tab-history-modal {
 	position: absolute;
 	top: 10%;
@@ -256,6 +263,7 @@ body.is-phone .ts-settings {
 					overflow: hidden;
 					text-overflow: ellipsis;
 					width: 100%;
+					font-size: 1rem;
 				}
 			}
 
@@ -272,5 +280,11 @@ body.is-phone .ts-settings {
 				}
 			}				
 		}
+	}
+}
+
+body.is-mobile .modal.tab-history-modal {
+	& .th-leaf-row .th-leaf-name-btn .th-leaf-name {
+		font-size: var(--font-ui-small);
 	}
 }
