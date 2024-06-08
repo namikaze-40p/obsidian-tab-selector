@@ -288,3 +288,7 @@ body.is-mobile .modal.tab-history-modal {
 		font-size: var(--font-ui-small);
 	}
 }
+
+body.is-phone .modal.tab-history-modal {
+	top: initial;
+}
