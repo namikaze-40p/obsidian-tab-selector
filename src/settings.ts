@@ -146,7 +146,7 @@ export class SettingTab extends PluginSettingTab {
 			// 8 is margin of between buttons.
 			{ selector: '.ts-buttons-view', property: 'min-height', value: `${buttonHeight * characters.length + 8 * (characters.length - 1)}px` },
 			{ selector: '.ts-leaf-name-btn:focus', property: 'outline', value: `2px solid ${focusColor}` },
-			{ selector: '.th-leaf-name-btn:focus', property: 'outline', value: `2px solid ${thFocusColor}` },
+			{ selector: '.th-leaf-name-btn.is-focus', property: 'outline', value: `2px solid ${thFocusColor}` },
 		]);
 	}
 
