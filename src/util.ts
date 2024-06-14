@@ -5,6 +5,14 @@ import { KeySettingsError } from './error';
 
 const STYLES_ID = 'tab-selector-styles';
 
+const INVALID_SETTING = {
+	notOnlyOneHotkey: 'Not only one hotkey.',
+	mismatchMainModifierKey: 'Mismatch main modifier key.',
+	mismatchActionKey: 'Mismatch action key.',
+	mismatchSubModifierKey: 'Mismatch sub modifier key.',
+	useDuplicateActionKey: 'Use duplicate action key.',	
+} as const;
+
 export const isValidSettings = (app: App, settings: Settings, isThrowError = true): boolean => {
 	const customKeys = (app as CustomApp).hotkeyManager?.customKeys;
 	const toPrevHotkeys = (customKeys && customKeys['tab-selector:go-to-previous-tab'] || []);
@@ -13,7 +21,7 @@ export const isValidSettings = (app: App, settings: Settings, isThrowError = tru
 
 	if (!toPrevHotkeys[0] || !toNextHotkeys[0] || toPrevHotkeys.length > 1 || toNextHotkeys.length > 1) {
 		if (isThrowError) {
-			throw new KeySettingsError('Invalid settings: Case1', details);
+			throw new KeySettingsError(`Invalid settings: ${INVALID_SETTING.notOnlyOneHotkey}`, details);
 		}
 		return false;
 	}
@@ -23,27 +31,27 @@ export const isValidSettings = (app: App, settings: Settings, isThrowError = tru
 	const { mainModifierKey, subModifierKey, actionKey, reverseActionKey, howToNextTab } = settings;
 	const useSubModifier = howToNextTab === HOW_TO_NEXT_TAB.useSubModifierKey;
 
-	let errCaseNo = 0;
+	let errCase = '';
 
 	if (convertModifierKey(toPrevHotkey.modifiers[0]) !== mainModifierKey) {
-		errCaseNo = errCaseNo || 2
+		errCase = errCase || INVALID_SETTING.mismatchMainModifierKey;
 	}
 	if (useSubModifier) {
 		if (toPrevHotkey.key !== actionKey || toNextHotkey.key !== actionKey) {
-			errCaseNo = errCaseNo || toPrevHotkey.key !== actionKey ? 3 : 4;
+			errCase = errCase || INVALID_SETTING.mismatchActionKey;
 		}
 		if (toNextHotkey.modifiers.filter(modifier => convertModifierKey(modifier) === subModifierKey).length !== 1) {
-			errCaseNo = errCaseNo || 5;
+			errCase = errCase || INVALID_SETTING.mismatchSubModifierKey;
 		}
 	} else {
 		if (toPrevHotkey.key !== actionKey || toNextHotkey.key !== reverseActionKey) {
-			errCaseNo = errCaseNo || toPrevHotkey.key !== actionKey ? 6 : 7;
+			errCase = errCase || INVALID_SETTING.useDuplicateActionKey;
 		}
 	}
-	if (errCaseNo > 0 && isThrowError) {
-		throw new KeySettingsError(`Invalid settings: Case${errCaseNo}`, details);
+	if (errCase && isThrowError) {
+		throw new KeySettingsError(`Invalid settings: ${errCase}`, details);
 	}
-	return errCaseNo === 0;
+	return !errCase;
 }
 
 const convertModifierKey = (key: string): string => {
