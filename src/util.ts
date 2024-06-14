@@ -10,6 +10,7 @@ const INVALID_SETTING = {
 	mismatchMainModifierKey: 'Mismatch main modifier key.',
 	mismatchActionKey: 'Mismatch action key.',
 	mismatchSubModifierKey: 'Mismatch sub modifier key.',
+	useDuplicateModifierKey: 'Use duplicate modifier key.',	
 	useDuplicateActionKey: 'Use duplicate action key.',	
 } as const;
 
@@ -42,6 +43,9 @@ export const isValidSettings = (app: App, settings: Settings, isThrowError = tru
 		}
 		if (toNextHotkey.modifiers.filter(modifier => convertModifierKey(modifier) === subModifierKey).length !== 1) {
 			errCase = errCase || INVALID_SETTING.mismatchSubModifierKey;
+		}
+		if (mainModifierKey === subModifierKey) {
+			errCase = errCase || INVALID_SETTING.useDuplicateModifierKey;
 		}
 	} else {
 		if (toPrevHotkey.key !== actionKey || toNextHotkey.key !== reverseActionKey) {
