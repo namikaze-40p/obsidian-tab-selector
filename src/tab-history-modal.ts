@@ -17,7 +17,7 @@ export class TabHistoryModal extends Modal {
 	closeButtonMap: Map<string, HTMLButtonElement> = new Map();
 	focusPosition = 0;
 	isEnabled = false;
-	isInitialAct = true;
+	isPrevCommand = true;
 	eventListenerFunc: {
 		keydown: (ev: KeyboardEvent) => void,
 		keyup: (ev: KeyboardEvent) => void,
@@ -26,7 +26,7 @@ export class TabHistoryModal extends Modal {
 		keyup: () => {},
 	};
 
-	constructor(app: App, settings: Settings, leaves: CustomWsLeaf[]) {
+	constructor(app: App, settings: Settings, leaves: CustomWsLeaf[], isPrevCommand: boolean) {
 		super(app);
 
 		try {
@@ -36,6 +36,7 @@ export class TabHistoryModal extends Modal {
 		}
 
 		this.settings = settings;
+		this.isPrevCommand = isPrevCommand;
 		this.leaves = leaves.map(leaf => {
 			leaf.name = leaf.getDisplayText();
 			return leaf;
@@ -57,8 +58,9 @@ export class TabHistoryModal extends Modal {
 		this.modalEl.addClasses(['tab-history-modal', 'th-modal']);
 
 		const buttonsViewEl = this.contentEl.createDiv('th-leaves');
-
 		this.generateButtons(buttonsViewEl, this.leaves);
+
+		this.isPrevCommand ? this.focusToPreviousTab() : this.focusToNextTab();
 	}
 
 	onClose() {
@@ -96,10 +98,6 @@ export class TabHistoryModal extends Modal {
 	}
 
 	private keyup(ev: KeyboardEvent): void {
-		if (this.isInitialAct) {
-			this.moveFocus(ev);
-			this.isInitialAct = false;
-		}
 		if (ev.key === this.settings.mainModifierKey) {
 			const leaf = this.leaves[this.focusPosition];
 			this.switchToFocusedTab(leaf);

@@ -22,13 +22,13 @@ export default class TabSelector extends Plugin {
 		this.addCommand({
 			id: 'go-to-previous-tab',
 			name: 'Go to previous tab',
-			callback: () => this.openTabHistoryModal(),
+			callback: () => this.openTabHistoryModal(true),
 		});
 
 		this.addCommand({
 			id: 'go-to-next-tab',
 			name: 'Go to next tab',
-			callback: () => this.openTabHistoryModal(),
+			callback: () => this.openTabHistoryModal(false),
 		});
 
 		this.settingTab = new SettingTab(this.app, this);
@@ -53,9 +53,9 @@ export default class TabSelector extends Plugin {
 		new TabSelectorModal(this.app, this.settings, leaves).open();
 	}
 
-	private openTabHistoryModal(): void {
+	private openTabHistoryModal(isPrevCommand: boolean): void {
 		const leaves = this.generateLeaves();
-		new TabHistoryModal(this.app, this.settings, leaves).open();
+		new TabHistoryModal(this.app, this.settings, leaves, isPrevCommand).open();
 	}
 
 	private generateLeaves(): CustomWsLeaf[] {
