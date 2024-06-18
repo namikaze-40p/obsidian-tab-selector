@@ -3,7 +3,7 @@
 	"name": "Tab Selector",
 	"version": "0.5.9",
 	"minAppVersion": "1.6.3",
-	"description": "Switch to the desired tab in about two actions without leaving the home position on the keyboard.",
+	"description": "Quickly switch tab by 2 ways, one is general way in like other apps, the other is with keeping the keyboard home position.",
 	"author": "namikaze-40p",
 	"authorUrl": "https://github.com/namikaze-40p",
 	"isDesktopOnly": false
