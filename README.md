@@ -9,7 +9,7 @@ This is an [Obsidian](https://obsidian.md/) plugin which can quickly switch tab 
 
 ## How to use
 
-### Open tab selector
+### `Open tab selector` - Switch tab with keeping the keyboard home position
 
 1. Call the modal in one of the following ways.
     1. Using hotkey. (**recommend**)
@@ -26,7 +26,7 @@ This is an [Obsidian](https://obsidian.md/) plugin which can quickly switch tab 
 
 ![demo](https://raw.githubusercontent.com/namikaze-40p/obsidian-tab-selector/main/demo/switch-tab.gif)
 
-### Go to previous/next tab
+### `Go to previous/next tab` - Switch tab by general way in like other apps
 
 1. Set up the `Go to previous/next tab` command in the plugin's settings.
     1. In the default configuration, each command are as follows.
