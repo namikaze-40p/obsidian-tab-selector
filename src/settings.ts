@@ -43,6 +43,13 @@ const DISPLAY_HOW_TO_NEXT_TAB: Record<string, string> = {
 } as const;
 
 export interface Settings {
+	// Settings for "Go to previous/next tab" commands
+	thFocusColor: string;
+	mainModifierKey: keyof typeof MODIFIER_KEY;
+	subModifierKey: keyof typeof MODIFIER_KEY;
+	actionKey: keyof typeof ACTION_KEY;
+	reverseActionKey: keyof typeof ACTION_KEY;
+	howToNextTab: keyof typeof HOW_TO_NEXT_TAB;	
 	// Settings for "Open tab selector" command
 	showAliases: boolean;
 	replaceToAliases: boolean;
@@ -52,18 +59,18 @@ export interface Settings {
 	focusColor: string;
 	characters: string;
 	enableClose: boolean;
-	// Settings for "Go to previous/next tab" commands
-	thFocusColor: string;
-	mainModifierKey: keyof typeof MODIFIER_KEY;
-	subModifierKey: keyof typeof MODIFIER_KEY;
-	actionKey: keyof typeof ACTION_KEY;
-	reverseActionKey: keyof typeof ACTION_KEY;
-	howToNextTab: keyof typeof HOW_TO_NEXT_TAB;
 	// Settings for "Show tab shortcuts" commands
 	tshCharacters: string;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
+	// Settings for "Go to previous/next tab" commands
+	thFocusColor: '#00b4e0',
+	mainModifierKey: MODIFIER_KEY.ctrl,
+	subModifierKey: MODIFIER_KEY.shift,
+	actionKey: ACTION_KEY.tab,
+	reverseActionKey: ACTION_KEY.arrowLeft,
+	howToNextTab: HOW_TO_NEXT_TAB.useSubModifierKey,
 	// Settings for "Open tab selector" command
 	showAliases: false,
 	replaceToAliases: false,
@@ -73,13 +80,6 @@ export const DEFAULT_SETTINGS: Settings = {
 	focusColor: '#00b4e0',
 	characters: 'asdfghjkl;',
 	enableClose: true,
-	// Settings for "Go to previous/next tab" commands
-	thFocusColor: '#00b4e0',
-	mainModifierKey: MODIFIER_KEY.ctrl,
-	subModifierKey: MODIFIER_KEY.shift,
-	actionKey: ACTION_KEY.tab,
-	reverseActionKey: ACTION_KEY.arrowLeft,
-	howToNextTab: HOW_TO_NEXT_TAB.useSubModifierKey,
 	// Settings for "Show tab shortcuts" commands
 	tshCharacters: 'asdfghjkl;qwertyuiopzxcvbnm,./'
 } as const;
@@ -112,27 +112,27 @@ export class SettingTab extends PluginSettingTab {
 		{
 			const detailsEl = containerEl.createEl('details', '', el => {
 				el.createEl('summary', '', summaryEl => {
-					summaryEl.setText('For "Open tab selector" command');
+					summaryEl.setText('For "Go to previous/next tab" command');
 				});
 			});
 			if (this.isOpen.firstDetails) {
 				detailsEl.setAttr('open', true);
 			}
 			detailsEl.addEventListener("toggle", () => this.isOpen.firstDetails = detailsEl.open);
-			this.setForOpenTabSelectorCommand(detailsEl);
+			this.setForGoToPrevNextTabCommands(detailsEl);
 		}
 
 		{
 			const detailsEl = containerEl.createEl('details', '', el => {
 				el.createEl('summary', '', summaryEl => {
-					summaryEl.setText('For "Go to previous/next tab" command');
+					summaryEl.setText('For "Open tab selector" command');
 				});
 			});
 			if (this.isOpen.secondDetails) {
 				detailsEl.setAttr('open', true);
 			}
 			detailsEl.addEventListener("toggle", () => this.isOpen.secondDetails = detailsEl.open);
-			this.setForGoToPrevNextTabCommands(detailsEl);
+			this.setForOpenTabSelectorCommand(detailsEl);
 		}
 
 		if (Platform.isDesktop || Platform.isTablet) {
@@ -167,122 +167,6 @@ export class SettingTab extends PluginSettingTab {
 			{ selector: '.ts-leaf-name-btn:focus', property: 'outline', value: `2px solid ${focusColor}` },
 			{ selector: '.th-leaf-name-btn.is-focus', property: 'outline', value: `2px solid ${thFocusColor}` },
 		]);
-	}
-
-	private setForOpenTabSelectorCommand(detailsEl: HTMLDetailsElement): void {
-		new Setting(detailsEl)
-			.setName(`Show aliases`)
-			.setDesc(`When enabled, show file's aliases on button.`)
-			.addToggle(toggle => toggle.setValue(this.plugin.settings.showAliases)
-				.onChange(async value => {
-					this.plugin.settings.showAliases = value;
-					this.plugin.settings.replaceToAliases = false;
-					await this.plugin.saveData(this.plugin.settings);
-					this.updateStyleSheet();
-					this.display();
-				}),
-			);
-
-		new Setting(detailsEl)
-			.setName(`Replace the filename to aliases`)
-			.setDesc(`When enabled, if aliases is set the file, replace the filename to aliases.`)
-			.addToggle(toggle => toggle.setValue(this.plugin.settings.replaceToAliases)
-				.onChange(async value => {
-					this.plugin.settings.replaceToAliases = value;
-					await this.plugin.saveData(this.plugin.settings);
-					this.updateStyleSheet();
-				}),
-			)
-			.setDisabled(!this.plugin.settings.showAliases);
-
-		new Setting(detailsEl)
-			.setName(`Show paths`)
-			.setDesc(`When enabled, show file's paths on button.`)
-			.addToggle(toggle => toggle.setValue(this.plugin.settings.showPaths)
-				.onChange(async value => {
-					this.plugin.settings.showPaths = value;
-					await this.plugin.saveData(this.plugin.settings);
-					this.updateStyleSheet();
-				}),
-			);
-		
-		new Setting(detailsEl)
-			.setName(`Show pagination buttons`)
-			.setDesc('When enabled, show pagination buttons on modal.')
-			.addToggle(toggle => toggle.setValue(this.plugin.settings.showPaginationButtons)
-				.onChange(async value => {
-					this.plugin.settings.showPaginationButtons = value;
-					await this.plugin.saveData(this.plugin.settings);
-				}),
-			);
-		
-		new Setting(detailsEl)
-			.setName(`Show legends`)
-			.setDesc('When enabled, show legends on modal.')
-			.addToggle(toggle => toggle.setValue(this.plugin.settings.showLegends)
-				.onChange(async value => {
-					this.plugin.settings.showLegends = value;
-					await this.plugin.saveData(this.plugin.settings);
-				}),
-			);
-		
-		new Setting(detailsEl)
-			.setName('Color of button frame on focus')
-			.setDesc('Choice your favorite color.')
-			.addColorPicker(colorPicker => colorPicker.setValue(this.plugin.settings.focusColor)
-				.onChange(async value => {
-					this.plugin.settings.focusColor = value;
-					await this.plugin.saveData(this.plugin.settings);
-					this.updateStyleSheet();
-				}),
-			)
-			.then(settingEl => this.addResetButton(settingEl, 'focusColor'));
-
-		new Setting(detailsEl)
-			.setName('Characters used for button hints')
-			.setDesc(`Enter ${CHAR_LENGTH.min}~${CHAR_LENGTH.max} non-duplicate alphanumeric characters or symbols.`)
-			.addText(text => {
-				let orgCharacters = this.plugin.settings.characters;
-				const textComponent = text
-					.setPlaceholder('Enter characters')
-					.setValue(this.plugin.settings.characters)
-					.onChange(async value => {
-						const { inputEl } = textComponent;
-						if (!this.isDuplicateChars([...value]) && inputEl.validity.valid) {
-							inputEl.removeClass('ts-setting-is-invalid');
-							this.plugin.settings.characters = value;
-							orgCharacters = value;
-							await this.plugin.saveSettings();
-						} else {
-							inputEl.addClass('ts-setting-is-invalid');
-							
-						}
-						this.updateStyleSheet();
-					});
-				
-				textComponent.inputEl.addEventListener('blur', () => {
-					if (this.isDuplicateChars([...textComponent.inputEl.value]) || !textComponent.inputEl.validity.valid) {
-						this.plugin.settings.characters = orgCharacters;
-					}
-				});
-				textComponent.inputEl.setAttrs({
-					maxLength: CHAR_LENGTH.max,
-					required: true,
-					pattern: `[!-~]{${CHAR_LENGTH.min},${CHAR_LENGTH.max}}`
-				});
-				return textComponent;
-			})
-			.then(settingEl => this.addResetButton(settingEl, 'characters'));
-
-		new Setting(detailsEl)
-			.setName(`Enable tabs close`)
-			.setDesc('When enabled, the operation of closing tabs is enabled.')
-			.addToggle(toggle => toggle.setValue(this.plugin.settings.enableClose)
-				.onChange(async value => {
-					this.plugin.settings.enableClose = value;
-					await this.plugin.saveData(this.plugin.settings);
-				}),
-			);
 	}
 
 	private setForGoToPrevNextTabCommands(detailsEl: HTMLDetailsElement): void {
@@ -421,6 +305,122 @@ export class SettingTab extends PluginSettingTab {
 				`);
 			});
 		});
+	}
+
+	private setForOpenTabSelectorCommand(detailsEl: HTMLDetailsElement): void {
+		new Setting(detailsEl)
+			.setName(`Show aliases`)
+			.setDesc(`When enabled, show file's aliases on button.`)
+			.addToggle(toggle => toggle.setValue(this.plugin.settings.showAliases)
+				.onChange(async value => {
+					this.plugin.settings.showAliases = value;
+					this.plugin.settings.replaceToAliases = false;
+					await this.plugin.saveData(this.plugin.settings);
+					this.updateStyleSheet();
+					this.display();
+				}),
+			);
+
+		new Setting(detailsEl)
+			.setName(`Replace the filename to aliases`)
+			.setDesc(`When enabled, if aliases is set the file, replace the filename to aliases.`)
+			.addToggle(toggle => toggle.setValue(this.plugin.settings.replaceToAliases)
+				.onChange(async value => {
+					this.plugin.settings.replaceToAliases = value;
+					await this.plugin.saveData(this.plugin.settings);
+					this.updateStyleSheet();
+				}),
+			)
+			.setDisabled(!this.plugin.settings.showAliases);
+
+		new Setting(detailsEl)
+			.setName(`Show paths`)
+			.setDesc(`When enabled, show file's paths on button.`)
+			.addToggle(toggle => toggle.setValue(this.plugin.settings.showPaths)
+				.onChange(async value => {
+					this.plugin.settings.showPaths = value;
+					await this.plugin.saveData(this.plugin.settings);
+					this.updateStyleSheet();
+				}),
+			);
+		
+		new Setting(detailsEl)
+			.setName(`Show pagination buttons`)
+			.setDesc('When enabled, show pagination buttons on modal.')
+			.addToggle(toggle => toggle.setValue(this.plugin.settings.showPaginationButtons)
+				.onChange(async value => {
+					this.plugin.settings.showPaginationButtons = value;
+					await this.plugin.saveData(this.plugin.settings);
+				}),
+			);
+		
+		new Setting(detailsEl)
+			.setName(`Show legends`)
+			.setDesc('When enabled, show legends on modal.')
+			.addToggle(toggle => toggle.setValue(this.plugin.settings.showLegends)
+				.onChange(async value => {
+					this.plugin.settings.showLegends = value;
+					await this.plugin.saveData(this.plugin.settings);
+				}),
+			);
+		
+		new Setting(detailsEl)
+			.setName('Color of button frame on focus')
+			.setDesc('Choice your favorite color.')
+			.addColorPicker(colorPicker => colorPicker.setValue(this.plugin.settings.focusColor)
+				.onChange(async value => {
+					this.plugin.settings.focusColor = value;
+					await this.plugin.saveData(this.plugin.settings);
+					this.updateStyleSheet();
+				}),
+			)
+			.then(settingEl => this.addResetButton(settingEl, 'focusColor'));
+
+		new Setting(detailsEl)
+			.setName('Characters used for button hints')
+			.setDesc(`Enter ${CHAR_LENGTH.min}~${CHAR_LENGTH.max} non-duplicate alphanumeric characters or symbols.`)
+			.addText(text => {
+				let orgCharacters = this.plugin.settings.characters;
+				const textComponent = text
+					.setPlaceholder('Enter characters')
+					.setValue(this.plugin.settings.characters)
+					.onChange(async value => {
+						const { inputEl } = textComponent;
+						if (!this.isDuplicateChars([...value]) && inputEl.validity.valid) {
+							inputEl.removeClass('ts-setting-is-invalid');
+							this.plugin.settings.characters = value;
+							orgCharacters = value;
+							await this.plugin.saveSettings();
+						} else {
+							inputEl.addClass('ts-setting-is-invalid');
+							
+						}
+						this.updateStyleSheet();
+					});
+				
+				textComponent.inputEl.addEventListener('blur', () => {
+					if (this.isDuplicateChars([...textComponent.inputEl.value]) || !textComponent.inputEl.validity.valid) {
+						this.plugin.settings.characters = orgCharacters;
+					}
+				});
+				textComponent.inputEl.setAttrs({
+					maxLength: CHAR_LENGTH.max,
+					required: true,
+					pattern: `[!-~]{${CHAR_LENGTH.min},${CHAR_LENGTH.max}}`
+				});
+				return textComponent;
+			})
+			.then(settingEl => this.addResetButton(settingEl, 'characters'));
+
+		new Setting(detailsEl)
+			.setName(`Enable tabs close`)
+			.setDesc('When enabled, the operation of closing tabs is enabled.')
+			.addToggle(toggle => toggle.setValue(this.plugin.settings.enableClose)
+				.onChange(async value => {
+					this.plugin.settings.enableClose = value;
+					await this.plugin.saveData(this.plugin.settings);
+				}),
+			);
 	}
 
 	private setForShowTabShortcutCommand(detailsEl: HTMLDetailsElement): void {
