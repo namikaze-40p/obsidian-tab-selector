@@ -92,9 +92,9 @@ export const CHAR_LENGTH = {
 export class SettingTab extends PluginSettingTab {
 	plugin: TabSelector;
 	isOpen = {
-		firstDetails: true,
-		secondDetails: true,
-		thirdDetails: true,
+		firstDetails: false,
+		secondDetails: false,
+		thirdDetails: false,
 	};
 
 	constructor(app: App, plugin: TabSelector) {
