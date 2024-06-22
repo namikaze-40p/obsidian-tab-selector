@@ -37,4 +37,5 @@ export type CustomWsLeaf = WorkspaceLeaf & {
 	aliases?: string[],
 	path?: string,
 	deleted?: boolean,
+	containerEl?: Element,
 };

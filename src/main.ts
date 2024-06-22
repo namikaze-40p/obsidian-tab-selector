@@ -1,8 +1,9 @@
-import { Plugin } from 'obsidian';
+import { Platform, Plugin } from 'obsidian';
 import { DEFAULT_SETTINGS, SettingTab, Settings } from './settings';
 import { TabSelectorModal } from './tab-selector-modal';
 import { CustomWsItem, CustomWsLeaf } from './type';
 import { TabHistoryModal } from './tab-history-modal';
+import { TabShortcutsModal } from './tab-shortcuts-modal';
 
 export default class TabSelector extends Plugin {
 	settings: Settings;
@@ -31,6 +32,14 @@ export default class TabSelector extends Plugin {
 			callback: () => this.openTabHistoryModal(false),
 		});
 
+		if (Platform.isDesktop || Platform.isTablet) {
+			this.addCommand({
+				id: 'show-tab-shortcuts',
+				name: 'Show tab shortcuts',
+				callback: () => this.showTabShortcutsModal(),
+			});
+		}
+
 		this.settingTab = new SettingTab(this.app, this);
 		this.addSettingTab(this.settingTab);
 		this.settingTab.updateStyleSheet();
@@ -56,6 +65,11 @@ export default class TabSelector extends Plugin {
 	private openTabHistoryModal(isPrevCommand: boolean): void {
 		const leaves = this.generateLeaves();
 		new TabHistoryModal(this.app, this.settings, leaves, isPrevCommand).open();
+	}
+
+	private showTabShortcutsModal(): void {
+		const leaves = this.generateLeaves();
+		new TabShortcutsModal(this.app, this.settings, leaves).open();
 	}
 
 	private generateLeaves(): CustomWsLeaf[] {

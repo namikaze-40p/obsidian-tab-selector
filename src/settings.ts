@@ -59,6 +59,8 @@ export interface Settings {
 	actionKey: keyof typeof ACTION_KEY;
 	reverseActionKey: keyof typeof ACTION_KEY;
 	howToNextTab: keyof typeof HOW_TO_NEXT_TAB;
+	// Settings for "Show tab shortcuts" commands
+	tshCharacters: string;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -78,6 +80,8 @@ export const DEFAULT_SETTINGS: Settings = {
 	actionKey: ACTION_KEY.tab,
 	reverseActionKey: ACTION_KEY.arrowLeft,
 	howToNextTab: HOW_TO_NEXT_TAB.useSubModifierKey,
+	// Settings for "Show tab shortcuts" commands
+	tshCharacters: 'asdfghjkl;qwertyuiopzxcvbnm,./'
 } as const;
 
 export const CHAR_LENGTH = {
@@ -90,6 +94,7 @@ export class SettingTab extends PluginSettingTab {
 	isOpen = {
 		firstDetails: true,
 		secondDetails: true,
+		thirdDetails: true,
 	};
 
 	constructor(app: App, plugin: TabSelector) {
@@ -130,6 +135,20 @@ export class SettingTab extends PluginSettingTab {
 			this.setForGoToPrevNextTabCommands(detailsEl);
 		}
 
+		if (Platform.isDesktop || Platform.isTablet) {
+			{
+				const detailsEl = containerEl.createEl('details', '', el => {
+					el.createEl('summary', '', summaryEl => {
+						summaryEl.setText('For "Show tab shortcuts" command');
+					});
+				});
+				if (this.isOpen.thirdDetails) {
+					detailsEl.setAttr('open', true);
+				}
+				detailsEl.addEventListener("toggle", () => this.isOpen.thirdDetails = detailsEl.open);
+				this.setForShowTabShortcutCommand(detailsEl);
+			}
+		}
 	}
 
 	updateStyleSheet(isTeardown = false): void {
@@ -403,6 +422,44 @@ export class SettingTab extends PluginSettingTab {
 			});
 		});
 	}
+
+	private setForShowTabShortcutCommand(detailsEl: HTMLDetailsElement): void {
+		new Setting(detailsEl)
+			.setName('Characters used for shortcut hints')
+			.setDesc(`Enter non-duplicate alphanumeric characters or symbols.`)
+			.addText(text => {
+				let orgCharacters = this.plugin.settings.tshCharacters;
+				const textComponent = text
+					.setPlaceholder('Enter characters')
+					.setValue(this.plugin.settings.tshCharacters)
+					.onChange(async value => {
+						const { inputEl } = textComponent;
+						if (!this.isDuplicateChars([...value]) && inputEl.validity.valid) {
+							inputEl.removeClass('ts-setting-is-invalid');
+							this.plugin.settings.tshCharacters = value;
+							orgCharacters = value;
+							await this.plugin.saveSettings();
+						} else {
+							inputEl.addClass('ts-setting-is-invalid');
+							
+						}
+						this.updateStyleSheet();
+					});
+				
+				textComponent.inputEl.addEventListener('blur', () => {
+					if (this.isDuplicateChars([...textComponent.inputEl.value]) || !textComponent.inputEl.validity.valid) {
+						this.plugin.settings.characters = orgCharacters;
+					}
+				});
+				textComponent.inputEl.setAttrs({
+					required: true,
+					pattern: `[!-~]{1,}`
+				});
+				return textComponent;
+			})
+			.then(settingEl => this.addResetButton(settingEl, 'tshCharacters'));
+	}
+
 
 	private isDuplicateChars(chars: string[]): boolean {
 		return chars.some((char, idx) => chars.slice(idx + 1).includes(char));

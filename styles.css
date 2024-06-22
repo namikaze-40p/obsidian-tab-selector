@@ -1,3 +1,4 @@
+/* For settings screen */
 .ts-settings {
 	& .setting-item {
 		& .ts-setting-is-invalid {
@@ -91,6 +92,7 @@ body.is-phone .ts-settings {
 	}
 }
 
+/* For tab selector */
 .modal.tab-selector-modal {
 	& .ts-header {
 		display: flex;
@@ -233,6 +235,7 @@ body.is-mobile .modal.tab-selector-modal {
 	}
 }
 
+/* For tab history */
 .modal.tab-history-modal {
 	position: absolute;
 	top: 10%;
@@ -291,4 +294,37 @@ body.is-mobile .modal.tab-history-modal {
 
 body.is-phone .modal.tab-history-modal {
 	top: initial;
+}
+
+/* For tab shortcuts */
+.modal.tab-shortcuts-modal {
+	display: none;
+
+	& + .tab-shortcuts-container {
+		position: fixed;
+		z-index: 50;
+	
+		.tsh-label {
+			position: fixed;
+			width: 2rem;
+			height: 2rem;
+			font-size: 1.5rem;
+			background-color: var(--interactive-normal);
+			border: 1px solid #aaa;
+			border-radius: var(--button-radius);
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+	}
+}
+
+.tsh-header-container-inner {
+	z-index: 51;
+}
+
+body.is-mobile .modal.tab-shortcuts-modal {
+	& + .tab-shortcuts-container .tsh-label {
+		background-color: var(--color-base-25);
+	}	
 }
