@@ -9,7 +9,20 @@ This is an [Obsidian](https://obsidian.md/) plugin which can quickly switch tab 
 
 ## How to use
 
-### `Open tab selector` - Switch tab with keeping the keyboard home position
+### `Go to previous/next tab` - Switch tab by general way in like other apps
+
+1. Set up the `Go to previous/next tab` command in the plugin's settings.
+    1. In the default configuration, each command are as follows.
+        1. Tab Selector: Go to previous tab: `^Tab` or `Ctrl + Tab`
+        1. Tab Selector: Go to next tab: `^⇧Tab` or `Ctrl + Shift + Tab`
+    1. Don't use shortcut keys reserved by the OS. OS shortcut keys take precedence and don't work properly.
+        1. In case MacOS, `⌘Tab` and `⌥Tab` etc… can't use.
+1. Set hotkeys to match the command settings implemented above.
+1. From then on you can switch tabs using hotkeys.
+
+![demo](https://raw.githubusercontent.com/namikaze-40p/obsidian-tab-selector/main/demo/ver-0.5.0/switch-tab-in-history.gif)
+
+### `Open tab selector` - Switch tab with keeping the keyboard home position on the modal
 
 1. Call the modal in one of the following ways.
     1. Using hotkey. (**recommend**)
@@ -26,18 +39,18 @@ This is an [Obsidian](https://obsidian.md/) plugin which can quickly switch tab 
 
 ![demo](https://raw.githubusercontent.com/namikaze-40p/obsidian-tab-selector/main/demo/switch-tab.gif)
 
-### `Go to previous/next tab` - Switch tab by general way in like other apps
+### `Show tab shortcuts` - Switch tab with keeping the keyboard home position without the modal
 
-1. Set up the `Go to previous/next tab` command in the plugin's settings.
-    1. In the default configuration, each command are as follows.
-        1. Tab Selector: Go to previous tab: `^Tab` or `Ctrl + Tab`
-        1. Tab Selector: Go to next tab: `^⇧Tab` or `Ctrl + Shift + Tab`
-    1. Don't use shortcut keys reserved by the OS. OS shortcut keys take precedence and don't work properly.
-        1. In case MacOS, `⌘Tab` and `⌥Tab` etc… can't use.
-1. Set hotkeys to match the command settings implemented above.
-1. From then on you can switch tabs using hotkeys.
+> [!NOTE]
+>
+> This command is available on PC or tablet devices. It’s not available on smartphones.
 
-![demo](https://raw.githubusercontent.com/namikaze-40p/obsidian-tab-selector/main/demo/ver-0.5.0/switch-tab-in-history.gif)
+1. Call the modal in one of the following ways.
+    1. Using hotkey. (**recommend**)
+    1. Selecting `Tab Selector: Show tab shortcuts` from the command palette.
+1. Press the one-letter key displayed under the tab name.
+
+![demo](https://raw.githubusercontent.com/namikaze-40p/obsidian-tab-selector/main/demo/ver-0.6.0/switch-tab-without-modal.gif)
 
 ## Installation
 
