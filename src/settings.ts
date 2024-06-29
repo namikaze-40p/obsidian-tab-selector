@@ -9,11 +9,13 @@ export const MODIFIER_KEY: Record<string, string> = {
 	shift: 'Shift',
 } as const;
 
+const IS_APPLE = Platform.isMacOS || Platform.isIosApp;
+
 const DISPLAY_MODIFIER_KEY: Record<string, string> = {
-	ctrl: Platform.isMacOS || Platform.isIosApp ? '^' : 'Ctrl',
-	alt: Platform.isMacOS || Platform.isIosApp ? '⌥' : 'Alt',
-	meta: Platform.isMacOS || Platform.isIosApp ? '⌘' : 'Win',
-	shift: Platform.isMacOS || Platform.isIosApp ? '⇧' : 'Shift',
+	ctrl: IS_APPLE ? '^' : 'Ctrl',
+	alt: IS_APPLE ? '⌥' : 'Alt',
+	meta: IS_APPLE ? '⌘' : 'Win',
+	shift: IS_APPLE ? '⇧' : 'Shift',
 } as const;
 
 const ACTION_KEY: Record<string, string> = {
@@ -315,15 +317,14 @@ export class SettingTab extends PluginSettingTab {
 			const action = this.convertToDisplayText(actionKey, ACTION_KEY, DISPLAY_ACTION_KEY);
 			const reverseAction = this.convertToDisplayText(reverseActionKey, ACTION_KEY, DISPLAY_ACTION_KEY);
 			const useSubModifier = howToNextTab === HOW_TO_NEXT_TAB.useSubModifierKey;
-			const isApple = Platform.isMacOS || Platform.isIosApp;
 
 			el.createDiv('th-hotkey-preview', divEl => {
 				divEl.createSpan('th-hotkey-preview-label').setText('"Tab Selector: Go to next tab": ');
-				divEl.createSpan('th-hotkey-preview-value').setText((useSubModifier ? [mainModifier, subModifier, action] : [mainModifier, reverseAction]).join(isApple ? '' : ' + '));
+				divEl.createSpan('th-hotkey-preview-value').setText((useSubModifier ? [mainModifier, subModifier, action] : [mainModifier, reverseAction]).join(IS_APPLE ? '' : ' + '));
 			});
 			el.createDiv('th-hotkey-preview', divEl => {
 				divEl.createSpan('th-hotkey-preview-label').setText('"Tab Selector: Go to previous tab": ');
-				divEl.createSpan('th-hotkey-preview-value').setText([mainModifier, action].join(isApple ? '' : ' + '));
+				divEl.createSpan('th-hotkey-preview-value').setText([mainModifier, action].join(IS_APPLE ? '' : ' + '));
 			});
 
 			el.createDiv('th-match-state', divEl => {
