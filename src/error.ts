@@ -1,8 +1,8 @@
-import { Settings } from "./settings";
+import { GoToPreviousNextTabSettings } from "./settings";
 import { CustomKey } from "./type";
 
 export class KeySettingsError extends Error {
-	constructor(message: string, params: { settings: Settings, toPrevHotkeys: CustomKey[], toNextHotkeys: CustomKey[] }) {
+	constructor(message: string, params: { settings: GoToPreviousNextTabSettings, toPrevHotkeys: CustomKey[], toNextHotkeys: CustomKey[] }) {
 		super(message);
 
 		if (Error.captureStackTrace) {

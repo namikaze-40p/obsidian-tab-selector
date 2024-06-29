@@ -42,15 +42,22 @@ const DISPLAY_HOW_TO_NEXT_TAB: Record<string, string> = {
 	useReverseActionKey: 'Reverse action key',
 } as const;
 
-export interface Settings {
-	// Settings for "Go to previous/next tab" commands
-	thFocusColor: string;
+const SETTING_TYPE = {
+	goToPreviousNextTab: 'goToPreviousNextTab',
+	openTabSelector: 'openTabSelector',
+	showTabShortcuts: 'showTabShortcuts',
+} as const;
+
+export interface GoToPreviousNextTabSettings {
+	focusColor: string;
 	mainModifierKey: keyof typeof MODIFIER_KEY;
 	subModifierKey: keyof typeof MODIFIER_KEY;
 	actionKey: keyof typeof ACTION_KEY;
 	reverseActionKey: keyof typeof ACTION_KEY;
 	howToNextTab: keyof typeof HOW_TO_NEXT_TAB;	
-	// Settings for "Open tab selector" command
+}
+
+export interface OpenTabSelectorSettings {
 	showAliases: boolean;
 	replaceToAliases: boolean;
 	showPaths: boolean;
@@ -59,29 +66,40 @@ export interface Settings {
 	focusColor: string;
 	characters: string;
 	enableClose: boolean;
-	// Settings for "Show tab shortcuts" commands
-	tshCharacters: string;
+}
+
+export interface ShowTabShortcutsSettings {
+	characters: string;
+}
+
+export interface Settings {
+	[SETTING_TYPE.goToPreviousNextTab]: GoToPreviousNextTabSettings;
+	[SETTING_TYPE.openTabSelector]: OpenTabSelectorSettings;
+	[SETTING_TYPE.showTabShortcuts]: ShowTabShortcutsSettings;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-	// Settings for "Go to previous/next tab" commands
-	thFocusColor: '#00b4e0',
-	mainModifierKey: MODIFIER_KEY.ctrl,
-	subModifierKey: MODIFIER_KEY.shift,
-	actionKey: ACTION_KEY.tab,
-	reverseActionKey: ACTION_KEY.arrowLeft,
-	howToNextTab: HOW_TO_NEXT_TAB.useSubModifierKey,
-	// Settings for "Open tab selector" command
-	showAliases: false,
-	replaceToAliases: false,
-	showPaths: false,
-	showPaginationButtons: true,
-	showLegends: true,
-	focusColor: '#00b4e0',
-	characters: 'asdfghjkl;',
-	enableClose: true,
-	// Settings for "Show tab shortcuts" commands
-	tshCharacters: 'asdfghjkl;qwertyuiopzxcvbnm,./'
+	[SETTING_TYPE.goToPreviousNextTab]: {
+		focusColor: '#00b4e0',
+		mainModifierKey: MODIFIER_KEY.ctrl,
+		subModifierKey: MODIFIER_KEY.shift,
+		actionKey: ACTION_KEY.tab,
+		reverseActionKey: ACTION_KEY.arrowLeft,
+		howToNextTab: HOW_TO_NEXT_TAB.useSubModifierKey,	
+	},
+	[SETTING_TYPE.openTabSelector]: {
+		showAliases: false,
+		replaceToAliases: false,
+		showPaths: false,
+		showPaginationButtons: true,
+		showLegends: true,
+		focusColor: '#00b4e0',
+		characters: 'asdfghjkl;',
+		enableClose: true,
+	},
+	[SETTING_TYPE.showTabShortcuts]: {
+		characters: 'asdfghjkl;qwertyuiopzxcvbnm,./'
+	}
 } as const;
 
 export const CHAR_LENGTH = {
@@ -157,7 +175,9 @@ export class SettingTab extends PluginSettingTab {
 			return;
 		}
 
-		const { showAliases, replaceToAliases, showPaths, focusColor, characters, thFocusColor } = this.plugin.settings;
+		const { goToPreviousNextTab, openTabSelector } = this.plugin.settings;
+		const { showAliases, replaceToAliases, showPaths, focusColor, characters } = openTabSelector;
+		const { focusColor: thFocusColor } = goToPreviousNextTab;
 		const aliasesHeight = showAliases && !replaceToAliases ? (showPaths ? 12 : 8) : 0;
 		const pathHeight = showPaths ? 8 : 0;
 		const buttonHeight = 32 + aliasesHeight + pathHeight;
@@ -170,45 +190,57 @@ export class SettingTab extends PluginSettingTab {
 	}
 
 	private setForGoToPrevNextTabCommands(detailsEl: HTMLDetailsElement): void {
+		const settingType = SETTING_TYPE.goToPreviousNextTab;
+		const settings = this.plugin.settings[settingType];
+
 		new Setting(detailsEl)
 			.setName('Color of button frame on focus')
 			.setDesc('Choose your favorite color.')
-			.addColorPicker(colorPicker => colorPicker.setValue(this.plugin.settings.thFocusColor)
+			.addColorPicker(colorPicker => colorPicker.setValue(settings.focusColor)
 				.onChange(async value => {
-					this.plugin.settings.thFocusColor = value;
+					settings.focusColor = value;
 					await this.plugin.saveData(this.plugin.settings);
 					this.updateStyleSheet();
 				}),
 			)
-			.then(settingEl => this.addResetButton(settingEl, 'thFocusColor'));
+			.then(settingEl => {
+				const setDefaultValue = () => settings.focusColor = DEFAULT_SETTINGS[settingType].focusColor;
+				this.addResetButton(settingEl, setDefaultValue);
+			});
 
 		new Setting(detailsEl)
 			.setName('Main modifier key')
 			.setDesc('Holding this key down keeps the modal open. When this key is released, it switches to the focused tab.')
 			.addDropdown(item => item
 				.addOptions(Object.keys(MODIFIER_KEY).reduce((obj, key) => (obj[key] = DISPLAY_MODIFIER_KEY[key], obj), {} as typeof MODIFIER_KEY))
-				.setValue(this.convertToKey(this.plugin.settings.mainModifierKey, MODIFIER_KEY))
+				.setValue(this.convertToKey(settings.mainModifierKey, MODIFIER_KEY))
 				.onChange(async value => {
-					this.plugin.settings.mainModifierKey = this.convertToSettingValue(value, MODIFIER_KEY, DISPLAY_MODIFIER_KEY);
+					settings.mainModifierKey = this.convertToSettingValue(value, MODIFIER_KEY, DISPLAY_MODIFIER_KEY);
 					await this.plugin.saveData(this.plugin.settings);
 					this.display();
 				}),
 			)
-			.then(settingEl => this.addResetButton(settingEl, 'mainModifierKey'));
+			.then(settingEl => {
+				const setDefaultValue = () => settings.mainModifierKey = DEFAULT_SETTINGS[settingType].mainModifierKey;
+				this.addResetButton(settingEl, setDefaultValue);
+			});
 
 		new Setting(detailsEl)
 			.setName('Action key')
 			.setDesc('Press this key while holding down the Main modifier key moves to the previous tab.')
 			.addDropdown(item => item
 				.addOptions(Object.keys(ACTION_KEY).reduce((obj, key) => (obj[key] = DISPLAY_ACTION_KEY[key], obj), {} as typeof ACTION_KEY))
-				.setValue(this.convertToKey(this.plugin.settings.actionKey, ACTION_KEY))
+				.setValue(this.convertToKey(settings.actionKey, ACTION_KEY))
 				.onChange(async value => {
-					this.plugin.settings.actionKey = this.convertToSettingValue(value, ACTION_KEY, DISPLAY_ACTION_KEY);
+					settings.actionKey = this.convertToSettingValue(value, ACTION_KEY, DISPLAY_ACTION_KEY);
 					await this.plugin.saveData(this.plugin.settings);
 					this.display();
 				}),
 			)
-			.then(settingEl => this.addResetButton(settingEl, 'actionKey'));
+			.then(settingEl => {
+				const setDefaultValue = () => settings.actionKey = DEFAULT_SETTINGS[settingType].actionKey;
+				this.addResetButton(settingEl, setDefaultValue);
+			});
 		
 		new Setting(detailsEl)
 			.setName('Choose how to go to the next tab')
@@ -218,51 +250,55 @@ export class SettingTab extends PluginSettingTab {
 			`)
 			.addDropdown(item => item
 				.addOptions(Object.keys(HOW_TO_NEXT_TAB).reduce((obj, key) => (obj[key] = DISPLAY_HOW_TO_NEXT_TAB[key], obj), {} as typeof HOW_TO_NEXT_TAB))
-				.setValue(this.convertToKey(this.plugin.settings.howToNextTab, HOW_TO_NEXT_TAB))
+				.setValue(this.convertToKey(settings.howToNextTab, HOW_TO_NEXT_TAB))
 				.onChange(async value => {
-					this.plugin.settings.howToNextTab = value as keyof typeof HOW_TO_NEXT_TAB;
+					settings.howToNextTab = value as keyof typeof HOW_TO_NEXT_TAB;
 					await this.plugin.saveData(this.plugin.settings);
 					this.display();
 				}),
 			)
-			.then(settingEl => this.addResetButton(settingEl, 'howToNextTab'));
+			.then(settingEl => {
+				const setDefaultValue = () => settings.howToNextTab = DEFAULT_SETTINGS[settingType].howToNextTab;
+				this.addResetButton(settingEl, setDefaultValue);
+			});
 
 		new Setting(detailsEl)
 			.setName('Sub modifier key')
 			.setDesc('Pressing the Action key while holding this key down moves to the next tab.')
 			.addDropdown(item => item
 				.addOptions(Object.keys(MODIFIER_KEY).reduce((obj, key) => (obj[key] = DISPLAY_MODIFIER_KEY[key], obj), {} as typeof MODIFIER_KEY))
-				.setValue(this.convertToKey(this.plugin.settings.subModifierKey, MODIFIER_KEY))
+				.setValue(this.convertToKey(settings.subModifierKey, MODIFIER_KEY))
 				.onChange(async value => {
-					this.plugin.settings.subModifierKey = this.convertToSettingValue(value, MODIFIER_KEY, DISPLAY_MODIFIER_KEY);
+					settings.subModifierKey = this.convertToSettingValue(value, MODIFIER_KEY, DISPLAY_MODIFIER_KEY);
 					await this.plugin.saveData(this.plugin.settings);
 					this.display();
 				}),
 			)
-			.setDisabled(this.plugin.settings.howToNextTab !== HOW_TO_NEXT_TAB.useSubModifierKey)
+			.setDisabled(settings.howToNextTab !== HOW_TO_NEXT_TAB.useSubModifierKey)
 			.then(settingEl => {
-				if (this.plugin.settings.howToNextTab === HOW_TO_NEXT_TAB.useSubModifierKey) {
-					this.addResetButton(settingEl, 'subModifierKey')
+				if (settings.howToNextTab === HOW_TO_NEXT_TAB.useSubModifierKey) {
+					const setDefaultValue = () => settings.subModifierKey = DEFAULT_SETTINGS[settingType].subModifierKey;
+					this.addResetButton(settingEl, setDefaultValue);
 				}
 			});
-
 
 		new Setting(detailsEl)
 			.setName('Reverse action key')
 			.setDesc('Press this key while holding down the Main modifier key moves to the next tab.')
 			.addDropdown(item => item
 				.addOptions(Object.keys(ACTION_KEY).reduce((obj, key) => (obj[key] = DISPLAY_ACTION_KEY[key], obj), {} as typeof ACTION_KEY))
-				.setValue(this.convertToKey(this.plugin.settings.reverseActionKey, ACTION_KEY))
+				.setValue(this.convertToKey(settings.reverseActionKey, ACTION_KEY))
 				.onChange(async value => {
-					this.plugin.settings.reverseActionKey = this.convertToSettingValue(value, ACTION_KEY, DISPLAY_ACTION_KEY);
+					settings.reverseActionKey = this.convertToSettingValue(value, ACTION_KEY, DISPLAY_ACTION_KEY);
 					await this.plugin.saveData(this.plugin.settings);
 					this.display();
 				}),
 			)
-			.setDisabled(this.plugin.settings.howToNextTab !== HOW_TO_NEXT_TAB.useReverseActionKey)
+			.setDisabled(settings.howToNextTab !== HOW_TO_NEXT_TAB.useReverseActionKey)
 			.then(settingEl => {
-				if (this.plugin.settings.howToNextTab === HOW_TO_NEXT_TAB.useReverseActionKey) {
-					this.addResetButton(settingEl, 'reverseActionKey')
+				if (settings.howToNextTab === HOW_TO_NEXT_TAB.useSubModifierKey) {
+					const setDefaultValue = () => settings.reverseActionKey = DEFAULT_SETTINGS[settingType].reverseActionKey;
+					this.addResetButton(settingEl, setDefaultValue);
 				}
 			});
 
@@ -273,7 +309,7 @@ export class SettingTab extends PluginSettingTab {
 				divEl.createSpan('').setText('2. Set the hotkeys to match for the following commands.');
 			});
 
-			const { mainModifierKey, subModifierKey, actionKey, reverseActionKey, howToNextTab } = this.plugin.settings;
+			const { mainModifierKey, subModifierKey, actionKey, reverseActionKey, howToNextTab } = settings;
 			const mainModifier = this.convertToDisplayText(mainModifierKey, MODIFIER_KEY, DISPLAY_MODIFIER_KEY);
 			const subModifier = this.convertToDisplayText(subModifierKey, MODIFIER_KEY, DISPLAY_MODIFIER_KEY);
 			const action = this.convertToDisplayText(actionKey, ACTION_KEY, DISPLAY_ACTION_KEY);
@@ -291,7 +327,7 @@ export class SettingTab extends PluginSettingTab {
 			});
 
 			el.createDiv('th-match-state', divEl => {
-				const isMatchKeys = isValidSettings(this.app, this.plugin.settings, false);
+				const isMatchKeys = isValidSettings(this.app, settings, false);
 				divEl.addClass(isMatchKeys ? 'is-match' : 'is-mismatch');
 				divEl.createSpan('th-match-icon', spanEl => setIcon(spanEl, isMatchKeys ? 'check' : 'x'));
 				divEl.createSpan('').setText(`Currently hotkeys ${isMatchKeys ? 'match' : 'mismatch'} the above commands.`);
@@ -308,13 +344,16 @@ export class SettingTab extends PluginSettingTab {
 	}
 
 	private setForOpenTabSelectorCommand(detailsEl: HTMLDetailsElement): void {
+		const settingType = SETTING_TYPE.openTabSelector;
+		const settings = this.plugin.settings[settingType];
+
 		new Setting(detailsEl)
 			.setName(`Show aliases`)
 			.setDesc(`When enabled, show file's aliases on button.`)
-			.addToggle(toggle => toggle.setValue(this.plugin.settings.showAliases)
+			.addToggle(toggle => toggle.setValue(settings.showAliases)
 				.onChange(async value => {
-					this.plugin.settings.showAliases = value;
-					this.plugin.settings.replaceToAliases = false;
+					settings.showAliases = value;
+					settings.replaceToAliases = false;
 					await this.plugin.saveData(this.plugin.settings);
 					this.updateStyleSheet();
 					this.display();
@@ -324,21 +363,21 @@ export class SettingTab extends PluginSettingTab {
 		new Setting(detailsEl)
 			.setName(`Replace the filename to aliases`)
 			.setDesc(`When enabled, if aliases is set the file, replace the filename to aliases.`)
-			.addToggle(toggle => toggle.setValue(this.plugin.settings.replaceToAliases)
+			.addToggle(toggle => toggle.setValue(settings.replaceToAliases)
 				.onChange(async value => {
-					this.plugin.settings.replaceToAliases = value;
+					settings.replaceToAliases = value;
 					await this.plugin.saveData(this.plugin.settings);
 					this.updateStyleSheet();
 				}),
 			)
-			.setDisabled(!this.plugin.settings.showAliases);
+			.setDisabled(!settings.showAliases);
 
 		new Setting(detailsEl)
 			.setName(`Show paths`)
 			.setDesc(`When enabled, show file's paths on button.`)
-			.addToggle(toggle => toggle.setValue(this.plugin.settings.showPaths)
+			.addToggle(toggle => toggle.setValue(settings.showPaths)
 				.onChange(async value => {
-					this.plugin.settings.showPaths = value;
+					settings.showPaths = value;
 					await this.plugin.saveData(this.plugin.settings);
 					this.updateStyleSheet();
 				}),
@@ -347,9 +386,9 @@ export class SettingTab extends PluginSettingTab {
 		new Setting(detailsEl)
 			.setName(`Show pagination buttons`)
 			.setDesc('When enabled, show pagination buttons on modal.')
-			.addToggle(toggle => toggle.setValue(this.plugin.settings.showPaginationButtons)
+			.addToggle(toggle => toggle.setValue(settings.showPaginationButtons)
 				.onChange(async value => {
-					this.plugin.settings.showPaginationButtons = value;
+					settings.showPaginationButtons = value;
 					await this.plugin.saveData(this.plugin.settings);
 				}),
 			);
@@ -357,9 +396,9 @@ export class SettingTab extends PluginSettingTab {
 		new Setting(detailsEl)
 			.setName(`Show legends`)
 			.setDesc('When enabled, show legends on modal.')
-			.addToggle(toggle => toggle.setValue(this.plugin.settings.showLegends)
+			.addToggle(toggle => toggle.setValue(settings.showLegends)
 				.onChange(async value => {
-					this.plugin.settings.showLegends = value;
+					settings.showLegends = value;
 					await this.plugin.saveData(this.plugin.settings);
 				}),
 			);
@@ -367,28 +406,31 @@ export class SettingTab extends PluginSettingTab {
 		new Setting(detailsEl)
 			.setName('Color of button frame on focus')
 			.setDesc('Choice your favorite color.')
-			.addColorPicker(colorPicker => colorPicker.setValue(this.plugin.settings.focusColor)
+			.addColorPicker(colorPicker => colorPicker.setValue(settings.focusColor)
 				.onChange(async value => {
-					this.plugin.settings.focusColor = value;
+					settings.focusColor = value;
 					await this.plugin.saveData(this.plugin.settings);
 					this.updateStyleSheet();
 				}),
 			)
-			.then(settingEl => this.addResetButton(settingEl, 'focusColor'));
+			.then(settingEl => {
+				const setDefaultValue = () => settings.focusColor = DEFAULT_SETTINGS[settingType].focusColor;
+				this.addResetButton(settingEl, setDefaultValue);
+			});
 
 		new Setting(detailsEl)
 			.setName('Characters used for button hints')
 			.setDesc(`Enter ${CHAR_LENGTH.min}~${CHAR_LENGTH.max} non-duplicate alphanumeric characters or symbols.`)
 			.addText(text => {
-				let orgCharacters = this.plugin.settings.characters;
+				let orgCharacters = settings.characters;
 				const textComponent = text
 					.setPlaceholder('Enter characters')
-					.setValue(this.plugin.settings.characters)
+					.setValue(settings.characters)
 					.onChange(async value => {
 						const { inputEl } = textComponent;
 						if (!this.isDuplicateChars([...value]) && inputEl.validity.valid) {
 							inputEl.removeClass('ts-setting-is-invalid');
-							this.plugin.settings.characters = value;
+							settings.characters = value;
 							orgCharacters = value;
 							await this.plugin.saveSettings();
 						} else {
@@ -400,7 +442,7 @@ export class SettingTab extends PluginSettingTab {
 				
 				textComponent.inputEl.addEventListener('blur', () => {
 					if (this.isDuplicateChars([...textComponent.inputEl.value]) || !textComponent.inputEl.validity.valid) {
-						this.plugin.settings.characters = orgCharacters;
+						settings.characters = orgCharacters;
 					}
 				});
 				textComponent.inputEl.setAttrs({
@@ -410,33 +452,39 @@ export class SettingTab extends PluginSettingTab {
 				});
 				return textComponent;
 			})
-			.then(settingEl => this.addResetButton(settingEl, 'characters'));
+			.then(settingEl => {
+				const setDefaultValue = () => settings.characters = DEFAULT_SETTINGS[settingType].characters;
+				this.addResetButton(settingEl, setDefaultValue);
+			});
 
 		new Setting(detailsEl)
 			.setName(`Enable tabs close`)
 			.setDesc('When enabled, the operation of closing tabs is enabled.')
-			.addToggle(toggle => toggle.setValue(this.plugin.settings.enableClose)
+			.addToggle(toggle => toggle.setValue(settings.enableClose)
 				.onChange(async value => {
-					this.plugin.settings.enableClose = value;
+					settings.enableClose = value;
 					await this.plugin.saveData(this.plugin.settings);
 				}),
 			);
 	}
 
 	private setForShowTabShortcutCommand(detailsEl: HTMLDetailsElement): void {
+		const settingType = SETTING_TYPE.showTabShortcuts;
+		const settings = this.plugin.settings[settingType];
+
 		new Setting(detailsEl)
 			.setName('Characters used for shortcut hints')
 			.setDesc(`Enter non-duplicate alphanumeric characters or symbols.`)
 			.addText(text => {
-				let orgCharacters = this.plugin.settings.tshCharacters;
+				let orgCharacters = settings.characters;
 				const textComponent = text
 					.setPlaceholder('Enter characters')
-					.setValue(this.plugin.settings.tshCharacters)
+					.setValue(settings.characters)
 					.onChange(async value => {
 						const { inputEl } = textComponent;
 						if (!this.isDuplicateChars([...value]) && inputEl.validity.valid) {
 							inputEl.removeClass('ts-setting-is-invalid');
-							this.plugin.settings.tshCharacters = value;
+							settings.characters = value;
 							orgCharacters = value;
 							await this.plugin.saveSettings();
 						} else {
@@ -448,7 +496,7 @@ export class SettingTab extends PluginSettingTab {
 				
 				textComponent.inputEl.addEventListener('blur', () => {
 					if (this.isDuplicateChars([...textComponent.inputEl.value]) || !textComponent.inputEl.validity.valid) {
-						this.plugin.settings.characters = orgCharacters;
+						settings.characters = orgCharacters;
 					}
 				});
 				textComponent.inputEl.setAttrs({
@@ -457,7 +505,10 @@ export class SettingTab extends PluginSettingTab {
 				});
 				return textComponent;
 			})
-			.then(settingEl => this.addResetButton(settingEl, 'tshCharacters'));
+			.then(settingEl => {
+				const setDefaultValue = () => settings.characters = DEFAULT_SETTINGS[settingType].characters;
+				this.addResetButton(settingEl, setDefaultValue);
+			});
 	}
 
 
@@ -487,14 +538,13 @@ export class SettingTab extends PluginSettingTab {
 		return displayTexts[this.convertToKey(value, valueTexts)];
 	}
 
-	private addResetButton(settingEl: Setting, settingKey: keyof typeof DEFAULT_SETTINGS, refreshView = true): void {
+	private addResetButton(settingEl: Setting, setDefaultValue: () => void, refreshView = true): void {
         settingEl
             .addExtraButton(button => button
 				.setIcon('reset')
 				.setTooltip('Reset to default')
 				.onClick(async () => {
-					const settingValue = DEFAULT_SETTINGS[settingKey];
-					(this.plugin.settings[settingKey] as typeof settingValue) = settingValue;
+					setDefaultValue();
 					await this.plugin.saveSettings();
 					this.updateStyleSheet();
 					if (refreshView) {

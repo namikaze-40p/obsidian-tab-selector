@@ -1,6 +1,6 @@
 import { App, MarkdownView, Modal, Notice, setIcon } from 'obsidian';
 import { CustomWsLeaf } from './type';
-import { HOW_TO_NEXT_TAB, MODIFIER_KEY, Settings } from './settings';
+import { GoToPreviousNextTabSettings, HOW_TO_NEXT_TAB, MODIFIER_KEY, Settings } from './settings';
 import { isValidSettings } from './util';
 
 const compareActiveTime = (a: CustomWsLeaf, b: CustomWsLeaf) => {
@@ -26,16 +26,20 @@ export class TabHistoryModal extends Modal {
 		keyup: () => {},
 	};
 
+	get modalSettings(): GoToPreviousNextTabSettings {
+		return this.settings.goToPreviousNextTab;
+	}
+
 	constructor(app: App, settings: Settings, leaves: CustomWsLeaf[], isPrevCommand: boolean) {
 		super(app);
+		this.settings = settings;
 
 		try {
-			this.isEnabled = isValidSettings(app, settings);
+			this.isEnabled = isValidSettings(app, this.modalSettings);
 		} catch (e) {
 			console.error(e);
 		}
 
-		this.settings = settings;
 		this.isPrevCommand = isPrevCommand;
 		this.leaves = leaves.map(leaf => {
 			leaf.name = leaf.getDisplayText();
@@ -98,27 +102,27 @@ export class TabHistoryModal extends Modal {
 	}
 
 	private keyup(ev: KeyboardEvent): void {
-		if (ev.key === this.settings.mainModifierKey) {
+		if (ev.key === this.modalSettings.mainModifierKey) {
 			const leaf = this.leaves[this.focusPosition];
 			this.switchToFocusedTab(leaf);
 		}
 	}
 
 	private moveFocus(ev: KeyboardEvent): void {
-		if (this.settings.howToNextTab === HOW_TO_NEXT_TAB.useSubModifierKey) {
-			if (ev.key === this.settings.actionKey) {
-				if (this.isHoldDownSubModifierKey(ev, this.settings.subModifierKey)) {
+		if (this.modalSettings.howToNextTab === HOW_TO_NEXT_TAB.useSubModifierKey) {
+			if (ev.key === this.modalSettings.actionKey) {
+				if (this.isHoldDownSubModifierKey(ev, this.modalSettings.subModifierKey)) {
 					this.focusToNextTab();
 				} else {
 					this.focusToPreviousTab();
 				}
 			}
 		} 
-		if (this.settings.howToNextTab === HOW_TO_NEXT_TAB.useReverseActionKey) {
-			if (ev.key === this.settings.reverseActionKey) {
+		if (this.modalSettings.howToNextTab === HOW_TO_NEXT_TAB.useReverseActionKey) {
+			if (ev.key === this.modalSettings.reverseActionKey) {
 				this.focusToNextTab();
 			} 
-			if (ev.key === this.settings.actionKey) {
+			if (ev.key === this.modalSettings.actionKey) {
 				this.focusToPreviousTab();
 			}
 		}

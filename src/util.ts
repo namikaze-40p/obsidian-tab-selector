@@ -1,6 +1,6 @@
 import { App, Platform } from 'obsidian';
 import { CustomApp } from './type';
-import { HOW_TO_NEXT_TAB, MODIFIER_KEY, Settings } from './settings';
+import { GoToPreviousNextTabSettings, HOW_TO_NEXT_TAB, MODIFIER_KEY } from './settings';
 import { KeySettingsError } from './error';
 
 const STYLES_ID = 'tab-selector-styles';
@@ -14,7 +14,7 @@ const INVALID_SETTING = {
 	useDuplicateActionKey: 'Use duplicate action key.',	
 } as const;
 
-export const isValidSettings = (app: App, settings: Settings, isThrowError = true): boolean => {
+export const isValidSettings = (app: App, settings: GoToPreviousNextTabSettings, isThrowError = true): boolean => {
 	const customKeys = (app as CustomApp).hotkeyManager?.customKeys;
 	const toPrevHotkeys = (customKeys && customKeys['tab-selector:go-to-previous-tab'] || []);
 	const toNextHotkeys = customKeys && customKeys['tab-selector:go-to-next-tab'] || [];

@@ -1,5 +1,5 @@
 import { App, MarkdownView, Modal } from 'obsidian';
-import { Settings } from './settings';
+import { Settings, ShowTabShortcutsSettings } from './settings';
 import { CustomWsLeaf } from './type';
 
 export class TabShortcutsModal extends Modal {
@@ -16,10 +16,14 @@ export class TabShortcutsModal extends Modal {
 		resize: () => {},
 	};
 
+	get modalSettings(): ShowTabShortcutsSettings {
+		return this.settings.showTabShortcuts;
+	}
+
 	constructor(app: App, settings: Settings, leaves: CustomWsLeaf[]) {
 		super(app);
 		this.settings = settings;
-		this.chars = [...this.settings.tshCharacters];
+		this.chars = [...this.modalSettings.characters];
 		this.leaves = leaves.map((leaf, idx) => {
 			if (idx < this.chars.length) {
 				leaf.name = this.chars[idx];

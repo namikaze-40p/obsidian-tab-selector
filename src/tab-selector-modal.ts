@@ -1,5 +1,5 @@
 import { App, MarkdownView, Modal, setIcon } from 'obsidian';
-import { Settings } from './settings';
+import { OpenTabSelectorSettings, Settings } from './settings';
 import { CustomWsLeaf, CustomView } from './type';
 
 export const UP_KEY = 'ArrowUp';
@@ -33,6 +33,10 @@ export class TabSelectorModal extends Modal {
 		return this.leaves.slice(0 + this.pagePosition * this.chars.length, this.chars.length + this.pagePosition * this.chars.length);
 	}
 
+	get modalSettings(): OpenTabSelectorSettings {
+		return this.settings.openTabSelector;
+	}
+
 	constructor(app: App, settings: Settings, leaves: CustomWsLeaf[]) {
 		super(app);
 		this.settings = settings;
@@ -49,7 +53,7 @@ export class TabSelectorModal extends Modal {
 
 			return leaf;
 		});
-		this.chars = [...this.settings.characters];
+		this.chars = [...this.modalSettings.characters];
 	}
 
 	onOpen() {
@@ -100,7 +104,7 @@ export class TabSelectorModal extends Modal {
 
 				this.leafButtonMap.set(leaf.id || '', itemBtnEl);
 
-				if (this.settings.enableClose) {
+				if (this.modalSettings.enableClose) {
 					const closeBtnEl = el.createEl('button');
 					setIcon(closeBtnEl, 'x');
 					closeBtnEl.setAttr('tabIndex', -1);
@@ -121,19 +125,19 @@ export class TabSelectorModal extends Modal {
 	}
 
 	private reflectOptions(leaf: CustomWsLeaf, el: HTMLDivElement, itemBtnEl: HTMLButtonElement, itemNameEl: HTMLSpanElement): void {
-		if((this.settings.showAliases && !this.settings.replaceToAliases) || this.settings.showPaths) {
+		if((this.modalSettings.showAliases && !this.modalSettings.replaceToAliases) || this.modalSettings.showPaths) {
 			el.addClass('ts-leaf-row-added-options');
 		}
 
-		if (this.settings.showAliases) {
-			if (this.settings.replaceToAliases) {
+		if (this.modalSettings.showAliases) {
+			if (this.modalSettings.replaceToAliases) {
 				this.replaceLeafName(leaf.aliases || [], itemBtnEl, itemNameEl);
 			} else {
 				this.addAliasesEl(leaf.aliases || [], itemBtnEl);
 			}
 		}
 
-		if (this.settings.showPaths) {
+		if (this.modalSettings.showPaths) {
 			this.addPathEl(leaf, itemBtnEl);
 		}
 	}
@@ -164,7 +168,7 @@ export class TabSelectorModal extends Modal {
 
 	private generateFooter(contentEl: HTMLElement): void {
 		contentEl.createDiv('ts-footer', el => {
-			if (this.settings.showPaginationButtons && this.leaves.length > this.chars.length) {
+			if (this.modalSettings.showPaginationButtons && this.leaves.length > this.chars.length) {
 				el.createDiv('ts-page-nav', navEl => {
 					const prevBtnEl = navEl.createEl('button', { text: '←' });
 					prevBtnEl.setAttr('tabIndex', -1);
@@ -178,9 +182,9 @@ export class TabSelectorModal extends Modal {
 				});
 			}
 
-			if (this.settings.showLegends) {
+			if (this.modalSettings.showLegends) {
 				FOOTER_ITEMS.forEach(item => {
-					if (item.modifier && !this.settings.enableClose) {
+					if (item.modifier && !this.modalSettings.enableClose) {
 						return;
 					}
 					el.createDiv('ts-legends', el => {
