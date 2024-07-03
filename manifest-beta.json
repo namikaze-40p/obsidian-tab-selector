@@ -1,7 +1,7 @@
 {
 	"id": "tab-selector",
 	"name": "Tab Selector",
-	"version": "0.6.1",
+	"version": "0.6.2",
 	"minAppVersion": "1.6.5",
 	"description": "Quickly switch tab by 2 ways, one is general way in like other apps, the other is with keeping the keyboard home position.",
 	"author": "namikaze-40p",
