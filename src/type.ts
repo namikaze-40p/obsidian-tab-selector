@@ -1,4 +1,4 @@
-import { App, View, WorkspaceItem, WorkspaceLeaf } from 'obsidian';
+import { App, View, WorkspaceItem, WorkspaceLeaf, WorkspaceTabs } from 'obsidian';
 
 export type CustomKey = {
 		key: string,
@@ -38,4 +38,5 @@ export type CustomWsLeaf = WorkspaceLeaf & {
 	path?: string,
 	deleted?: boolean,
 	containerEl?: Element,
+	parent?: WorkspaceTabs & { id: string },
 };

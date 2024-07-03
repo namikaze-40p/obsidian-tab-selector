@@ -2,11 +2,13 @@ import { App, MarkdownView, Modal } from 'obsidian';
 import { Settings, ShowTabShortcutsSettings } from './settings';
 import { CustomWsLeaf } from './type';
 
+type Tab = { id: string, leaves: CustomWsLeaf[] };
+
 export class TabShortcutsModal extends Modal {
 	settings: Settings;
 	leaves: CustomWsLeaf[] = [];
 	chars: string[] = [];
-	tabHeaderContainer?: HTMLDivElement | null;
+	tabHeaderContainers: (HTMLDivElement | null | undefined)[] = [];
 	labelsContainer: HTMLDivElement;
 	eventListenerFunc: {
 		keyup: (ev: KeyboardEvent) => void,
@@ -25,9 +27,7 @@ export class TabShortcutsModal extends Modal {
 		this.settings = settings;
 		this.chars = [...this.modalSettings.characters];
 		this.leaves = leaves.map((leaf, idx) => {
-			if (idx < this.chars.length) {
-				leaf.name = this.chars[idx];
-			}
+			leaf.name = idx < this.chars.length ? this.chars[idx] : '';
 			return leaf;
 		});
 	}
@@ -38,27 +38,9 @@ export class TabShortcutsModal extends Modal {
 		this.labelsContainer = createDiv('tab-shortcuts-container');
 		this.modalEl.parentElement?.append(this.labelsContainer);
 
-		const headerContainer = this.leaves[0]?.containerEl?.parentElement?.parentElement;
-		this.tabHeaderContainer = headerContainer?.querySelector('.workspace-tab-header-container-inner');
-		this.tabHeaderContainer?.addClass('tsh-header-container-inner');
-		const headers = headerContainer?.querySelectorAll('.workspace-tab-header-container-inner .workspace-tab-header');
-		
-		if (headers) {
-			headers.forEach((header, idx) => {
-				if (idx >= this.chars.length) {
-					return;
-				}
-				const pos = header.getBoundingClientRect();
-				createDiv('tsh-label', el => {
-					el.setText(this.leaves[idx].name || '');
-					el.setCssProps({
-						top: `${pos.bottom}px`,
-						left: `calc(${pos.left}px + 0.5rem)`,
-					});
-					this.labelsContainer.appendChild(el);
-				});
-			});
-		}
+		const tabs = this.generateTabs(this.leaves);
+		this.showShortcutElements(tabs);
+		this.tabHeaderContainers.forEach(container => container?.addClass('tsh-header-container-inner'));
 
 		this.eventListenerFunc.keyup = this.handlingKeyupEvent.bind(this);
 		this.eventListenerFunc.resize = this.handlingResizeEvent.bind(this);
@@ -69,9 +51,47 @@ export class TabShortcutsModal extends Modal {
 	onClose() {
 		window.removeEventListener('keyup', this.eventListenerFunc.keyup);
 		window.removeEventListener('resize', this.eventListenerFunc.resize);
-		this.tabHeaderContainer?.removeClass('tsh-header-container-inner');
+		this.tabHeaderContainers.forEach(container => container?.removeClass('tsh-header-container-inner'));
 		this.contentEl.empty();
 		this.labelsContainer.remove();
+	}
+
+	private generateTabs(leaves: CustomWsLeaf[]): Tab[] {
+		return leaves.reduce((acc, cur) => {
+			const tab = acc.find(tab => tab.id === cur.parent?.id || '');
+			if (tab) {
+				tab.leaves = [...tab.leaves, cur];
+				return acc;
+			} else {
+				return [...acc, { id: cur.parent?.id || '', leaves: [cur] }];
+			}
+		}, [] as Tab[]);
+	}
+
+	private showShortcutElements(tabs: Tab[]): void {
+		tabs.forEach(tab => {
+			const tabContainer = tab.leaves[0]?.containerEl?.parentElement?.parentElement;
+			this.tabHeaderContainers.push(tabContainer?.querySelector('.workspace-tab-header-container-inner'));
+			const headers = tabContainer?.querySelectorAll('.workspace-tab-header-container-inner .workspace-tab-header');
+			if (!headers) {
+				return;
+			}
+			tab.leaves.forEach((leaf, idx) => {
+				if (!this.chars.length) {
+					return;
+				}
+				const pos = headers[idx].getBoundingClientRect();
+				createDiv('tsh-label', el => {
+					el.setText(leaf.name || '');
+					el.setCssProps({
+						top: `${pos.bottom}px`,
+						left: `calc(${pos.left}px + 0.5rem)`,
+					});
+					this.labelsContainer.appendChild(el);
+				});
+			});
+		});
+
 	}
 
 	private handlingKeyupEvent(ev: KeyboardEvent): void {
