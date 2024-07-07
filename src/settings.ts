@@ -48,6 +48,7 @@ const SETTING_TYPE = {
 	goToPreviousNextTab: 'goToPreviousNextTab',
 	openTabSelector: 'openTabSelector',
 	showTabShortcuts: 'showTabShortcuts',
+	searchTab: 'searchTab',
 } as const;
 
 export interface GoToPreviousNextTabSettings {
@@ -74,10 +75,20 @@ export interface ShowTabShortcutsSettings {
 	characters: string;
 }
 
+export interface SearchTabSettings {
+	showAliases: boolean;
+	includeAliases: boolean;
+	showPaths: boolean;
+	includePaths: boolean;
+	showLegends: boolean;
+	focusColor: string;
+}
+
 export interface Settings {
 	[SETTING_TYPE.goToPreviousNextTab]: GoToPreviousNextTabSettings;
 	[SETTING_TYPE.openTabSelector]: OpenTabSelectorSettings;
 	[SETTING_TYPE.showTabShortcuts]: ShowTabShortcutsSettings;
+	[SETTING_TYPE.searchTab]: SearchTabSettings;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -101,7 +112,15 @@ export const DEFAULT_SETTINGS: Settings = {
 	},
 	[SETTING_TYPE.showTabShortcuts]: {
 		characters: 'asdfghjkl;qwertyuiopzxcvbnm,./'
-	}
+	},
+	[SETTING_TYPE.searchTab]: {
+		showAliases: false,
+		includeAliases: false,
+		showPaths: false,
+		includePaths: false,
+		showLegends: true,
+		focusColor: '#00b4e0',
+	},
 } as const;
 
 export const CHAR_LENGTH = {
@@ -115,6 +134,7 @@ export class SettingTab extends PluginSettingTab {
 		firstDetails: false,
 		secondDetails: false,
 		thirdDetails: false,
+		fourthDetails: false,
 	};
 
 	constructor(app: App, plugin: TabSelector) {
@@ -169,6 +189,20 @@ export class SettingTab extends PluginSettingTab {
 				this.setForShowTabShortcutCommand(detailsEl);
 			}
 		}
+
+		{
+			const detailsEl = containerEl.createEl('details', '', el => {
+				el.createEl('summary', '', summaryEl => {
+					summaryEl.setText('For "Search tabs" command');
+				});
+			});
+			if (this.isOpen.fourthDetails) {
+				detailsEl.setAttr('open', true);
+			}
+			detailsEl.addEventListener("toggle", () => this.isOpen.fourthDetails = detailsEl.open);
+			this.setForSearchTabCommand(detailsEl);
+		}
+
 	}
 
 	updateStyleSheet(isTeardown = false): void {
@@ -177,9 +211,10 @@ export class SettingTab extends PluginSettingTab {
 			return;
 		}
 
-		const { goToPreviousNextTab, openTabSelector } = this.plugin.settings;
+		const { goToPreviousNextTab, openTabSelector, searchTab } = this.plugin.settings;
 		const { showAliases, replaceToAliases, showPaths, focusColor, characters } = openTabSelector;
 		const { focusColor: thFocusColor } = goToPreviousNextTab;
+		const { focusColor: tseFocusColor } = searchTab;
 		const aliasesHeight = showAliases && !replaceToAliases ? (showPaths ? 12 : 8) : 0;
 		const pathHeight = showPaths ? 8 : 0;
 		const buttonHeight = 32 + aliasesHeight + pathHeight;
@@ -188,6 +223,7 @@ export class SettingTab extends PluginSettingTab {
 			{ selector: '.ts-buttons-view', property: 'min-height', value: `${buttonHeight * characters.length + 8 * (characters.length - 1)}px` },
 			{ selector: '.ts-leaf-name-btn:focus', property: 'outline', value: `2px solid ${focusColor}` },
 			{ selector: '.th-leaf-name-btn.is-focus', property: 'outline', value: `2px solid ${thFocusColor}` },
+			{ selector: '.tab-search-modal .suggestion-item.is-selected',  property: 'outline', value: `2px solid ${tseFocusColor}` },
 		]);
 	}
 
@@ -508,6 +544,81 @@ export class SettingTab extends PluginSettingTab {
 			})
 			.then(settingEl => {
 				const setDefaultValue = () => settings.characters = DEFAULT_SETTINGS[settingType].characters;
+				this.addResetButton(settingEl, setDefaultValue);
+			});
+	}
+
+	private setForSearchTabCommand(detailsEl: HTMLDetailsElement): void {
+		const settingType = SETTING_TYPE.searchTab;
+		const settings = this.plugin.settings[settingType];
+
+		new Setting(detailsEl)
+			.setName(`Show aliases`)
+			.setDesc(`When enabled, show file's aliases on list item.`)
+			.addToggle(toggle => toggle.setValue(settings.showAliases)
+				.onChange(async value => {
+					settings.showAliases = value;
+					await this.plugin.saveData(this.plugin.settings);
+					this.display();
+				}),
+			);
+
+		new Setting(detailsEl)
+			.setDisabled(!settings.showAliases)
+			.setName(`Include aliases in the search`)
+			.setDesc(`When enabled, include aliases in the search. This setting is valid when "Show aliases" is enabled.`)
+			.addToggle(toggle => toggle.setValue(settings.includeAliases)
+				.onChange(async value => {
+					settings.includeAliases = value;
+					await this.plugin.saveData(this.plugin.settings);
+				}),
+			);
+
+		new Setting(detailsEl)
+			.setName(`Show paths`)
+			.setDesc(`When enabled, show file's paths on list item.`)
+			.addToggle(toggle => toggle.setValue(settings.showPaths)
+				.onChange(async value => {
+					settings.showPaths = value;
+					await this.plugin.saveData(this.plugin.settings);
+					this.display();
+				}),
+			);
+
+		new Setting(detailsEl)
+			.setDisabled(!settings.showPaths)
+			.setName(`Include paths in the search`)
+			.setDesc(`When enabled, include paths in the search. This setting is valid when "Show paths" is enabled.`)
+			.addToggle(toggle => toggle.setValue(settings.includePaths)
+				.onChange(async value => {
+					settings.includePaths = value;
+					await this.plugin.saveData(this.plugin.settings);
+				}),
+			);
+
+		new Setting(detailsEl)
+			.setName(`Show legends`)
+			.setDesc('When enabled, show legends on modal.')
+			.addToggle(toggle => toggle.setValue(settings.showLegends)
+				.onChange(async value => {
+					settings.showLegends = value;
+					await this.plugin.saveData(this.plugin.settings);
+				}),
+			);
+
+				
+		new Setting(detailsEl)
+			.setName('Color of button frame on focus')
+			.setDesc('Choice your favorite color.')
+			.addColorPicker(colorPicker => colorPicker.setValue(settings.focusColor)
+				.onChange(async value => {
+					settings.focusColor = value;
+					await this.plugin.saveData(this.plugin.settings);
+					this.updateStyleSheet();
+				}),
+			)
+			.then(settingEl => {
+				const setDefaultValue = () => settings.focusColor = DEFAULT_SETTINGS[settingType].focusColor;
 				this.addResetButton(settingEl, setDefaultValue);
 			});
 	}

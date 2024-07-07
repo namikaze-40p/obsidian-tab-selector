@@ -4,6 +4,7 @@ import { TabSelectorModal } from './tab-selector-modal';
 import { CustomWsItem, CustomWsLeaf } from './type';
 import { TabHistoryModal } from './tab-history-modal';
 import { TabShortcutsModal } from './tab-shortcuts-modal';
+import { TabSearchModal } from './tab-search-modal';
 
 export default class TabSelector extends Plugin {
 	settings: Settings;
@@ -40,6 +41,12 @@ export default class TabSelector extends Plugin {
 			});
 		}
 
+		this.addCommand({
+			id: 'search-tabs',
+			name: 'Search tabs',
+			callback: () => this.openTabSearchModal(),
+		});
+
 		this.settingTab = new SettingTab(this.app, this);
 		this.addSettingTab(this.settingTab);
 		this.settingTab.updateStyleSheet();
@@ -71,6 +78,11 @@ export default class TabSelector extends Plugin {
 	private showTabShortcutsModal(): void {
 		const leaves = this.generateLeaves();
 		new TabShortcutsModal(this.app, this.settings, leaves).open();
+	}
+
+	private openTabSearchModal(): void {
+		const leaves = this.generateLeaves();
+		new TabSearchModal(this.app, this.settings, leaves).open();
 	}
 
 	private generateLeaves(): CustomWsLeaf[] {

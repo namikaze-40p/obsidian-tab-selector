@@ -328,3 +328,40 @@ body.is-mobile .modal.tab-shortcuts-modal {
 		background-color: var(--color-base-25);
 	}	
 }
+
+.prompt.tab-search-modal {
+	& .suggestion-item {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+
+		& .tse-item-row {
+			display: flex;
+			word-break: break-all;
+
+			& svg {
+				height: 0.875rem;
+				width: 0.875rem;
+				min-width: 0.875rem;
+				margin-right: 0.1rem;
+			}
+		}
+	}
+
+	& .tse-footer {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem 1rem;
+		justify-content: center;
+		padding: 0.25rem;
+
+		& .tse-legends {
+			display: flex;
+			gap: 0.25rem;
+
+			& .tse-keys {
+				font-weight: bold;
+			}	
+		}
+	}
+}
