@@ -52,6 +52,18 @@ This is an [Obsidian](https://obsidian.md/) plugin which can quickly switch tab 
 
 ![demo](https://raw.githubusercontent.com/namikaze-40p/obsidian-tab-selector/main/demo/ver-0.6.0/switch-tab-without-modal.gif)
 
+### `Search tabs` - Search and open tab
+
+1. Call the modal in one of the following ways.
+    1. Using hotkey. (**recommend**)
+    1. Selecting `Tab Selector: Search tabs` from the command palette.
+1. Enter keywords to find a tab.
+1. Select the tab you wish to open in one of the following ways.
+    1. Move the cursor with arrow keys and select the item.
+    1. Click on the item name with the mouse cursor.
+
+![demo](https://raw.githubusercontent.com/namikaze-40p/obsidian-tab-selector/main/demo/ver-0.7.0/search-tabs.gif)
+
 ## Installation
 
 Install the plugin in one of the following ways.
