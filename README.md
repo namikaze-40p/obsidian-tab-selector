@@ -1,6 +1,6 @@
 # Obsidian Tab Selector
 
-This is an [Obsidian](https://obsidian.md/) plugin which can quickly switch tab by 2 ways, one is general way in like other apps, the other is with keeping the keyboard home position.
+This is an [Obsidian](https://obsidian.md/) plugin which can quickly switch tabs in various ways.
 
 > [!NOTE]
 >
