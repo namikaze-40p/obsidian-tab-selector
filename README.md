@@ -2,11 +2,6 @@
 
 This is an [Obsidian](https://obsidian.md/) plugin which can quickly switch tabs in various ways.
 
-> [!NOTE]
->
-> - Supported: Switch tabs in the same window.
-> - Not supported: Switch tabs between different windows.
-
 ## How to use
 
 ### `Go to previous/next tab` - Switch tab by general way in like other apps
