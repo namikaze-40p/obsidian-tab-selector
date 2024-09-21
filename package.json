@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-tab-selector",
-	"version": "0.7.0",
+	"version": "0.8.0",
 	"description": "This is an Obsidian plugin which can quickly switch tabs in various ways.",
 	"main": "main.js",
 	"scripts": {
