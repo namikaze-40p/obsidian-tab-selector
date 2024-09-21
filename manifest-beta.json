@@ -1,8 +1,8 @@
 {
 	"id": "tab-selector",
 	"name": "Tab Selector",
-	"version": "0.7.0",
-	"minAppVersion": "1.6.5",
+	"version": "0.8.0-beta.1",
+	"minAppVersion": "1.6.7",
 	"description": "Quickly switch tabs in various ways.",
 	"author": "namikaze-40p",
 	"authorUrl": "https://github.com/namikaze-40p",
