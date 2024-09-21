@@ -52,6 +52,7 @@ const SETTING_TYPE = {
 } as const;
 
 export interface GoToPreviousNextTabSettings {
+	enableMultiWIndow: boolean;
 	focusColor: string;
 	mainModifierKey: keyof typeof MODIFIER_KEY;
 	subModifierKey: keyof typeof MODIFIER_KEY;
@@ -61,6 +62,7 @@ export interface GoToPreviousNextTabSettings {
 }
 
 export interface OpenTabSelectorSettings {
+	enableMultiWIndow: boolean;
 	showAliases: boolean;
 	replaceToAliases: boolean;
 	showPaths: boolean;
@@ -72,10 +74,12 @@ export interface OpenTabSelectorSettings {
 }
 
 export interface ShowTabShortcutsSettings {
+	enableMultiWIndow: boolean;
 	characters: string;
 }
 
 export interface SearchTabSettings {
+	enableMultiWIndow: boolean;
 	showAliases: boolean;
 	includeAliases: boolean;
 	showPaths: boolean;
@@ -93,6 +97,7 @@ export interface Settings {
 
 export const DEFAULT_SETTINGS: Settings = {
 	[SETTING_TYPE.goToPreviousNextTab]: {
+		enableMultiWIndow: false,
 		focusColor: '#00b4e0',
 		mainModifierKey: MODIFIER_KEY.ctrl,
 		subModifierKey: MODIFIER_KEY.shift,
@@ -101,6 +106,7 @@ export const DEFAULT_SETTINGS: Settings = {
 		howToNextTab: HOW_TO_NEXT_TAB.useSubModifierKey,	
 	},
 	[SETTING_TYPE.openTabSelector]: {
+		enableMultiWIndow: false,
 		showAliases: false,
 		replaceToAliases: false,
 		showPaths: false,
@@ -111,9 +117,11 @@ export const DEFAULT_SETTINGS: Settings = {
 		enableClose: true,
 	},
 	[SETTING_TYPE.showTabShortcuts]: {
+		enableMultiWIndow: false,
 		characters: 'asdfghjkl;qwertyuiopzxcvbnm,./'
 	},
 	[SETTING_TYPE.searchTab]: {
+		enableMultiWIndow: false,
 		showAliases: false,
 		includeAliases: false,
 		showPaths: false,
@@ -230,6 +238,18 @@ export class SettingTab extends PluginSettingTab {
 	private setForGoToPrevNextTabCommands(detailsEl: HTMLDetailsElement): void {
 		const settingType = SETTING_TYPE.goToPreviousNextTab;
 		const settings = this.plugin.settings[settingType];
+
+		if (Platform.isDesktop) {
+			new Setting(detailsEl)
+				.setName(`Enable multiple window`)
+				.setDesc(`When enabled, all window's tabs is selectable. When disabled, only active window's tabs is selectable.`)
+				.addToggle(toggle => toggle.setValue(settings.enableMultiWIndow)
+				.onChange(async value => {
+					settings.enableMultiWIndow = value;
+					await this.plugin.saveData(this.plugin.settings);
+				}),
+			);
+		}
 
 		new Setting(detailsEl)
 			.setName('Color of button frame on focus')
@@ -384,6 +404,18 @@ export class SettingTab extends PluginSettingTab {
 		const settingType = SETTING_TYPE.openTabSelector;
 		const settings = this.plugin.settings[settingType];
 
+		if (Platform.isDesktop) {
+			new Setting(detailsEl)
+				.setName(`Enable multiple window`)
+				.setDesc(`When enabled, all window's tabs is selectable. When disabled, only active window's tabs is selectable.`)
+				.addToggle(toggle => toggle.setValue(settings.enableMultiWIndow)
+					.onChange(async value => {
+						settings.enableMultiWIndow = value;
+						await this.plugin.saveData(this.plugin.settings);
+					}),
+				);
+		}
+
 		new Setting(detailsEl)
 			.setName(`Show aliases`)
 			.setDesc(`When enabled, show file's aliases on button.`)
@@ -509,6 +541,18 @@ export class SettingTab extends PluginSettingTab {
 		const settingType = SETTING_TYPE.showTabShortcuts;
 		const settings = this.plugin.settings[settingType];
 
+		if (Platform.isDesktop) {
+			new Setting(detailsEl)
+				.setName(`Enable multiple window`)
+				.setDesc(`When enabled, all window's tabs is selectable. When disabled, only active window's tabs is selectable.`)
+				.addToggle(toggle => toggle.setValue(settings.enableMultiWIndow)
+					.onChange(async value => {
+						settings.enableMultiWIndow = value;
+						await this.plugin.saveData(this.plugin.settings);
+					}),
+				);
+		}
+
 		new Setting(detailsEl)
 			.setName('Characters used for shortcut hints')
 			.setDesc(`Enter non-duplicate alphanumeric characters or symbols.`)
@@ -551,6 +595,18 @@ export class SettingTab extends PluginSettingTab {
 	private setForSearchTabCommand(detailsEl: HTMLDetailsElement): void {
 		const settingType = SETTING_TYPE.searchTab;
 		const settings = this.plugin.settings[settingType];
+
+		if (Platform.isDesktop) {
+			new Setting(detailsEl)
+				.setName(`Enable multiple window`)
+				.setDesc(`When enabled, all window's tabs is selectable. When disabled, only active window's tabs is selectable.`)
+				.addToggle(toggle => toggle.setValue(settings.enableMultiWIndow)
+					.onChange(async value => {
+						settings.enableMultiWIndow = value;
+						await this.plugin.saveData(this.plugin.settings);
+					}),
+				);
+		}
 
 		new Setting(detailsEl)
 			.setName(`Show aliases`)

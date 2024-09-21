@@ -299,23 +299,23 @@ body.is-phone .modal.tab-history-modal {
 /* For tab shortcuts */
 .modal.tab-shortcuts-modal {
 	display: none;
+}
 
-	& + .tab-shortcuts-container {
+.tab-shortcuts-container {
+	position: fixed;
+	z-index: 50;
+
+	.tsh-label {
 		position: fixed;
-		z-index: 50;
-	
-		.tsh-label {
-			position: fixed;
-			width: 2rem;
-			height: 2rem;
-			font-size: 1.5rem;
-			background-color: var(--interactive-normal);
-			border: 1px solid #aaa;
-			border-radius: var(--button-radius);
-			display: flex;
-			justify-content: center;
-			align-items: center;
-		}
+		width: 2rem;
+		height: 2rem;
+		font-size: 1.5rem;
+		background-color: var(--interactive-normal);
+		border: 1px solid #aaa;
+		border-radius: var(--button-radius);
+		display: flex;
+		justify-content: center;
+		align-items: center;
 	}
 }
 

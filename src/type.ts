@@ -28,6 +28,7 @@ export type CustomView = View & {
 export type CustomWsItem = WorkspaceItem & {
 	id: string,
 	type: string,
+	containerEl: HTMLElement,
 };
 
 export type CustomWsLeaf = WorkspaceLeaf & {

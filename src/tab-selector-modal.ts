@@ -1,4 +1,4 @@
-import { App, MarkdownView, Modal, setIcon } from 'obsidian';
+import { App, Modal, setIcon } from 'obsidian';
 import { OpenTabSelectorSettings, Settings } from './settings';
 import { CustomWsLeaf, CustomView } from './type';
 
@@ -210,11 +210,7 @@ export class TabSelectorModal extends Modal {
 			return;
 		}
 		this.close();
-		this.app.workspace.setActiveLeaf(leaf);
-		const view = this.app.workspace.getActiveViewOfType(MarkdownView);
-		if (view) {
-			view.editor.focus();
-		}
+		this.app.workspace.setActiveLeaf(leaf, { focus: true });
 	}
 
 	private clickCloseLeafButton(leaf: CustomWsLeaf, divEl: HTMLDivElement) {

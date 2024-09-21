@@ -1,4 +1,4 @@
-import { App, FuzzyMatch, FuzzySuggestModal, MarkdownView, prepareFuzzySearch, setIcon } from 'obsidian';
+import { App, FuzzyMatch, FuzzySuggestModal, prepareFuzzySearch, setIcon } from 'obsidian';
 import { CustomView, CustomWsLeaf } from './type';
 import { SearchTabSettings, Settings } from './settings';
 
@@ -53,11 +53,7 @@ export class TabSearchModal extends FuzzySuggestModal<CustomWsLeaf> {
 	}
   
 	onChooseItem(leaf: CustomWsLeaf) {
-		this.app.workspace.setActiveLeaf(leaf);
-		const view = this.app.workspace.getActiveViewOfType(MarkdownView);
-		if (view) {
-			view.editor.focus();
-		}
+		this.app.workspace.setActiveLeaf(leaf, { focus: true });
 	}
 
 	renderSuggestion(item: FuzzyMatch<CustomWsLeaf>, suggestionItemEl: HTMLElement): HTMLElement {

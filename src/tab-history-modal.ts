@@ -1,4 +1,4 @@
-import { App, MarkdownView, Modal, Notice, setIcon } from 'obsidian';
+import { App, Modal, Notice, setIcon } from 'obsidian';
 import { CustomWsLeaf } from './type';
 import { GoToPreviousNextTabSettings, HOW_TO_NEXT_TAB, MODIFIER_KEY, Settings } from './settings';
 import { isValidSettings } from './util';
@@ -172,11 +172,7 @@ export class TabHistoryModal extends Modal {
 	}
 
 	private switchToFocusedTab(leaf: CustomWsLeaf): void {
-		this.app.workspace.setActiveLeaf(leaf);
-		const view = this.app.workspace.getActiveViewOfType(MarkdownView);
-		if (view) {
-			view.editor.focus();
-		}
+		this.app.workspace.setActiveLeaf(leaf, { focus: true });
 		this.close();
 	}
 

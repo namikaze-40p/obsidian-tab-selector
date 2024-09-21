@@ -66,41 +66,54 @@ export default class TabSelector extends Plugin {
 	}
 
 	private openTabSelectorModal(): void {
-		const leaves = this.generateLeaves();
+		const enableMultiWIndow = this.settings.openTabSelector.enableMultiWIndow;
+		const leaves = this.generateLeaves(enableMultiWIndow);
 		new TabSelectorModal(this.app, this.settings, leaves).open();
 	}
 
 	private openTabHistoryModal(isPrevCommand: boolean): void {
-		const leaves = this.generateLeaves();
+		const enableMultiWIndow = this.settings.goToPreviousNextTab.enableMultiWIndow;
+		const leaves = this.generateLeaves(enableMultiWIndow);
 		new TabHistoryModal(this.app, this.settings, leaves, isPrevCommand).open();
 	}
 
 	private showTabShortcutsModal(): void {
-		const leaves = this.generateLeaves();
+		const enableMultiWIndow = this.settings.showTabShortcuts.enableMultiWIndow;
+		const leaves = this.generateLeaves(enableMultiWIndow);
 		new TabShortcutsModal(this.app, this.settings, leaves).open();
 	}
 
 	private openTabSearchModal(): void {
-		const leaves = this.generateLeaves();
+		const enableMultiWIndow = this.settings.searchTab.enableMultiWIndow;
+		const leaves = this.generateLeaves(enableMultiWIndow);
 		new TabSearchModal(this.app, this.settings, leaves).open();
 	}
 
-	private generateLeaves(): CustomWsLeaf[] {
+	private generateLeaves(isEnabledMultiWindow: boolean): CustomWsLeaf[] {
 		const rootLeafIds: string[] = [];
 		this.app.workspace.iterateRootLeaves((leaf: CustomWsLeaf) => {
 			rootLeafIds.push(leaf?.id || '');
 		});
 
 		const targetLeaves: CustomWsLeaf[] = [];
-		const { id: rootId, type: rootType } = (this.app.workspace.getMostRecentLeaf()?.getRoot()) as CustomWsItem;
-		this.app.workspace.iterateAllLeaves((leaf: CustomWsLeaf) => {
-			if (rootId !== (leaf.getRoot() as CustomWsItem).id) {
-				return;
-			}
-			if ((leaf.id && rootLeafIds.includes(leaf.id)) || rootType === 'floating') {
+		if (Platform.isDesktop && isEnabledMultiWindow) {
+			this.app.workspace.iterateAllLeaves((leaf: CustomWsLeaf) => {
+				if ((leaf.getRoot() as CustomWsItem).containerEl.hasClass('mod-sidedock')) {
+					return;
+				}
 				targetLeaves.push(leaf);
-			}
-		});
+			});
+		} else {
+			const { id: rootId, type: rootType } = (this.app.workspace.getMostRecentLeaf()?.getRoot()) as CustomWsItem;
+			this.app.workspace.iterateAllLeaves((leaf: CustomWsLeaf) => {
+				if (rootId !== (leaf.getRoot() as CustomWsItem).id) {
+					return;
+				}
+				if ((leaf.id && rootLeafIds.includes(leaf.id)) || rootType === 'floating') {
+					targetLeaves.push(leaf);
+				}
+			});
+		}
 		return targetLeaves;
 	}
 

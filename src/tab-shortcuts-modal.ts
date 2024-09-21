@@ -1,21 +1,24 @@
-import { App, MarkdownView, Modal } from 'obsidian';
+import { App, Modal } from 'obsidian';
 import { Settings, ShowTabShortcutsSettings } from './settings';
 import { CustomWsLeaf } from './type';
 
-type Tab = { id: string, leaves: CustomWsLeaf[] };
+type WindowItem = { id: string, window: Window, leaves: CustomWsLeaf[] };
 
 export class TabShortcutsModal extends Modal {
 	settings: Settings;
 	leaves: CustomWsLeaf[] = [];
 	chars: string[] = [];
 	tabHeaderContainers: (HTMLDivElement | null | undefined)[] = [];
-	labelsContainer: HTMLDivElement;
+	windows: WindowItem[] = [];
+	labelContainerMap: Map<string, HTMLElement> = new Map();
 	eventListenerFunc: {
 		keyup: (ev: KeyboardEvent) => void,
 		resize: () => void,
+		click: () => void,
 	} = {
 		keyup: () => {},
 		resize: () => {},
+		click: () => {},
 	};
 
 	get modalSettings(): ShowTabShortcutsSettings {
@@ -35,48 +38,54 @@ export class TabShortcutsModal extends Modal {
 	onOpen() {
 		this.modalEl.addClasses(['tab-shortcuts-modal', 'tsh-modal']);
 
-		this.labelsContainer = createDiv('tab-shortcuts-container');
-		this.modalEl.parentElement?.append(this.labelsContainer);
-
-		const tabs = this.generateTabs(this.leaves);
-		this.showShortcutElements(tabs);
-		this.tabHeaderContainers.forEach(container => container?.addClass('tsh-header-container-inner'));
-
+		this.eventListenerFunc.click = this.handlingClickEvent.bind(this);
 		this.eventListenerFunc.keyup = this.handlingKeyupEvent.bind(this);
 		this.eventListenerFunc.resize = this.handlingResizeEvent.bind(this);
 		window.addEventListener('keyup', this.eventListenerFunc.keyup);
 		window.addEventListener('resize', this.eventListenerFunc.resize);
+
+		this.windows = this.generateWindows(this.leaves);
+		this.showShortcutElements(this.windows);
+		this.tabHeaderContainers.forEach(container => container?.addClass('tsh-header-container-inner'));
 	}
 
 	onClose() {
+		this.windows.forEach(({ window }) => window.removeEventListener('click', this.eventListenerFunc.click));
 		window.removeEventListener('keyup', this.eventListenerFunc.keyup);
 		window.removeEventListener('resize', this.eventListenerFunc.resize);
 		this.tabHeaderContainers.forEach(container => container?.removeClass('tsh-header-container-inner'));
+		this.labelContainerMap.forEach(el => el.remove());
 		this.contentEl.empty();
-		this.labelsContainer.remove();
 	}
 
-	private generateTabs(leaves: CustomWsLeaf[]): Tab[] {
+	private generateWindows(leaves: CustomWsLeaf[]): WindowItem[] {
 		return leaves.reduce((acc, cur) => {
-			const tab = acc.find(tab => tab.id === cur.parent?.id || '');
-			if (tab) {
-				tab.leaves = [...tab.leaves, cur];
+			const win = acc.find(window => window.id === cur.parent?.id || '');
+			if (win) {
+				win.leaves = [...win.leaves, cur];
 				return acc;
 			} else {
-				return [...acc, { id: cur.parent?.id || '', leaves: [cur] }];
+				const newWindow = cur.containerEl?.ownerDocument.defaultView ?? window;
+				newWindow.addEventListener('click', this.eventListenerFunc.click);
+				return [...acc, { id: cur.parent?.id || '', window: newWindow, leaves: [cur] }];
 			}
-		}, [] as Tab[]);
+		}, [] as WindowItem[]);
 	}
 
-	private showShortcutElements(tabs: Tab[]): void {
-		tabs.forEach(tab => {
-			const tabContainer = tab.leaves[0]?.containerEl?.parentElement?.parentElement;
+	private showShortcutElements(windows: WindowItem[]): void {
+		windows.forEach(win => {
+			const tabContainer = win.leaves[0]?.containerEl?.parentElement?.parentElement;
 			this.tabHeaderContainers.push(tabContainer?.querySelector('.workspace-tab-header-container-inner'));
 			const headers = tabContainer?.querySelectorAll('.workspace-tab-header-container-inner .workspace-tab-header');
 			if (!headers) {
 				return;
 			}
-			tab.leaves.forEach((leaf, idx) => {
+
+			const container = createDiv('tab-shortcuts-container');
+			win.window.document.body.append(container);
+			this.labelContainerMap.set(win.id, container);
+
+			win.leaves.forEach((leaf, idx) => {
 				if (!this.chars.length) {
 					return;
 				}
@@ -87,11 +96,14 @@ export class TabShortcutsModal extends Modal {
 						top: `${pos.bottom}px`,
 						left: `calc(${pos.left}px + 0.5rem)`,
 					});
-					this.labelsContainer.appendChild(el);
+					this.labelContainerMap.get(win.id)?.appendChild(el);
 				});
 			});
 		});
+	}
 
+	private handlingClickEvent(): void {
+		this.close();
 	}
 
 	private handlingKeyupEvent(ev: KeyboardEvent): void {
@@ -99,11 +111,7 @@ export class TabShortcutsModal extends Modal {
 			this.close();
 			const leaf = this.leaves.find(leaf => leaf.name === ev.key);
 			if (leaf) {
-				this.app.workspace.setActiveLeaf(leaf);
-				const view = this.app.workspace.getActiveViewOfType(MarkdownView);
-				if (view) {
-					view.editor.focus();
-				}
+				this.app.workspace.setActiveLeaf(leaf, { focus: true });
 			}
 			ev.preventDefault();
 			return;
