@@ -155,7 +155,6 @@ export class SettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		containerEl.addClass('ts-settings');
-		containerEl.createEl('h2').setText('Tab Selector - Settings');
 
 		{
 			const detailsEl = containerEl.createEl('details', '', el => {
