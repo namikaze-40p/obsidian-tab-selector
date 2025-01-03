@@ -102,7 +102,7 @@ body.is-phone .ts-settings {
 	}
 
 	& .ts-buttons-view {
-		margin-top: 1.5rem;
+		margin-top: 0.5rem;
 	}
 	
 	& .ts-leaf-row {
@@ -193,6 +193,11 @@ body.is-phone .ts-settings {
 					line-height: 1.2rem;
 				}
 			}
+		}
+
+		&.ts-leaf-row-invisible {
+			grid-template-columns: 1fr;
+			visibility: hidden;
 		}
 	}
 	

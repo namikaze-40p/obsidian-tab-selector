@@ -219,15 +219,10 @@ export class SettingTab extends PluginSettingTab {
 		}
 
 		const { goToPreviousNextTab, openTabSelector, searchTab } = this.plugin.settings;
-		const { showAliases, replaceToAliases, showPaths, focusColor, characters } = openTabSelector;
+		const { focusColor } = openTabSelector;
 		const { focusColor: thFocusColor } = goToPreviousNextTab;
 		const { focusColor: tseFocusColor } = searchTab;
-		const aliasesHeight = showAliases && !replaceToAliases ? (showPaths ? 12 : 8) : 0;
-		const pathHeight = showPaths ? 8 : 0;
-		const buttonHeight = 32 + aliasesHeight + pathHeight;
 		createStyles([
-			// 8 is margin of between buttons.
-			{ selector: '.ts-buttons-view', property: 'min-height', value: `${buttonHeight * characters.length + 8 * (characters.length - 1)}px` },
 			{ selector: '.ts-leaf-name-btn:focus', property: 'outline', value: `2px solid ${focusColor}` },
 			{ selector: '.th-leaf-name-btn.is-focus', property: 'outline', value: `2px solid ${thFocusColor}` },
 			{ selector: '.tab-search-modal .suggestion-item.is-selected',  property: 'outline', value: `2px solid ${tseFocusColor}` },

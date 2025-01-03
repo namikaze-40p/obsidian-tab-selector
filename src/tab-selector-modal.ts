@@ -61,7 +61,7 @@ export class TabSelectorModal extends Modal {
 
 		this.generateHeader(this.contentEl);
 		this.buttonsViewEl = this.contentEl.createDiv('ts-buttons-view');
-		this.generateButtons(this.buttonsViewEl, this.currentLeaves);
+		this.generateContent(this.buttonsViewEl, this.currentLeaves);
 		this.generateFooter(this.contentEl);
 
 		this.eventListenerFunc = this.handlingKeyupEvent.bind(this);
@@ -82,10 +82,14 @@ export class TabSelectorModal extends Modal {
 		});
 	}
 
-	private generateButtons(contentEl: HTMLElement, leaves: CustomWsLeaf[]): void {
+	private generateContent(contentEl: HTMLElement, leaves: CustomWsLeaf[]): void {
 		this.focusPosition = 0;
-		this.buttonsViewEl.empty();
+		contentEl.empty();
+		this.generateButtons(contentEl, leaves);
+		this.generateDummyButtons(contentEl, leaves);
+	}
 
+	private generateButtons(contentEl: HTMLElement, leaves: CustomWsLeaf[]): void {
 		leaves.forEach((leaf, idx) => {
 			contentEl.createDiv('ts-leaf-row', el => {
 				const shortcutBtnEl = el.createEl('button', { text: this.chars.at(idx) });
@@ -119,21 +123,40 @@ export class TabSelectorModal extends Modal {
 				}
 			});
 		});
-
+		
 		(this.leafButtonMap.get(this.currentLeaves.at(0)?.id || '') as HTMLElement).focus();
 		this.updatePageCount();
 	}
 
-	private reflectOptions(leaf: CustomWsLeaf, el: HTMLDivElement, itemBtnEl: HTMLButtonElement, itemNameEl: HTMLSpanElement): void {
+	private generateDummyButtons(contentEl: HTMLElement, leaves: CustomWsLeaf[]): void {
+		const dummyButtonCount = this.leaves.length > this.chars.length ? this.chars.length - leaves.length : 0;
+		for (let i = 0; i < dummyButtonCount; i++) {			
+			contentEl.createDiv('ts-leaf-row', el => {
+				const itemBtnEl = el.createEl('button');
+				itemBtnEl.addClass('ts-leaf-name-btn');
+				itemBtnEl.setAttr('disabled', true);
+				
+				const itemNameEl = itemBtnEl.createSpan('ts-leaf-name');
+				itemNameEl.setText('-');
+				
+				this.reflectOptions(null, el, itemBtnEl, itemNameEl);
+			});
+		}
+	}
+
+	private reflectOptions(leaf: CustomWsLeaf | null, el: HTMLDivElement, itemBtnEl: HTMLButtonElement, itemNameEl: HTMLSpanElement): void {
 		if((this.modalSettings.showAliases && !this.modalSettings.replaceToAliases) || this.modalSettings.showPaths) {
 			el.addClass('ts-leaf-row-added-options');
+		}
+		if (!leaf) {
+			el.addClass('ts-leaf-row-invisible');
 		}
 
 		if (this.modalSettings.showAliases) {
 			if (this.modalSettings.replaceToAliases) {
-				this.replaceLeafName(leaf.aliases || [], itemBtnEl, itemNameEl);
+				this.replaceLeafName(leaf?.aliases || [], itemBtnEl, itemNameEl);
 			} else {
-				this.addAliasesEl(leaf.aliases || [], itemBtnEl);
+				this.addAliasesEl(leaf?.aliases || [], itemBtnEl);
 			}
 		}
 
@@ -159,12 +182,11 @@ export class TabSelectorModal extends Modal {
 		wrapperEl.createEl('small').setText(aliases.join(' | '));
 	}
 
-	private addPathEl(leaf: CustomWsLeaf, itemBtnEl: HTMLButtonElement): void {
+	private addPathEl(leaf: CustomWsLeaf | null, itemBtnEl: HTMLButtonElement): void {
 		const wrapperEl = itemBtnEl.createDiv('ts-option-wrapper');
 		setIcon(wrapperEl, 'folder-closed');
-		wrapperEl.createEl('small').setText(leaf.path || '');
+		wrapperEl.createEl('small').setText(leaf?.path || '');
 	}
-
 
 	private generateFooter(contentEl: HTMLElement): void {
 		contentEl.createDiv('ts-footer', el => {
@@ -292,7 +314,7 @@ export class TabSelectorModal extends Modal {
 				} else {
 					this.pagePosition -= 1;
 				}
-				this.generateButtons(this.buttonsViewEl, this.currentLeaves);
+				this.generateContent(this.buttonsViewEl, this.currentLeaves);
 				break;
 			}
 			case RIGHT_KEY: {
@@ -306,7 +328,7 @@ export class TabSelectorModal extends Modal {
 				} else {
 					this.pagePosition += 1;
 				}
-				this.generateButtons(this.buttonsViewEl, this.currentLeaves);
+				this.generateContent(this.buttonsViewEl, this.currentLeaves);
 				break;
 			}
 			default:
