@@ -2,9 +2,16 @@
 
 This is an [Obsidian](https://obsidian.md/) plugin which can quickly switch tabs in various ways.
 
+Switch tabs in the following ways:
+
+- `Go to previous/next tab`: Move between tabs like in most apps
+- `Open tab selector`: Use a modal to switch tabs while keeping your hands on the keyboard
+- `Show tab shortcuts`: Switch tabs with simple keyboard shortcuts, no modal needed
+- `Search tabs`: Find and open tabs by name
+
 ## How to use
 
-### `Go to previous/next tab` - Switch tab by general way in like other apps
+### `Go to previous/next tab`: Move between tabs like in most apps
 
 1. Set up the `Go to previous/next tab` command in the plugin's settings.
     1. In the default configuration, each command are as follows.
@@ -17,7 +24,7 @@ This is an [Obsidian](https://obsidian.md/) plugin which can quickly switch tabs
 
 ![demo](https://raw.githubusercontent.com/namikaze-40p/obsidian-tab-selector/main/demo/ver-0.5.0/switch-tab-in-history.gif)
 
-### `Open tab selector` - Switch tab with keeping the keyboard home position on the modal
+### `Open tab selector`: Use a modal to switch tabs while keeping your hands on the keyboard
 
 1. Call the modal in one of the following ways.
     1. Using hotkey. (**recommend**)
@@ -34,7 +41,7 @@ This is an [Obsidian](https://obsidian.md/) plugin which can quickly switch tabs
 
 ![demo](https://raw.githubusercontent.com/namikaze-40p/obsidian-tab-selector/main/demo/switch-tab.gif)
 
-### `Show tab shortcuts` - Switch tab with keeping the keyboard home position without the modal
+### `Show tab shortcuts`: Switch tabs with simple keyboard shortcuts, no modal needed
 
 > [!NOTE]
 >
@@ -47,7 +54,7 @@ This is an [Obsidian](https://obsidian.md/) plugin which can quickly switch tabs
 
 ![demo](https://raw.githubusercontent.com/namikaze-40p/obsidian-tab-selector/main/demo/ver-0.6.0/switch-tab-without-modal.gif)
 
-### `Search tabs` - Search and open tab
+### `Search tabs`: Find and open tabs by name
 
 1. Call the modal in one of the following ways.
     1. Using hotkey. (**recommend**)
@@ -61,38 +68,5 @@ This is an [Obsidian](https://obsidian.md/) plugin which can quickly switch tabs
 
 ## Installation
 
-Install the plugin in one of the following ways.
-
-- [Community Plugins browser](#community-plugins-browser)
-- [Manually](#manually)
-- [BRAT Plugin Manager](#brat-plugin-manager)
-
-### Community Plugins browser
-
-This plugin is available in Obsidian's Community Plugins Browser.
-
-1. Launch the Obsidian application.
-1. Open the `Settings`, select `Community Plugins`, and select `Browse`.
-1. Search for `Tab Selector`, and click it.
-1. Click the `Install`.
-
-### Manually
-
-You can also install this plugin manually.
-
-1. Access to [Releases](https://github.com/namikaze-40p/obsidian-tab-selector/releases), and download the 3 files(`main.js`, `manifest.json`, `style.css`) of latest version.
-1. Create a new folder named `tab-selector`.
-1. Move download the 3 files to the `tab-selector` folder.
-1. Place the folder in your `.obsidian/plugins` directory. If you don't know where that is, you can go to Community Plugins inside Obsidian. There is a folder icon on the right of Installed Plugins. Click that and it opens your plugins folder.
-1. Reload plugins. (the easiest way is just restarting Obsidian)
-1. Activate the plugin as normal.
-
-### BRAT Plugin Manager
-
-You can also install this plugin using the BRAT plugin.
-
-1. Install BRAT using the Obsidian Plugin manager
-1. In your Obsidian settings on the left, select BRAT in the list.
-1. In BRAT settings, click the button Add Beta Plugin
-1. In the textbox, supply the URL to this repo => `https://github.com/namikaze-40p/obsidian-tab-selector`
-1. Once `Tab Selector` is installed, activate it in your Obsidian settings.
+You can find and install this plugin through Obsidian’s Community Plugins Browser.  
+For detailed steps or alternative installation methods, click [here](https://github.com/namikaze-40p/obsidian-tab-selector/blob/main/docs/installation.md).
