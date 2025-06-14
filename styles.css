@@ -246,6 +246,7 @@ body.is-mobile .modal.tab-selector-modal {
 	padding: 0.5rem;
 	min-height: 0;
 	max-height: 60%;
+	min-width: min(500px, 90%);
 
 	.modal-close-button {
 		display: none;
