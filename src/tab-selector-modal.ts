@@ -68,7 +68,7 @@ export class TabSelectorModal extends Modal {
 		window.addEventListener('keyup', this.eventListenerFunc);
 	}
 
-	onClose() {
+	onClose(): void {
 		window.removeEventListener('keyup', this.eventListenerFunc);
 		this.contentEl.empty();
 	}
@@ -227,7 +227,7 @@ export class TabSelectorModal extends Modal {
 		this.pageCounterEl.setText(`${this.pagePosition + 1}`);
 	}
 
-	private clickLeafButton(leaf: CustomWsLeaf, itemBtnEl: HTMLButtonElement) {
+	private clickLeafButton(leaf: CustomWsLeaf, itemBtnEl: HTMLButtonElement): void {
 		if (itemBtnEl.classList.contains('deleted')) {
 			return;
 		}
@@ -235,7 +235,7 @@ export class TabSelectorModal extends Modal {
 		this.app.workspace.setActiveLeaf(leaf, { focus: true });
 	}
 
-	private clickCloseLeafButton(leaf: CustomWsLeaf, divEl: HTMLDivElement) {
+	private clickCloseLeafButton(leaf: CustomWsLeaf, divEl: HTMLDivElement): void {
 		if (leaf.deleted) {
 			return;
 		}

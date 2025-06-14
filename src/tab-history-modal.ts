@@ -3,7 +3,7 @@ import { CustomWsLeaf } from './type';
 import { GoToPreviousNextTabSettings, HOW_TO_NEXT_TAB, MODIFIER_KEY, Settings } from './settings';
 import { isValidSettings } from './util';
 
-const compareActiveTime = (a: CustomWsLeaf, b: CustomWsLeaf) => {
+const compareActiveTime = (a: CustomWsLeaf, b: CustomWsLeaf): number => {
 	if (a.activeTime == null || b.activeTime == null) {
 		return 0;
 	}
@@ -52,7 +52,7 @@ export class TabHistoryModal extends Modal {
 		window.addEventListener('keyup', this.eventListenerFunc.keyup);
 	}
 
-	onOpen() {
+	onOpen(): void {
 		if (!this.isEnabled) {
 			new Notice('"Tab Selector" plugin has incorrect settings. Please review the [For "Go to previous/next tab" command] settings.', 0);
 			this.close();
@@ -67,7 +67,7 @@ export class TabHistoryModal extends Modal {
 		this.isPrevCommand ? this.focusToPreviousTab() : this.focusToNextTab();
 	}
 
-	onClose() {
+	onClose(): void {
 		window.removeEventListener('keydown', this.eventListenerFunc.keydown);
 		window.removeEventListener('keyup', this.eventListenerFunc.keyup);
 		this.contentEl.empty();
@@ -176,7 +176,7 @@ export class TabHistoryModal extends Modal {
 		this.close();
 	}
 
-	private clickCloseLeafButton(leaf: CustomWsLeaf, divEl: HTMLDivElement) {
+	private clickCloseLeafButton(leaf: CustomWsLeaf, divEl: HTMLDivElement): void {
 		const idx = this.leaves.findIndex(({ id }) => id === leaf.id);
 		this.focusPosition = idx < this.focusPosition ? this.focusPosition - 1 : this.focusPosition;
 

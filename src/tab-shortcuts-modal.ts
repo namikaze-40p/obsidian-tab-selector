@@ -35,7 +35,7 @@ export class TabShortcutsModal extends Modal {
 		});
 	}
 
-	onOpen() {
+	onOpen(): void {
 		this.modalEl.addClasses(['tab-shortcuts-modal', 'tsh-modal']);
 
 		this.eventListenerFunc.click = this.handlingClickEvent.bind(this);
@@ -49,7 +49,7 @@ export class TabShortcutsModal extends Modal {
 		this.tabHeaderContainers.forEach(container => container?.addClass('tsh-header-container-inner'));
 	}
 
-	onClose() {
+	onClose(): void {
 		this.windows.forEach(({ window }) => window.removeEventListener('click', this.eventListenerFunc.click));
 		window.removeEventListener('keyup', this.eventListenerFunc.keyup);
 		window.removeEventListener('resize', this.eventListenerFunc.resize);

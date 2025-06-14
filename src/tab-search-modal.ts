@@ -52,7 +52,7 @@ export class TabSearchModal extends FuzzySuggestModal<CustomWsLeaf> {
 			.map((item) => ({ item, match: { score: 0, matches: [] } }));
 	}
   
-	onChooseItem(leaf: CustomWsLeaf) {
+	onChooseItem(leaf: CustomWsLeaf): void {
 		this.app.workspace.setActiveLeaf(leaf, { focus: true });
 	}
 

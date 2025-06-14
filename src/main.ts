@@ -10,7 +10,7 @@ export default class TabSelector extends Plugin {
 	settings: Settings;
 	settingTab: SettingTab;
 
-	async onload() {
+	async onload(): Promise<void> {
 		await this.loadSettings();
 
 		this.addRibbonIcon('file-check-2', 'Open tab selector', () => this.openTabSelectorModal());
@@ -52,16 +52,16 @@ export default class TabSelector extends Plugin {
 		this.settingTab.updateStyleSheet();
 	}
 
-	onunload() {
+	onunload(): void {
 		this.settingTab.updateStyleSheet(true);
 	}
 
-	async loadSettings() {
+	async loadSettings(): Promise<void> {
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
 		this.migrateSettingValues();
 	}
 
-	async saveSettings() {
+	async saveSettings(): Promise<void> {
 		await this.saveData(this.settings);
 	}
 
