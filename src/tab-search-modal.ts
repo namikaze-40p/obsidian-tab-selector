@@ -8,17 +8,14 @@ const FOOTER_ITEMS = [
 ];
 
 export class TabSearchModal extends FuzzySuggestModal<CustomWsLeaf> {
-	settings: Settings;
-	leaves: CustomWsLeaf[] = [];
-
-	get modalSettings(): SearchTabSettings {
-		return this.settings.searchTab;
+	private get modalSettings(): SearchTabSettings {
+		return this._settings.searchTab;
 	}
 
-	constructor(app: App, settings: Settings, leaves: CustomWsLeaf[]) {
+	constructor(app: App, private _settings: Settings, private _leaves: CustomWsLeaf[]) {
 		super(app);
-		this.settings = settings;
-		this.leaves = leaves.map(leaf => {
+
+		this._leaves = this._leaves.map(leaf => {
 			leaf.name = leaf.getDisplayText();
 
 			const props = (leaf.view as CustomView)?.metadataEditor?.properties || [];
@@ -39,7 +36,7 @@ export class TabSearchModal extends FuzzySuggestModal<CustomWsLeaf> {
 	}
 
 	getItems(): CustomWsLeaf[] {
-		return this.leaves;
+		return this._leaves;
 	}
   
 	getItemText(leaf: CustomWsLeaf): string {

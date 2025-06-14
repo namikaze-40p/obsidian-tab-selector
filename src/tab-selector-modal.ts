@@ -18,29 +18,27 @@ export const FOOTER_ITEMS = [
 ];
 
 export class TabSelectorModal extends Modal {
-	settings: Settings;
-	leaves: CustomWsLeaf[] = [];
-	chars: string[] = [];
-	leafButtonMap: Map<string, HTMLButtonElement> = new Map();
-	closeButtonMap: Map<string, HTMLButtonElement> = new Map();
-	focusPosition = 0;
-	pagePosition = 0;
-	buttonsViewEl: HTMLDivElement;
-	pageCounterEl: HTMLSpanElement;
-	eventListenerFunc: (ev: KeyboardEvent) => void;
+	private _chars: string[] = [];
+	private _leafButtonMap: Map<string, HTMLButtonElement> = new Map();
+	private _closeButtonMap: Map<string, HTMLButtonElement> = new Map();
+	private _focusPosition = 0;
+	private _pagePosition = 0;
+	private _buttonsViewEl: HTMLDivElement;
+	private _pageCounterEl: HTMLSpanElement;
+	private _eventListenerFunc: (ev: KeyboardEvent) => void;
 
-	get currentLeaves(): CustomWsLeaf[] {
-		return this.leaves.slice(0 + this.pagePosition * this.chars.length, this.chars.length + this.pagePosition * this.chars.length);
+	private get currentLeaves(): CustomWsLeaf[] {
+		return this._leaves.slice(0 + this._pagePosition * this._chars.length, this._chars.length + this._pagePosition * this._chars.length);
 	}
 
-	get modalSettings(): OpenTabSelectorSettings {
-		return this.settings.openTabSelector;
+	private get modalSettings(): OpenTabSelectorSettings {
+		return this._settings.openTabSelector;
 	}
 
-	constructor(app: App, settings: Settings, leaves: CustomWsLeaf[]) {
+	constructor(app: App, private _settings: Settings, private _leaves: CustomWsLeaf[]) {
 		super(app);
-		this.settings = settings;
-		this.leaves = leaves.map(leaf => {
+
+		this._leaves = this._leaves.map(leaf => {
 			leaf.name = leaf.getDisplayText();
 
 			const props = (leaf.view as CustomView)?.metadataEditor?.properties || [];
@@ -53,37 +51,37 @@ export class TabSelectorModal extends Modal {
 
 			return leaf;
 		});
-		this.chars = [...this.modalSettings.characters];
+		this._chars = [...this.modalSettings.characters];
 	}
 
 	onOpen() {
 		this.modalEl.addClasses(['tab-selector-modal', 'ts-modal']);
 
 		this.generateHeader(this.contentEl);
-		this.buttonsViewEl = this.contentEl.createDiv('ts-buttons-view');
-		this.generateContent(this.buttonsViewEl, this.currentLeaves);
+		this._buttonsViewEl = this.contentEl.createDiv('ts-buttons-view');
+		this.generateContent(this._buttonsViewEl, this.currentLeaves);
 		this.generateFooter(this.contentEl);
 
-		this.eventListenerFunc = this.handlingKeyupEvent.bind(this);
-		window.addEventListener('keyup', this.eventListenerFunc);
+		this._eventListenerFunc = this.handlingKeyupEvent.bind(this);
+		window.addEventListener('keyup', this._eventListenerFunc);
 	}
 
 	onClose(): void {
-		window.removeEventListener('keyup', this.eventListenerFunc);
+		window.removeEventListener('keyup', this._eventListenerFunc);
 		this.contentEl.empty();
 	}
 
 	private generateHeader(contentEl: HTMLElement): void {
 		contentEl.createDiv('ts-header', el => {
-			this.pageCounterEl = el.createSpan('')
+			this._pageCounterEl = el.createSpan('')
 			this.updatePageCount();
 			el.createSpan('').setText('/');
-			el.createSpan('').setText(`${Math.ceil(this.leaves.length / this.chars.length)}`);
+			el.createSpan('').setText(`${Math.ceil(this._leaves.length / this._chars.length)}`);
 		});
 	}
 
 	private generateContent(contentEl: HTMLElement, leaves: CustomWsLeaf[]): void {
-		this.focusPosition = 0;
+		this._focusPosition = 0;
 		contentEl.empty();
 		this.generateButtons(contentEl, leaves);
 		this.generateDummyButtons(contentEl, leaves);
@@ -92,7 +90,7 @@ export class TabSelectorModal extends Modal {
 	private generateButtons(contentEl: HTMLElement, leaves: CustomWsLeaf[]): void {
 		leaves.forEach((leaf, idx) => {
 			contentEl.createDiv('ts-leaf-row', el => {
-				const shortcutBtnEl = el.createEl('button', { text: this.chars.at(idx) });
+				const shortcutBtnEl = el.createEl('button', { text: this._chars.at(idx) });
 				shortcutBtnEl.setAttr('tabIndex', -1);
 				shortcutBtnEl.addClass('ts-shortcut-btn');
 				shortcutBtnEl.addEventListener('click', () => this.clickLeafButton(leaf, shortcutBtnEl));
@@ -106,7 +104,7 @@ export class TabSelectorModal extends Modal {
 
 				this.reflectOptions(leaf, el, itemBtnEl, itemNameEl);
 
-				this.leafButtonMap.set(leaf.id || '', itemBtnEl);
+				this._leafButtonMap.set(leaf.id || '', itemBtnEl);
 
 				if (this.modalSettings.enableClose) {
 					const closeBtnEl = el.createEl('button');
@@ -114,7 +112,7 @@ export class TabSelectorModal extends Modal {
 					closeBtnEl.setAttr('tabIndex', -1);
 					closeBtnEl.addClass('ts-close-btn');
 					closeBtnEl.addEventListener('click', () => this.clickCloseLeafButton(leaf, el));
-					this.closeButtonMap.set(leaf.id || '', closeBtnEl);
+					this._closeButtonMap.set(leaf.id || '', closeBtnEl);
 
 					el.addClass('ts-leaf-row-deletable');
 					if (leaf.deleted) {
@@ -124,12 +122,12 @@ export class TabSelectorModal extends Modal {
 			});
 		});
 		
-		(this.leafButtonMap.get(this.currentLeaves.at(0)?.id || '') as HTMLElement).focus();
+		(this._leafButtonMap.get(this.currentLeaves.at(0)?.id || '') as HTMLElement).focus();
 		this.updatePageCount();
 	}
 
 	private generateDummyButtons(contentEl: HTMLElement, leaves: CustomWsLeaf[]): void {
-		const dummyButtonCount = this.leaves.length > this.chars.length ? this.chars.length - leaves.length : 0;
+		const dummyButtonCount = this._leaves.length > this._chars.length ? this._chars.length - leaves.length : 0;
 		for (let i = 0; i < dummyButtonCount; i++) {			
 			contentEl.createDiv('ts-leaf-row', el => {
 				const itemBtnEl = el.createEl('button');
@@ -190,7 +188,7 @@ export class TabSelectorModal extends Modal {
 
 	private generateFooter(contentEl: HTMLElement): void {
 		contentEl.createDiv('ts-footer', el => {
-			if (this.modalSettings.showPaginationButtons && this.leaves.length > this.chars.length) {
+			if (this.modalSettings.showPaginationButtons && this._leaves.length > this._chars.length) {
 				el.createDiv('ts-page-nav', navEl => {
 					const prevBtnEl = navEl.createEl('button', { text: '←' });
 					prevBtnEl.setAttr('tabIndex', -1);
@@ -212,8 +210,8 @@ export class TabSelectorModal extends Modal {
 					el.createDiv('ts-legends', el => {
 						const text = item.keys || (
 							item.modifier
-								? `Ctrl + ${this.chars.slice(0, 2).join(' | ')} | ... | ${this.chars.slice(-2).join(' | ')}`
-								: `${this.chars.slice(0, 2).join(' | ')} | ... | ${this.chars.slice(-2).join(' | ')}`
+								? `Ctrl + ${this._chars.slice(0, 2).join(' | ')} | ... | ${this._chars.slice(-2).join(' | ')}`
+								: `${this._chars.slice(0, 2).join(' | ')} | ... | ${this._chars.slice(-2).join(' | ')}`
 							);
 						el.createSpan('ts-keys').setText(text);
 						el.createSpan('ts-description').setText(item.description);
@@ -224,7 +222,7 @@ export class TabSelectorModal extends Modal {
 	}
 
 	private updatePageCount(): void {
-		this.pageCounterEl.setText(`${this.pagePosition + 1}`);
+		this._pageCounterEl.setText(`${this._pagePosition + 1}`);
 	}
 
 	private clickLeafButton(leaf: CustomWsLeaf, itemBtnEl: HTMLButtonElement): void {
@@ -243,12 +241,12 @@ export class TabSelectorModal extends Modal {
 		leaf.deleted = true;
 		leaf.detach();
 		const idx = this.currentLeaves.findIndex(({ id }) => id === leaf.id);
-		this.focusPosition = idx >= 0 ? idx : 0;
-		(this.leafButtonMap.get(leaf?.id || '') as HTMLElement).focus();
+		this._focusPosition = idx >= 0 ? idx : 0;
+		(this._leafButtonMap.get(leaf?.id || '') as HTMLElement).focus();
 	}
 
 	private handlingKeyupEvent(ev: KeyboardEvent): void {
-		if (this.chars.includes(ev.key)) {
+		if (this._chars.includes(ev.key)) {
 			this.keyupShortcutKeys(ev.key, ev.ctrlKey);
 			ev.preventDefault();
 			return;
@@ -268,67 +266,67 @@ export class TabSelectorModal extends Modal {
 	}
 
 	private keyupShortcutKeys(key: string, isModifier: boolean): void {
-		const idx = this.chars.indexOf(key);
+		const idx = this._chars.indexOf(key);
 		if (isModifier) {
 			this.keyUpCloseKeys(idx)
 		} else {
-			this.leafButtonMap.get(this.currentLeaves.at(idx)?.id || '')?.click();
+			this._leafButtonMap.get(this.currentLeaves.at(idx)?.id || '')?.click();
 		}
 	}
 
 	private keyUpCloseKeys(index?: number): void {
-		if (index == null && !this.leaves.some(leaf => this.leafButtonMap.get(leaf.id || '') === document.activeElement)) {
+		if (index == null && !this._leaves.some(leaf => this._leafButtonMap.get(leaf.id || '') === document.activeElement)) {
 			return;
 		}
-		const idx = index ?? this.focusPosition;
-		this.closeButtonMap.get(this.currentLeaves.at(idx)?.id || '')?.click();
+		const idx = index ?? this._focusPosition;
+		this._closeButtonMap.get(this.currentLeaves.at(idx)?.id || '')?.click();
 	}
 
 	private keyupArrowKeys(key: string): void {
 		switch (key) {
 			case UP_KEY:
-				if (this.focusPosition === 0) {
-					(this.leafButtonMap.get(this.currentLeaves.at(-1)?.id || '') as HTMLElement).focus();
-					this.focusPosition = this.currentLeaves.length - 1;
+				if (this._focusPosition === 0) {
+					(this._leafButtonMap.get(this.currentLeaves.at(-1)?.id || '') as HTMLElement).focus();
+					this._focusPosition = this.currentLeaves.length - 1;
 				} else {
-					(this.leafButtonMap.get(this.currentLeaves[this.focusPosition - 1].id || '') as HTMLElement).focus();
-					this.focusPosition -= 1;
+					(this._leafButtonMap.get(this.currentLeaves[this._focusPosition - 1].id || '') as HTMLElement).focus();
+					this._focusPosition -= 1;
 				}
 				break;
 			case DOWN_KEY:
-				if (this.focusPosition === this.currentLeaves.length - 1) {
-					(this.leafButtonMap.get(this.currentLeaves.at(0)?.id || '') as HTMLElement).focus();
-					this.focusPosition = 0;
+				if (this._focusPosition === this.currentLeaves.length - 1) {
+					(this._leafButtonMap.get(this.currentLeaves.at(0)?.id || '') as HTMLElement).focus();
+					this._focusPosition = 0;
 				} else {
-					(this.leafButtonMap.get(this.currentLeaves[this.focusPosition + 1].id || '') as HTMLElement).focus();
-					this.focusPosition += 1;
+					(this._leafButtonMap.get(this.currentLeaves[this._focusPosition + 1].id || '') as HTMLElement).focus();
+					this._focusPosition += 1;
 				}
 				break;
 			case LEFT_KEY: {
-				const pageSize = this.leaves.length / this.chars.length;
+				const pageSize = this._leaves.length / this._chars.length;
 				if (Math.ceil(pageSize) === 1) {
 					break;
 				}
-				if (this.pagePosition === 0) {
-					this.pagePosition = this.leaves.length % this.chars.length === 0 ? Math.floor(pageSize) - 1 : Math.floor(pageSize);
+				if (this._pagePosition === 0) {
+					this._pagePosition = this._leaves.length % this._chars.length === 0 ? Math.floor(pageSize) - 1 : Math.floor(pageSize);
 				} else {
-					this.pagePosition -= 1;
+					this._pagePosition -= 1;
 				}
-				this.generateContent(this.buttonsViewEl, this.currentLeaves);
+				this.generateContent(this._buttonsViewEl, this.currentLeaves);
 				break;
 			}
 			case RIGHT_KEY: {
-				const pageSize = this.leaves.length / this.chars.length;
+				const pageSize = this._leaves.length / this._chars.length;
 				if (Math.ceil(pageSize) === 1) {
 					break;
 				}
-				const lastPage = this.leaves.length % this.chars.length === 0 ? (pageSize) - 1 : Math.floor(pageSize);
-				if (this.pagePosition === lastPage) {
-					this.pagePosition = 0;
+				const lastPage = this._leaves.length % this._chars.length === 0 ? (pageSize) - 1 : Math.floor(pageSize);
+				if (this._pagePosition === lastPage) {
+					this._pagePosition = 0;
 				} else {
-					this.pagePosition += 1;
+					this._pagePosition += 1;
 				}
-				this.generateContent(this.buttonsViewEl, this.currentLeaves);
+				this.generateContent(this._buttonsViewEl, this.currentLeaves);
 				break;
 			}
 			default:

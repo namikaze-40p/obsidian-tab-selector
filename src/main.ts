@@ -8,7 +8,7 @@ import { TabSearchModal } from './tab-search-modal';
 
 export default class TabSelector extends Plugin {
 	settings: Settings;
-	settingTab: SettingTab;
+	private _settingTab: SettingTab;
 
 	async onload(): Promise<void> {
 		await this.loadSettings();
@@ -47,13 +47,13 @@ export default class TabSelector extends Plugin {
 			callback: () => this.openTabSearchModal(),
 		});
 
-		this.settingTab = new SettingTab(this.app, this);
-		this.addSettingTab(this.settingTab);
-		this.settingTab.updateStyleSheet();
+		this._settingTab = new SettingTab(this.app, this);
+		this.addSettingTab(this._settingTab);
+		this._settingTab.updateStyleSheet();
 	}
 
 	onunload(): void {
-		this.settingTab.updateStyleSheet(true);
+		this._settingTab.updateStyleSheet(true);
 	}
 
 	async loadSettings(): Promise<void> {

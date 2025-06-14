@@ -11,14 +11,11 @@ const compareActiveTime = (a: CustomWsLeaf, b: CustomWsLeaf): number => {
 };
 
 export class TabHistoryModal extends Modal {
-	settings: Settings;
-	leaves: CustomWsLeaf[] = [];
-	leafButtonMap: Map<string, HTMLButtonElement> = new Map();
-	closeButtonMap: Map<string, HTMLButtonElement> = new Map();
-	focusPosition = 0;
-	isEnabled = false;
-	isPrevCommand = true;
-	eventListenerFunc: {
+	private _leafButtonMap: Map<string, HTMLButtonElement> = new Map();
+	private _closeButtonMap: Map<string, HTMLButtonElement> = new Map();
+	private _focusPosition = 0;
+	private _isEnabled = false;
+	private _eventListenerFunc: {
 		keydown: (ev: KeyboardEvent) => void,
 		keyup: (ev: KeyboardEvent) => void,
 	} = {
@@ -26,34 +23,32 @@ export class TabHistoryModal extends Modal {
 		keyup: () => {},
 	};
 
-	get modalSettings(): GoToPreviousNextTabSettings {
-		return this.settings.goToPreviousNextTab;
+	private get modalSettings(): GoToPreviousNextTabSettings {
+		return this._settings.goToPreviousNextTab;
 	}
 
-	constructor(app: App, settings: Settings, leaves: CustomWsLeaf[], isPrevCommand: boolean) {
+	constructor(app: App, private _settings: Settings, private _leaves: CustomWsLeaf[], private _isPrevCommand: boolean) {
 		super(app);
-		this.settings = settings;
 
 		try {
-			this.isEnabled = isValidSettings(app, this.modalSettings);
+			this._isEnabled = isValidSettings(app, this.modalSettings);
 		} catch (e) {
 			console.error(e);
 		}
 
-		this.isPrevCommand = isPrevCommand;
-		this.leaves = leaves.map(leaf => {
+		this._leaves = this._leaves.map(leaf => {
 			leaf.name = leaf.getDisplayText();
 			return leaf;
 		}).sort(compareActiveTime);
 
-		this.eventListenerFunc.keydown = this.keydown.bind(this);
-		window.addEventListener('keydown', this.eventListenerFunc.keydown);
-		this.eventListenerFunc.keyup = this.keyup.bind(this);
-		window.addEventListener('keyup', this.eventListenerFunc.keyup);
+		this._eventListenerFunc.keydown = this.keydown.bind(this);
+		window.addEventListener('keydown', this._eventListenerFunc.keydown);
+		this._eventListenerFunc.keyup = this.keyup.bind(this);
+		window.addEventListener('keyup', this._eventListenerFunc.keyup);
 	}
 
 	onOpen(): void {
-		if (!this.isEnabled) {
+		if (!this._isEnabled) {
 			new Notice('"Tab Selector" plugin has incorrect settings. Please review the [For "Go to previous/next tab" command] settings.', 0);
 			this.close();
 			return;
@@ -62,14 +57,14 @@ export class TabHistoryModal extends Modal {
 		this.modalEl.addClasses(['tab-history-modal', 'th-modal']);
 
 		const buttonsViewEl = this.contentEl.createDiv('th-leaves');
-		this.generateButtons(buttonsViewEl, this.leaves);
+		this.generateButtons(buttonsViewEl, this._leaves);
 
-		this.isPrevCommand ? this.focusToPreviousTab() : this.focusToNextTab();
+		this._isPrevCommand ? this.focusToPreviousTab() : this.focusToNextTab();
 	}
 
 	onClose(): void {
-		window.removeEventListener('keydown', this.eventListenerFunc.keydown);
-		window.removeEventListener('keyup', this.eventListenerFunc.keyup);
+		window.removeEventListener('keydown', this._eventListenerFunc.keydown);
+		window.removeEventListener('keyup', this._eventListenerFunc.keyup);
 		this.contentEl.empty();
 	}
 
@@ -84,7 +79,7 @@ export class TabHistoryModal extends Modal {
 				const itemNameEl = leafBtnEl.createSpan('th-leaf-name');
 				itemNameEl.setText(leaf.name || '');
 	
-				this.leafButtonMap.set(leaf.id || '', leafBtnEl);
+				this._leafButtonMap.set(leaf.id || '', leafBtnEl);
 				
 				const closeBtnEl = leafBtnEl.createEl('button');
 				setIcon(closeBtnEl, 'x');
@@ -92,7 +87,7 @@ export class TabHistoryModal extends Modal {
 				closeBtnEl.addClass('th-close-btn');
 				closeBtnEl.addEventListener('mouseup', (ev: MouseEvent) => (ev.stopPropagation(), this.clickCloseLeafButton(leaf, el)));
 				closeBtnEl.addEventListener('touchend', (ev: MouseEvent) => (ev.stopPropagation(), this.clickCloseLeafButton(leaf, el)));
-				this.closeButtonMap.set(leaf.id || '', closeBtnEl);
+				this._closeButtonMap.set(leaf.id || '', closeBtnEl);
 			});
 		});
 	}
@@ -103,7 +98,7 @@ export class TabHistoryModal extends Modal {
 
 	private keyup(ev: KeyboardEvent): void {
 		if (ev.key === this.modalSettings.mainModifierKey) {
-			const leaf = this.leaves[this.focusPosition];
+			const leaf = this._leaves[this._focusPosition];
 			this.switchToFocusedTab(leaf);
 		}
 	}
@@ -144,30 +139,30 @@ export class TabHistoryModal extends Modal {
 	}
 
 	private focusToNextTab(): void {
-		if (this.focusPosition === 0) {
-			(this.leafButtonMap.get(this.leaves.at(-1)?.id || '') as HTMLElement).focus();
-			this.focusPosition = this.leaves.length - 1;
+		if (this._focusPosition === 0) {
+			(this._leafButtonMap.get(this._leaves.at(-1)?.id || '') as HTMLElement).focus();
+			this._focusPosition = this._leaves.length - 1;
 		} else {
-			(this.leafButtonMap.get(this.leaves[this.focusPosition - 1].id || '') as HTMLElement).focus();
-			this.focusPosition -= 1;
+			(this._leafButtonMap.get(this._leaves[this._focusPosition - 1].id || '') as HTMLElement).focus();
+			this._focusPosition -= 1;
 		}
 		this.addMarkOfFocus();
 	}
 
 	private focusToPreviousTab(): void {
-		if (this.focusPosition === this.leaves.length - 1) {
-			(this.leafButtonMap.get(this.leaves.at(0)?.id || '') as HTMLElement).focus();
-			this.focusPosition = 0;
+		if (this._focusPosition === this._leaves.length - 1) {
+			(this._leafButtonMap.get(this._leaves.at(0)?.id || '') as HTMLElement).focus();
+			this._focusPosition = 0;
 		} else {
-			(this.leafButtonMap.get(this.leaves[this.focusPosition + 1].id || '') as HTMLElement).focus();
-			this.focusPosition += 1;
+			(this._leafButtonMap.get(this._leaves[this._focusPosition + 1].id || '') as HTMLElement).focus();
+			this._focusPosition += 1;
 		}
 		this.addMarkOfFocus();
 	}
 
 	private addMarkOfFocus(): void {
-		this.leafButtonMap.forEach(leafButton => leafButton.removeClass('is-focus'));
-		const focusLeafEl = (this.leafButtonMap.get(this.leaves[this.focusPosition]?.id || '') as HTMLElement);
+		this._leafButtonMap.forEach(leafButton => leafButton.removeClass('is-focus'));
+		const focusLeafEl = (this._leafButtonMap.get(this._leaves[this._focusPosition]?.id || '') as HTMLElement);
 		focusLeafEl.addClass('is-focus');
 	}
 
@@ -177,23 +172,23 @@ export class TabHistoryModal extends Modal {
 	}
 
 	private clickCloseLeafButton(leaf: CustomWsLeaf, divEl: HTMLDivElement): void {
-		const idx = this.leaves.findIndex(({ id }) => id === leaf.id);
-		this.focusPosition = idx < this.focusPosition ? this.focusPosition - 1 : this.focusPosition;
+		const idx = this._leaves.findIndex(({ id }) => id === leaf.id);
+		this._focusPosition = idx < this._focusPosition ? this._focusPosition - 1 : this._focusPosition;
 
-		this.leafButtonMap.delete(leaf.id || '');
-		this.leaves = this.leaves.filter(({ id }) => id !== leaf.id);
+		this._leafButtonMap.delete(leaf.id || '');
+		this._leaves = this._leaves.filter(({ id }) => id !== leaf.id);
 		divEl.remove();
 		leaf.detach();
 		this.addMarkOfFocus();
 
-		if (!this.leaves.length) {
+		if (!this._leaves.length) {
 			this.close();
 			return;
 		}
 
 		setTimeout(() => {
-			const focusLeaf = this.leaves[this.focusPosition];
-			(this.leafButtonMap.get(focusLeaf?.id || '') as HTMLElement).focus();
+			const focusLeaf = this._leaves[this._focusPosition];
+			(this._leafButtonMap.get(focusLeaf?.id || '') as HTMLElement).focus();
 		}, 1);
 	}
 }

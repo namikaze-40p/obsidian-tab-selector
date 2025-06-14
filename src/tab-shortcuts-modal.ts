@@ -5,13 +5,11 @@ import { CustomWsLeaf } from './type';
 type WindowItem = { id: string, window: Window, leaves: CustomWsLeaf[] };
 
 export class TabShortcutsModal extends Modal {
-	settings: Settings;
-	leaves: CustomWsLeaf[] = [];
-	chars: string[] = [];
-	tabHeaderContainers: (HTMLDivElement | null | undefined)[] = [];
-	windows: WindowItem[] = [];
-	labelContainerMap: Map<string, HTMLElement> = new Map();
-	eventListenerFunc: {
+	private _chars: string[] = [];
+	private _tabHeaderContainers: (HTMLDivElement | null | undefined)[] = [];
+	private _windows: WindowItem[] = [];
+	private _labelContainerMap: Map<string, HTMLElement> = new Map();
+	private _eventListenerFunc: {
 		keyup: (ev: KeyboardEvent) => void,
 		resize: () => void,
 		click: () => void,
@@ -21,16 +19,16 @@ export class TabShortcutsModal extends Modal {
 		click: () => {},
 	};
 
-	get modalSettings(): ShowTabShortcutsSettings {
-		return this.settings.showTabShortcuts;
+	private get modalSettings(): ShowTabShortcutsSettings {
+		return this._settings.showTabShortcuts;
 	}
 
-	constructor(app: App, settings: Settings, leaves: CustomWsLeaf[]) {
+	constructor(app: App, private _settings: Settings, private _leaves: CustomWsLeaf[]) {
 		super(app);
-		this.settings = settings;
-		this.chars = [...this.modalSettings.characters];
-		this.leaves = leaves.map((leaf, idx) => {
-			leaf.name = idx < this.chars.length ? this.chars[idx] : '';
+
+		this._chars = [...this.modalSettings.characters];
+		this._leaves = this._leaves.map((leaf, idx) => {
+			leaf.name = idx < this._chars.length ? this._chars[idx] : '';
 			return leaf;
 		});
 	}
@@ -38,23 +36,23 @@ export class TabShortcutsModal extends Modal {
 	onOpen(): void {
 		this.modalEl.addClasses(['tab-shortcuts-modal', 'tsh-modal']);
 
-		this.eventListenerFunc.click = this.handlingClickEvent.bind(this);
-		this.eventListenerFunc.keyup = this.handlingKeyupEvent.bind(this);
-		this.eventListenerFunc.resize = this.handlingResizeEvent.bind(this);
-		window.addEventListener('keyup', this.eventListenerFunc.keyup);
-		window.addEventListener('resize', this.eventListenerFunc.resize);
+		this._eventListenerFunc.click = this.handlingClickEvent.bind(this);
+		this._eventListenerFunc.keyup = this.handlingKeyupEvent.bind(this);
+		this._eventListenerFunc.resize = this.handlingResizeEvent.bind(this);
+		window.addEventListener('keyup', this._eventListenerFunc.keyup);
+		window.addEventListener('resize', this._eventListenerFunc.resize);
 
-		this.windows = this.generateWindows(this.leaves);
-		this.showShortcutElements(this.windows);
-		this.tabHeaderContainers.forEach(container => container?.addClass('tsh-header-container-inner'));
+		this._windows = this.generateWindows(this._leaves);
+		this.showShortcutElements(this._windows);
+		this._tabHeaderContainers.forEach(container => container?.addClass('tsh-header-container-inner'));
 	}
 
 	onClose(): void {
-		this.windows.forEach(({ window }) => window.removeEventListener('click', this.eventListenerFunc.click));
-		window.removeEventListener('keyup', this.eventListenerFunc.keyup);
-		window.removeEventListener('resize', this.eventListenerFunc.resize);
-		this.tabHeaderContainers.forEach(container => container?.removeClass('tsh-header-container-inner'));
-		this.labelContainerMap.forEach(el => el.remove());
+		this._windows.forEach(({ window }) => window.removeEventListener('click', this._eventListenerFunc.click));
+		window.removeEventListener('keyup', this._eventListenerFunc.keyup);
+		window.removeEventListener('resize', this._eventListenerFunc.resize);
+		this._tabHeaderContainers.forEach(container => container?.removeClass('tsh-header-container-inner'));
+		this._labelContainerMap.forEach(el => el.remove());
 		this.contentEl.empty();
 	}
 
@@ -66,7 +64,7 @@ export class TabShortcutsModal extends Modal {
 				return acc;
 			} else {
 				const newWindow = cur.containerEl?.ownerDocument.defaultView ?? window;
-				newWindow.addEventListener('click', this.eventListenerFunc.click);
+				newWindow.addEventListener('click', this._eventListenerFunc.click);
 				return [...acc, { id: cur.parent?.id || '', window: newWindow, leaves: [cur] }];
 			}
 		}, [] as WindowItem[]);
@@ -75,7 +73,7 @@ export class TabShortcutsModal extends Modal {
 	private showShortcutElements(windows: WindowItem[]): void {
 		windows.forEach(win => {
 			const tabContainer = win.leaves[0]?.containerEl?.parentElement?.parentElement;
-			this.tabHeaderContainers.push(tabContainer?.querySelector('.workspace-tab-header-container-inner'));
+			this._tabHeaderContainers.push(tabContainer?.querySelector('.workspace-tab-header-container-inner'));
 			const headers = tabContainer?.querySelectorAll('.workspace-tab-header-container-inner .workspace-tab-header');
 			if (!headers) {
 				return;
@@ -83,10 +81,10 @@ export class TabShortcutsModal extends Modal {
 
 			const container = createDiv('tab-shortcuts-container');
 			win.window.document.body.append(container);
-			this.labelContainerMap.set(win.id, container);
+			this._labelContainerMap.set(win.id, container);
 
 			win.leaves.forEach((leaf, idx) => {
-				if (!this.chars.length) {
+				if (!this._chars.length) {
 					return;
 				}
 				const pos = headers[idx].getBoundingClientRect();
@@ -96,7 +94,7 @@ export class TabShortcutsModal extends Modal {
 						top: `${pos.bottom}px`,
 						left: `calc(${pos.left}px + 0.5rem)`,
 					});
-					this.labelContainerMap.get(win.id)?.appendChild(el);
+					this._labelContainerMap.get(win.id)?.appendChild(el);
 				});
 			});
 		});
@@ -107,9 +105,9 @@ export class TabShortcutsModal extends Modal {
 	}
 
 	private handlingKeyupEvent(ev: KeyboardEvent): void {
-		if (this.chars.includes(ev.key)) {
+		if (this._chars.includes(ev.key)) {
 			this.close();
-			const leaf = this.leaves.find(leaf => leaf.name === ev.key);
+			const leaf = this._leaves.find(leaf => leaf.name === ev.key);
 			if (leaf) {
 				this.app.workspace.setActiveLeaf(leaf, { focus: true });
 			}
