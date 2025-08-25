@@ -137,17 +137,15 @@ export const CHAR_LENGTH = {
 } as const;
 
 export class SettingTab extends PluginSettingTab {
-	plugin: TabSelector;
-	isOpen = {
+	private _isOpen = {
 		firstDetails: false,
 		secondDetails: false,
 		thirdDetails: false,
 		fourthDetails: false,
 	};
 
-	constructor(app: App, plugin: TabSelector) {
-		super(app, plugin);
-		this.plugin = plugin;
+	constructor(app: App, private _plugin: TabSelector) {
+		super(app, _plugin);
 	}
 
 	display(): void {
@@ -162,10 +160,10 @@ export class SettingTab extends PluginSettingTab {
 					summaryEl.setText('For "Go to previous/next tab" command');
 				});
 			});
-			if (this.isOpen.firstDetails) {
+			if (this._isOpen.firstDetails) {
 				detailsEl.setAttr('open', true);
 			}
-			detailsEl.addEventListener("toggle", () => this.isOpen.firstDetails = detailsEl.open);
+			detailsEl.addEventListener("toggle", () => this._isOpen.firstDetails = detailsEl.open);
 			this.setForGoToPrevNextTabCommands(detailsEl);
 		}
 
@@ -175,10 +173,10 @@ export class SettingTab extends PluginSettingTab {
 					summaryEl.setText('For "Open tab selector" command');
 				});
 			});
-			if (this.isOpen.secondDetails) {
+			if (this._isOpen.secondDetails) {
 				detailsEl.setAttr('open', true);
 			}
-			detailsEl.addEventListener("toggle", () => this.isOpen.secondDetails = detailsEl.open);
+			detailsEl.addEventListener("toggle", () => this._isOpen.secondDetails = detailsEl.open);
 			this.setForOpenTabSelectorCommand(detailsEl);
 		}
 
@@ -189,10 +187,10 @@ export class SettingTab extends PluginSettingTab {
 						summaryEl.setText('For "Show tab shortcuts" command');
 					});
 				});
-				if (this.isOpen.thirdDetails) {
+				if (this._isOpen.thirdDetails) {
 					detailsEl.setAttr('open', true);
 				}
-				detailsEl.addEventListener("toggle", () => this.isOpen.thirdDetails = detailsEl.open);
+				detailsEl.addEventListener("toggle", () => this._isOpen.thirdDetails = detailsEl.open);
 				this.setForShowTabShortcutCommand(detailsEl);
 			}
 		}
@@ -203,10 +201,10 @@ export class SettingTab extends PluginSettingTab {
 					summaryEl.setText('For "Search tabs" command');
 				});
 			});
-			if (this.isOpen.fourthDetails) {
+			if (this._isOpen.fourthDetails) {
 				detailsEl.setAttr('open', true);
 			}
-			detailsEl.addEventListener("toggle", () => this.isOpen.fourthDetails = detailsEl.open);
+			detailsEl.addEventListener("toggle", () => this._isOpen.fourthDetails = detailsEl.open);
 			this.setForSearchTabCommand(detailsEl);
 		}
 
@@ -218,7 +216,7 @@ export class SettingTab extends PluginSettingTab {
 			return;
 		}
 
-		const { goToPreviousNextTab, openTabSelector, searchTab } = this.plugin.settings;
+		const { goToPreviousNextTab, openTabSelector, searchTab } = this._plugin.settings;
 		const { focusColor } = openTabSelector;
 		const { focusColor: thFocusColor } = goToPreviousNextTab;
 		const { focusColor: tseFocusColor } = searchTab;
@@ -231,7 +229,7 @@ export class SettingTab extends PluginSettingTab {
 
 	private setForGoToPrevNextTabCommands(detailsEl: HTMLDetailsElement): void {
 		const settingType = SETTING_TYPE.goToPreviousNextTab;
-		const settings = this.plugin.settings[settingType];
+		const settings = this._plugin.settings[settingType];
 
 		if (Platform.isDesktop) {
 			new Setting(detailsEl)
@@ -240,7 +238,7 @@ export class SettingTab extends PluginSettingTab {
 				.addToggle(toggle => toggle.setValue(settings.enableMultiWIndow)
 				.onChange(async value => {
 					settings.enableMultiWIndow = value;
-					await this.plugin.saveData(this.plugin.settings);
+					await this._plugin.saveData(this._plugin.settings);
 				}),
 			);
 		}
@@ -251,7 +249,7 @@ export class SettingTab extends PluginSettingTab {
 			.addColorPicker(colorPicker => colorPicker.setValue(settings.focusColor)
 				.onChange(async value => {
 					settings.focusColor = value;
-					await this.plugin.saveData(this.plugin.settings);
+					await this._plugin.saveData(this._plugin.settings);
 					this.updateStyleSheet();
 				}),
 			)
@@ -268,7 +266,7 @@ export class SettingTab extends PluginSettingTab {
 				.setValue(this.convertToKey(settings.mainModifierKey, MODIFIER_KEY))
 				.onChange(async value => {
 					settings.mainModifierKey = this.convertToSettingValue(value, MODIFIER_KEY, DISPLAY_MODIFIER_KEY);
-					await this.plugin.saveData(this.plugin.settings);
+					await this._plugin.saveData(this._plugin.settings);
 					this.display();
 				}),
 			)
@@ -285,7 +283,7 @@ export class SettingTab extends PluginSettingTab {
 				.setValue(this.convertToKey(settings.actionKey, ACTION_KEY))
 				.onChange(async value => {
 					settings.actionKey = this.convertToSettingValue(value, ACTION_KEY, DISPLAY_ACTION_KEY);
-					await this.plugin.saveData(this.plugin.settings);
+					await this._plugin.saveData(this._plugin.settings);
 					this.display();
 				}),
 			)
@@ -305,7 +303,7 @@ export class SettingTab extends PluginSettingTab {
 				.setValue(this.convertToKey(settings.howToNextTab, HOW_TO_NEXT_TAB))
 				.onChange(async value => {
 					settings.howToNextTab = value as keyof typeof HOW_TO_NEXT_TAB;
-					await this.plugin.saveData(this.plugin.settings);
+					await this._plugin.saveData(this._plugin.settings);
 					this.display();
 				}),
 			)
@@ -322,7 +320,7 @@ export class SettingTab extends PluginSettingTab {
 				.setValue(this.convertToKey(settings.subModifierKey, MODIFIER_KEY))
 				.onChange(async value => {
 					settings.subModifierKey = this.convertToSettingValue(value, MODIFIER_KEY, DISPLAY_MODIFIER_KEY);
-					await this.plugin.saveData(this.plugin.settings);
+					await this._plugin.saveData(this._plugin.settings);
 					this.display();
 				}),
 			)
@@ -342,7 +340,7 @@ export class SettingTab extends PluginSettingTab {
 				.setValue(this.convertToKey(settings.reverseActionKey, ACTION_KEY))
 				.onChange(async value => {
 					settings.reverseActionKey = this.convertToSettingValue(value, ACTION_KEY, DISPLAY_ACTION_KEY);
-					await this.plugin.saveData(this.plugin.settings);
+					await this._plugin.saveData(this._plugin.settings);
 					this.display();
 				}),
 			)
@@ -396,7 +394,7 @@ export class SettingTab extends PluginSettingTab {
 
 	private setForOpenTabSelectorCommand(detailsEl: HTMLDetailsElement): void {
 		const settingType = SETTING_TYPE.openTabSelector;
-		const settings = this.plugin.settings[settingType];
+		const settings = this._plugin.settings[settingType];
 
 		if (Platform.isDesktop) {
 			new Setting(detailsEl)
@@ -405,7 +403,7 @@ export class SettingTab extends PluginSettingTab {
 				.addToggle(toggle => toggle.setValue(settings.enableMultiWIndow)
 					.onChange(async value => {
 						settings.enableMultiWIndow = value;
-						await this.plugin.saveData(this.plugin.settings);
+						await this._plugin.saveData(this._plugin.settings);
 					}),
 				);
 		}
@@ -417,7 +415,7 @@ export class SettingTab extends PluginSettingTab {
 				.onChange(async value => {
 					settings.showAliases = value;
 					settings.replaceToAliases = false;
-					await this.plugin.saveData(this.plugin.settings);
+					await this._plugin.saveData(this._plugin.settings);
 					this.updateStyleSheet();
 					this.display();
 				}),
@@ -429,7 +427,7 @@ export class SettingTab extends PluginSettingTab {
 			.addToggle(toggle => toggle.setValue(settings.replaceToAliases)
 				.onChange(async value => {
 					settings.replaceToAliases = value;
-					await this.plugin.saveData(this.plugin.settings);
+					await this._plugin.saveData(this._plugin.settings);
 					this.updateStyleSheet();
 				}),
 			)
@@ -441,7 +439,7 @@ export class SettingTab extends PluginSettingTab {
 			.addToggle(toggle => toggle.setValue(settings.showPaths)
 				.onChange(async value => {
 					settings.showPaths = value;
-					await this.plugin.saveData(this.plugin.settings);
+					await this._plugin.saveData(this._plugin.settings);
 					this.updateStyleSheet();
 				}),
 			);
@@ -452,7 +450,7 @@ export class SettingTab extends PluginSettingTab {
 			.addToggle(toggle => toggle.setValue(settings.showPaginationButtons)
 				.onChange(async value => {
 					settings.showPaginationButtons = value;
-					await this.plugin.saveData(this.plugin.settings);
+					await this._plugin.saveData(this._plugin.settings);
 				}),
 			);
 		
@@ -462,7 +460,7 @@ export class SettingTab extends PluginSettingTab {
 			.addToggle(toggle => toggle.setValue(settings.showLegends)
 				.onChange(async value => {
 					settings.showLegends = value;
-					await this.plugin.saveData(this.plugin.settings);
+					await this._plugin.saveData(this._plugin.settings);
 				}),
 			);
 		
@@ -472,7 +470,7 @@ export class SettingTab extends PluginSettingTab {
 			.addColorPicker(colorPicker => colorPicker.setValue(settings.focusColor)
 				.onChange(async value => {
 					settings.focusColor = value;
-					await this.plugin.saveData(this.plugin.settings);
+					await this._plugin.saveData(this._plugin.settings);
 					this.updateStyleSheet();
 				}),
 			)
@@ -495,7 +493,7 @@ export class SettingTab extends PluginSettingTab {
 							inputEl.removeClass('ts-setting-is-invalid');
 							settings.characters = value;
 							orgCharacters = value;
-							await this.plugin.saveSettings();
+							await this._plugin.saveSettings();
 						} else {
 							inputEl.addClass('ts-setting-is-invalid');
 							
@@ -526,14 +524,14 @@ export class SettingTab extends PluginSettingTab {
 			.addToggle(toggle => toggle.setValue(settings.enableClose)
 				.onChange(async value => {
 					settings.enableClose = value;
-					await this.plugin.saveData(this.plugin.settings);
+					await this._plugin.saveData(this._plugin.settings);
 				}),
 			);
 	}
 
 	private setForShowTabShortcutCommand(detailsEl: HTMLDetailsElement): void {
 		const settingType = SETTING_TYPE.showTabShortcuts;
-		const settings = this.plugin.settings[settingType];
+		const settings = this._plugin.settings[settingType];
 
 		if (Platform.isDesktop) {
 			new Setting(detailsEl)
@@ -542,7 +540,7 @@ export class SettingTab extends PluginSettingTab {
 				.addToggle(toggle => toggle.setValue(settings.enableMultiWIndow)
 					.onChange(async value => {
 						settings.enableMultiWIndow = value;
-						await this.plugin.saveData(this.plugin.settings);
+						await this._plugin.saveData(this._plugin.settings);
 					}),
 				);
 		}
@@ -561,7 +559,7 @@ export class SettingTab extends PluginSettingTab {
 							inputEl.removeClass('ts-setting-is-invalid');
 							settings.characters = value;
 							orgCharacters = value;
-							await this.plugin.saveSettings();
+							await this._plugin.saveSettings();
 						} else {
 							inputEl.addClass('ts-setting-is-invalid');
 							
@@ -588,7 +586,7 @@ export class SettingTab extends PluginSettingTab {
 
 	private setForSearchTabCommand(detailsEl: HTMLDetailsElement): void {
 		const settingType = SETTING_TYPE.searchTab;
-		const settings = this.plugin.settings[settingType];
+		const settings = this._plugin.settings[settingType];
 
 		if (Platform.isDesktop) {
 			new Setting(detailsEl)
@@ -597,7 +595,7 @@ export class SettingTab extends PluginSettingTab {
 				.addToggle(toggle => toggle.setValue(settings.enableMultiWIndow)
 					.onChange(async value => {
 						settings.enableMultiWIndow = value;
-						await this.plugin.saveData(this.plugin.settings);
+						await this._plugin.saveData(this._plugin.settings);
 					}),
 				);
 		}
@@ -608,7 +606,7 @@ export class SettingTab extends PluginSettingTab {
 			.addToggle(toggle => toggle.setValue(settings.showAliases)
 				.onChange(async value => {
 					settings.showAliases = value;
-					await this.plugin.saveData(this.plugin.settings);
+					await this._plugin.saveData(this._plugin.settings);
 					this.display();
 				}),
 			);
@@ -620,7 +618,7 @@ export class SettingTab extends PluginSettingTab {
 			.addToggle(toggle => toggle.setValue(settings.includeAliases)
 				.onChange(async value => {
 					settings.includeAliases = value;
-					await this.plugin.saveData(this.plugin.settings);
+					await this._plugin.saveData(this._plugin.settings);
 				}),
 			);
 
@@ -630,7 +628,7 @@ export class SettingTab extends PluginSettingTab {
 			.addToggle(toggle => toggle.setValue(settings.showPaths)
 				.onChange(async value => {
 					settings.showPaths = value;
-					await this.plugin.saveData(this.plugin.settings);
+					await this._plugin.saveData(this._plugin.settings);
 					this.display();
 				}),
 			);
@@ -642,7 +640,7 @@ export class SettingTab extends PluginSettingTab {
 			.addToggle(toggle => toggle.setValue(settings.includePaths)
 				.onChange(async value => {
 					settings.includePaths = value;
-					await this.plugin.saveData(this.plugin.settings);
+					await this._plugin.saveData(this._plugin.settings);
 				}),
 			);
 
@@ -652,7 +650,7 @@ export class SettingTab extends PluginSettingTab {
 			.addToggle(toggle => toggle.setValue(settings.showLegends)
 				.onChange(async value => {
 					settings.showLegends = value;
-					await this.plugin.saveData(this.plugin.settings);
+					await this._plugin.saveData(this._plugin.settings);
 				}),
 			);
 
@@ -663,7 +661,7 @@ export class SettingTab extends PluginSettingTab {
 			.addColorPicker(colorPicker => colorPicker.setValue(settings.focusColor)
 				.onChange(async value => {
 					settings.focusColor = value;
-					await this.plugin.saveData(this.plugin.settings);
+					await this._plugin.saveData(this._plugin.settings);
 					this.updateStyleSheet();
 				}),
 			)
@@ -672,7 +670,6 @@ export class SettingTab extends PluginSettingTab {
 				this.addResetButton(settingEl, setDefaultValue);
 			});
 	}
-
 
 	private isDuplicateChars(chars: string[]): boolean {
 		return chars.some((char, idx) => chars.slice(idx + 1).includes(char));
@@ -707,7 +704,7 @@ export class SettingTab extends PluginSettingTab {
 				.setTooltip('Reset to default')
 				.onClick(async () => {
 					setDefaultValue();
-					await this.plugin.saveSettings();
+					await this._plugin.saveSettings();
 					this.updateStyleSheet();
 					if (refreshView) {
 						this.display();
