@@ -1,15 +1,22 @@
-import { GoToPreviousNextTabSettings } from "./settings";
-import { CustomKey } from "./type";
+import { GoToPreviousNextTabSettings } from './settings';
+import { CustomKey } from './type';
 
 export class KeySettingsError extends Error {
-	constructor(message: string, params: { settings: GoToPreviousNextTabSettings, toPrevHotkeys: CustomKey[], toNextHotkeys: CustomKey[] }) {
-		super(message);
+  constructor(
+    message: string,
+    params: {
+      settings: GoToPreviousNextTabSettings;
+      toPrevHotkeys: CustomKey[];
+      toNextHotkeys: CustomKey[];
+    },
+  ) {
+    super(message);
 
-		if (Error.captureStackTrace) {
-			Error.captureStackTrace(this, KeySettingsError);
-		}
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, KeySettingsError);
+    }
 
-		this.name = 'KeySettingsError';
-		console.warn(params);
-	}
+    this.name = 'KeySettingsError';
+    console.warn(params);
+  }
 }

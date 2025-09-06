@@ -1,372 +1,372 @@
 /* For settings screen */
 .ts-settings {
-	& .setting-item {
-		& .ts-setting-is-invalid {
-			border-color: red !important;
-		}
-	
-		&.is-disabled {
-			opacity: 0.5;
-		}
-	}
+  & .setting-item {
+    & .ts-setting-is-invalid {
+      border-color: red !important;
+    }
 
-	& details {
-		font-size: var(--font-ui-medium);
-		margin-bottom: 1rem;
-		border: 1px solid #aaa;
-	    padding: 0.5rem;
+    &.is-disabled {
+      opacity: 0.5;
+    }
+  }
 
-		&:last-child {
-			margin-bottom: 0;
-		}
+  & details {
+    font-size: var(--font-ui-medium);
+    margin-bottom: 1rem;
+    border: 1px solid #aaa;
+    padding: 0.5rem;
 
-		& .th-how-to-use {
-			border: 1px solid #aaa;
-			padding: 0.5rem;
+    &:last-child {
+      margin-bottom: 0;
+    }
 
-			& .th-settings-description {
-				display: flex;
-				flex-direction: column;
-				margin-bottom: 0.5rem;
+    & .th-how-to-use {
+      border: 1px solid #aaa;
+      padding: 0.5rem;
 
-				& .th-description-title {
-					font-weight: bold;
-				}
-			}
-	
-			& .th-hotkey-preview {
-				display: flex;
-				justify-content: space-between;
-				padding: 0 1rem;
+      & .th-settings-description {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 0.5rem;
 
-				& .th-hotkey-preview-value {
-					font-weight: bold;
-				}
-			}
+        & .th-description-title {
+          font-weight: bold;
+        }
+      }
 
-			& .th-match-state {
-				display: flex;
-				justify-content: center;
-				gap: 0.5rem;
-				width: max-content;
-				max-width: 100%;
-				border: 2px solid var(--color-red);
-				margin: 0.5rem auto;
-				padding: 0.5rem;
+      & .th-hotkey-preview {
+        display: flex;
+        justify-content: space-between;
+        padding: 0 1rem;
 
-				& .th-match-icon {
-					display: flex;
-				    align-items: center;
-					color: var(--color-red);
-				}
+        & .th-hotkey-preview-value {
+          font-weight: bold;
+        }
+      }
 
-				&.is-match {
-					border-color: var(--color-green);
+      & .th-match-state {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        width: max-content;
+        max-width: 100%;
+        border: 2px solid var(--color-red);
+        margin: 0.5rem auto;
+        padding: 0.5rem;
 
-					& .th-match-icon {
-						color: var(--color-green);
-					}
-				}
-			}
-	
-			& .th-settings-caution {
-				display: flex;
-				flex-direction: column;
+        & .th-match-icon {
+          display: flex;
+          align-items: center;
+          color: var(--color-red);
+        }
 
-				& .th-settings-caution-title {
-					font-weight: bold;
-				}
-			}
-		}
-	}
+        &.is-match {
+          border-color: var(--color-green);
+
+          & .th-match-icon {
+            color: var(--color-green);
+          }
+        }
+      }
+
+      & .th-settings-caution {
+        display: flex;
+        flex-direction: column;
+
+        & .th-settings-caution-title {
+          font-weight: bold;
+        }
+      }
+    }
+  }
 }
 
 body.is-phone .ts-settings {
-	& .th-hotkey-preview {
-		flex-direction: column;
-		align-items: end;
+  & .th-hotkey-preview {
+    flex-direction: column;
+    align-items: end;
 
-		& .th-hotkey-preview-label {
-			width: 100%;
-		}
-	}
+    & .th-hotkey-preview-label {
+      width: 100%;
+    }
+  }
 }
 
 /* For tab selector */
 .modal.tab-selector-modal {
-	width: min(700px, 100%);
+  width: min(700px, 100%);
 
-	& .ts-header {
-		display: flex;
-		gap: 0.25rem;
-		position: absolute;
-		top: 0.5rem;
-	}
+  & .ts-header {
+    display: flex;
+    gap: 0.25rem;
+    position: absolute;
+    top: 0.5rem;
+  }
 
-	& .ts-buttons-view {
-		margin-top: 0.5rem;
-	}
-	
-	& .ts-leaf-row {
-		display: grid;
-		grid-template-columns: 2rem 1fr;
-		grid-template-rows: 2rem;
-		gap: 0.25rem;
-		margin: 0.5rem 0;
+  & .ts-buttons-view {
+    margin-top: 0.5rem;
+  }
 
-		&.ts-leaf-row-deletable {
-			grid-template-columns: 2rem 1fr 2rem;
-		}
+  & .ts-leaf-row {
+    display: grid;
+    grid-template-columns: 2rem 1fr;
+    grid-template-rows: 2rem;
+    gap: 0.25rem;
+    margin: 0.5rem 0;
 
-		&:not(:last-child) {
-			margin-bottom: 0.5rem;
-		}
+    &.ts-leaf-row-deletable {
+      grid-template-columns: 2rem 1fr 2rem;
+    }
 
-		& .ts-shortcut-btn,
-		& .ts-close-btn {
-			font-weight: bold;
-			font-size: 1.5rem;
-			height: inherit;
-			padding: 0;
-		}
-		
-		& .ts-leaf-name-btn {
-			display: flex;
-			justify-content: flex-start;
-			gap: 0 0.15rem;
-			height: 2rem;
-			overflow: hidden;
-			text-overflow: ellipsis;
-			text-align: start;
+    &:not(:last-child) {
+      margin-bottom: 0.5rem;
+    }
 
-			& .ts-leaf-name {
-				overflow: hidden;
-				text-overflow: ellipsis;
-				width: 100%;
-				font-size: 1rem;
-			}
+    & .ts-shortcut-btn,
+    & .ts-close-btn {
+      font-weight: bold;
+      font-size: 1.5rem;
+      height: inherit;
+      padding: 0;
+    }
 
-			& .ts-option-wrapper {
-				display: flex;
-				align-items: center;
-				width: 100%;
+    & .ts-leaf-name-btn {
+      display: flex;
+      justify-content: flex-start;
+      gap: 0 0.15rem;
+      height: 2rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-align: start;
 
-				& svg {
-					height: 0.75rem;
-					width: 0.75rem;
-					min-width: 0.75rem;
-					margin-right: 0.1rem;
-				}
+      & .ts-leaf-name {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+        font-size: 1rem;
+      }
 
-				& .ts-leaf-alias {
-					overflow: hidden;
-					text-overflow: ellipsis;
-					width: 100%;
-					line-height: 1.2rem;
-				}
+      & .ts-option-wrapper {
+        display: flex;
+        align-items: center;
+        width: 100%;
 
-				& small {
-					overflow: hidden;
-					text-overflow: ellipsis;
-					color: var(--text-muted);
-					line-height: 0.75rem;
-				}
-			}
-		}
+        & svg {
+          height: 0.75rem;
+          width: 0.75rem;
+          min-width: 0.75rem;
+          margin-right: 0.1rem;
+        }
 
-		&.deleted button {
-			opacity: 0.5;
-		}
+        & .ts-leaf-alias {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          width: 100%;
+          line-height: 1.2rem;
+        }
 
-		&.ts-leaf-row-added-options {
-			grid-template-columns: 2.5rem 1fr;
-			grid-template-rows: initial;
+        & small {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          color: var(--text-muted);
+          line-height: 0.75rem;
+        }
+      }
+    }
 
-			&.ts-leaf-row-deletable {
-				grid-template-columns: 2.5rem 1fr 2.5rem;
-			}
-			
-			& .ts-leaf-name-btn {
-				justify-content: initial;
-				flex-direction: column;
-				align-items: start;
-				height: initial;
+    &.deleted button {
+      opacity: 0.5;
+    }
 
-				& .ts-leaf-name {
-					line-height: 1.2rem;
-				}
-			}
-		}
+    &.ts-leaf-row-added-options {
+      grid-template-columns: 2.5rem 1fr;
+      grid-template-rows: initial;
 
-		&.ts-leaf-row-invisible {
-			grid-template-columns: 1fr;
-			visibility: hidden;
-		}
-	}
-	
-	& .ts-footer {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.5rem 1rem;
-		opacity: 0.8;
+      &.ts-leaf-row-deletable {
+        grid-template-columns: 2.5rem 1fr 2.5rem;
+      }
 
-		& .ts-page-nav {
-			width: 100%;
-			display: flex;
-			justify-content: center;
-			gap: 0.5rem;
+      & .ts-leaf-name-btn {
+        justify-content: initial;
+        flex-direction: column;
+        align-items: start;
+        height: initial;
 
-			& .ts-nav-btn {
-				width: 4rem;
-				font-weight: bold;
-			}
-		}
+        & .ts-leaf-name {
+          line-height: 1.2rem;
+        }
+      }
+    }
 
-		& .ts-legends {
-			display: flex;
-			gap: 0.25rem;
+    &.ts-leaf-row-invisible {
+      grid-template-columns: 1fr;
+      visibility: hidden;
+    }
+  }
 
-			& .ts-keys {
-				font-weight: bold;
-			}	
-		}
-	}
+  & .ts-footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    opacity: 0.8;
+
+    & .ts-page-nav {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+
+      & .ts-nav-btn {
+        width: 4rem;
+        font-weight: bold;
+      }
+    }
+
+    & .ts-legends {
+      display: flex;
+      gap: 0.25rem;
+
+      & .ts-keys {
+        font-weight: bold;
+      }
+    }
+  }
 }
 
 body.is-mobile .modal.tab-selector-modal {
-	& .ts-leaf-row .ts-leaf-name-btn .ts-leaf-name {
-		font-size: var(--font-ui-small);
-	}
+  & .ts-leaf-row .ts-leaf-name-btn .ts-leaf-name {
+    font-size: var(--font-ui-small);
+  }
 }
 
 /* For tab history */
 .modal.tab-history-modal {
-	position: absolute;
-	top: 10%;
-	padding: 0.5rem;
-	min-height: 0;
-	max-height: 60%;
-	min-width: min(500px, 90%);
+  position: absolute;
+  top: 10%;
+  padding: 0.5rem;
+  min-height: 0;
+  max-height: 60%;
+  min-width: min(500px, 90%);
 
-	.modal-close-button {
-		display: none;
-	}
+  .modal-close-button {
+    display: none;
+  }
 
-	.th-leaves {
-		display: flex;
-		flex-direction: column;
-		gap: 2px;
+  .th-leaves {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 
-		& .th-leaf-row {
-			display: grid;
-	
-			& .th-leaf-name-btn {
-				display: grid;
-				grid-template-columns: 1fr 2rem;
-				align-content: center;
-				text-align: start;
-				padding-right: 0;
-	
-				& .th-leaf-name {
-					overflow: hidden;
-					text-overflow: ellipsis;
-					width: 100%;
-					font-size: 1rem;
-				}
-			}
+    & .th-leaf-row {
+      display: grid;
 
-			& .th-close-btn {
-				height: inherit;
-				width: 2rem;
-				padding: 0;
-				box-shadow: none;
-				background-color: transparent;
-				color: var(--text-muted);
+      & .th-leaf-name-btn {
+        display: grid;
+        grid-template-columns: 1fr 2rem;
+        align-content: center;
+        text-align: start;
+        padding-right: 0;
 
-				&:hover {
-					border: 2px dashed var(--input-focus-border-color);
-				}
-			}				
-		}
-	}
+        & .th-leaf-name {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          width: 100%;
+          font-size: 1rem;
+        }
+      }
+
+      & .th-close-btn {
+        height: inherit;
+        width: 2rem;
+        padding: 0;
+        box-shadow: none;
+        background-color: transparent;
+        color: var(--text-muted);
+
+        &:hover {
+          border: 2px dashed var(--input-focus-border-color);
+        }
+      }
+    }
+  }
 }
 
 body.is-mobile .modal.tab-history-modal {
-	& .th-leaf-row .th-leaf-name-btn .th-leaf-name {
-		font-size: var(--font-ui-small);
-	}
+  & .th-leaf-row .th-leaf-name-btn .th-leaf-name {
+    font-size: var(--font-ui-small);
+  }
 }
 
 body.is-phone .modal.tab-history-modal {
-	top: initial;
+  top: initial;
 }
 
 /* For tab shortcuts */
 .modal.tab-shortcuts-modal {
-	display: none;
+  display: none;
 }
 
 .tab-shortcuts-container {
-	position: fixed;
-	z-index: 50;
+  position: fixed;
+  z-index: 50;
 
-	.tsh-label {
-		position: fixed;
-		width: 2rem;
-		height: 2rem;
-		font-size: 1.5rem;
-		background-color: var(--interactive-normal);
-		border: 1px solid #aaa;
-		border-radius: var(--button-radius);
-		display: flex;
-		justify-content: center;
-		align-items: center;
-	}
+  .tsh-label {
+    position: fixed;
+    width: 2rem;
+    height: 2rem;
+    font-size: 1.5rem;
+    background-color: var(--interactive-normal);
+    border: 1px solid #aaa;
+    border-radius: var(--button-radius);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 }
 
 .tsh-header-container-inner {
-	z-index: 51;
+  z-index: 51;
 }
 
 body.is-mobile .modal.tab-shortcuts-modal {
-	& + .tab-shortcuts-container .tsh-label {
-		background-color: var(--color-base-25);
-	}	
+  & + .tab-shortcuts-container .tsh-label {
+    background-color: var(--color-base-25);
+  }
 }
 
 .prompt.tab-search-modal {
-	& .suggestion-item {
-		display: flex;
-		flex-direction: column;
-		gap: 0.25rem;
+  & .suggestion-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
 
-		& .tse-item-row {
-			display: flex;
-			word-break: break-all;
+    & .tse-item-row {
+      display: flex;
+      word-break: break-all;
 
-			& svg {
-				height: 0.875rem;
-				width: 0.875rem;
-				min-width: 0.875rem;
-				margin-right: 0.1rem;
-			}
-		}
-	}
+      & svg {
+        height: 0.875rem;
+        width: 0.875rem;
+        min-width: 0.875rem;
+        margin-right: 0.1rem;
+      }
+    }
+  }
 
-	& .tse-footer {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.5rem 1rem;
-		justify-content: center;
-		padding: 0.25rem;
+  & .tse-footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    justify-content: center;
+    padding: 0.25rem;
 
-		& .tse-legends {
-			display: flex;
-			gap: 0.25rem;
+    & .tse-legends {
+      display: flex;
+      gap: 0.25rem;
 
-			& .tse-keys {
-				font-weight: bold;
-			}	
-		}
-	}
+      & .tse-keys {
+        font-weight: bold;
+      }
+    }
+  }
 }
