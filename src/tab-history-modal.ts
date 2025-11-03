@@ -69,7 +69,11 @@ export class TabHistoryModal extends Modal {
     const buttonsViewEl = this.contentEl.createDiv('th-leaves');
     this.generateButtons(buttonsViewEl, this._leaves);
 
-    this._isPrevCommand ? this.focusToPreviousTab() : this.focusToNextTab();
+    if (this._isPrevCommand) {
+      this.focusToPreviousTab();
+    } else {
+      this.focusToNextTab();
+    }
 
     const focusColor = this.modalSettings.focusColor;
     this.modalEl.style.setProperty('--tab-history-modal-focus-color', `${focusColor}`);
