@@ -42,6 +42,17 @@ export class TabSearchModal extends FuzzySuggestModal<CustomWsLeaf> {
     }
   }
 
+  onOpen(): void {
+    super.onOpen();
+    const focusColor = this.modalSettings.focusColor;
+    this.modalEl.style.setProperty('--tab-search-modal-focus-color', `${focusColor}`);
+  }
+
+  onClose(): void {
+    super.onClose();
+    this.modalEl.style.removeProperty('--tab-search-modal-focus-color');
+  }
+
   getItems(): CustomWsLeaf[] {
     return this._leaves;
   }

@@ -79,11 +79,15 @@ export class TabSelectorModal extends Modal {
 
     this._eventListenerFunc = this.handlingKeyupEvent.bind(this);
     window.addEventListener('keyup', this._eventListenerFunc);
+
+    const focusColor = this.modalSettings.focusColor;
+    this.modalEl.style.setProperty('--tab-selector-modal-focus-color', `${focusColor}`);
   }
 
   onClose(): void {
     window.removeEventListener('keyup', this._eventListenerFunc);
     this.contentEl.empty();
+    this.modalEl.style.removeProperty('--tab-selector-modal-focus-color');
   }
 
   private generateHeader(contentEl: HTMLElement): void {

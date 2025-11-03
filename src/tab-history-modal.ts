@@ -70,12 +70,16 @@ export class TabHistoryModal extends Modal {
     this.generateButtons(buttonsViewEl, this._leaves);
 
     this._isPrevCommand ? this.focusToPreviousTab() : this.focusToNextTab();
+
+    const focusColor = this.modalSettings.focusColor;
+    this.modalEl.style.setProperty('--tab-history-modal-focus-color', `${focusColor}`);
   }
 
   onClose(): void {
     window.removeEventListener('keydown', this._eventListenerFunc.keydown);
     window.removeEventListener('keyup', this._eventListenerFunc.keyup);
     this.contentEl.empty();
+    this.modalEl.style.removeProperty('--tab-history-modal-focus-color');
   }
 
   private generateButtons(contentEl: HTMLElement, leaves: CustomWsLeaf[]): void {

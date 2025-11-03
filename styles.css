@@ -1,3 +1,9 @@
+:root {
+  --tab-selector-modal-focus-color: #00b4e0;
+  --tab-history-modal-focus-color: #00b4e0;
+  --tab-search-modal-focus-color: #00b4e0;
+}
+
 /* For settings screen */
 .ts-settings {
   & .setting-item {
@@ -139,6 +145,10 @@ body.is-phone .ts-settings {
       text-overflow: ellipsis;
       text-align: start;
 
+      &:focus {
+        outline: 2px solid var(--tab-selector-modal-focus-color);
+      }
+
       & .ts-leaf-name {
         overflow: hidden;
         text-overflow: ellipsis;
@@ -267,6 +277,10 @@ body.is-mobile .modal.tab-selector-modal {
         text-align: start;
         padding-right: 0;
 
+        &.is-focus {
+          outline: 2px solid var(--tab-history-modal-focus-color);
+        }
+
         & .th-leaf-name {
           overflow: hidden;
           text-overflow: ellipsis;
@@ -334,11 +348,16 @@ body.is-mobile .modal.tab-shortcuts-modal {
   }
 }
 
+/* For tab search */
 .prompt.tab-search-modal {
   & .suggestion-item {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
+
+    &.is-selected {
+      outline: 2px solid var(--tab-search-modal-focus-color);
+    }
 
     & .tse-item-row {
       display: flex;

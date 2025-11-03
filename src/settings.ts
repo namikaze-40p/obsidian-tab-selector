@@ -1,6 +1,6 @@
 import { App, Platform, PluginSettingTab, Setting, setIcon } from 'obsidian';
 import TabSelector from './main';
-import { createStyles, deleteStyles, isValidSettings } from './util';
+import { isValidSettings } from './util';
 
 export const MODIFIER_KEY: Record<string, string> = {
   ctrl: 'Control',
@@ -212,35 +212,6 @@ export class SettingTab extends PluginSettingTab {
     }
   }
 
-  updateStyleSheet(isTeardown = false): void {
-    deleteStyles();
-    if (isTeardown) {
-      return;
-    }
-
-    const { goToPreviousNextTab, openTabSelector, searchTab } = this._plugin.settings;
-    const { focusColor } = openTabSelector;
-    const { focusColor: thFocusColor } = goToPreviousNextTab;
-    const { focusColor: tseFocusColor } = searchTab;
-    createStyles([
-      {
-        selector: '.ts-leaf-name-btn:focus',
-        property: 'outline',
-        value: `2px solid ${focusColor}`,
-      },
-      {
-        selector: '.th-leaf-name-btn.is-focus',
-        property: 'outline',
-        value: `2px solid ${thFocusColor}`,
-      },
-      {
-        selector: '.tab-search-modal .suggestion-item.is-selected',
-        property: 'outline',
-        value: `2px solid ${tseFocusColor}`,
-      },
-    ]);
-  }
-
   private setForGoToPrevNextTabCommands(detailsEl: HTMLDetailsElement): void {
     const settingType = SETTING_TYPE.goToPreviousNextTab;
     const settings = this._plugin.settings[settingType];
@@ -266,7 +237,6 @@ export class SettingTab extends PluginSettingTab {
         colorPicker.setValue(settings.focusColor).onChange(async (value) => {
           settings.focusColor = value;
           await this._plugin.saveData(this._plugin.settings);
-          this.updateStyleSheet();
         }),
       )
       .then((settingEl) => {
@@ -510,7 +480,6 @@ export class SettingTab extends PluginSettingTab {
           settings.showAliases = value;
           settings.replaceToAliases = false;
           await this._plugin.saveData(this._plugin.settings);
-          this.updateStyleSheet();
           this.display();
         }),
       );
@@ -522,7 +491,6 @@ export class SettingTab extends PluginSettingTab {
         toggle.setValue(settings.replaceToAliases).onChange(async (value) => {
           settings.replaceToAliases = value;
           await this._plugin.saveData(this._plugin.settings);
-          this.updateStyleSheet();
         }),
       )
       .setDisabled(!settings.showAliases);
@@ -534,7 +502,6 @@ export class SettingTab extends PluginSettingTab {
         toggle.setValue(settings.showPaths).onChange(async (value) => {
           settings.showPaths = value;
           await this._plugin.saveData(this._plugin.settings);
-          this.updateStyleSheet();
         }),
       );
 
@@ -565,7 +532,6 @@ export class SettingTab extends PluginSettingTab {
         colorPicker.setValue(settings.focusColor).onChange(async (value) => {
           settings.focusColor = value;
           await this._plugin.saveData(this._plugin.settings);
-          this.updateStyleSheet();
         }),
       )
       .then((settingEl) => {
@@ -594,7 +560,6 @@ export class SettingTab extends PluginSettingTab {
             } else {
               inputEl.addClass('ts-setting-is-invalid');
             }
-            this.updateStyleSheet();
           });
 
         textComponent.inputEl.addEventListener('blur', () => {
@@ -665,7 +630,6 @@ export class SettingTab extends PluginSettingTab {
             } else {
               inputEl.addClass('ts-setting-is-invalid');
             }
-            this.updateStyleSheet();
           });
 
         textComponent.inputEl.addEventListener('blur', () => {
@@ -772,7 +736,6 @@ export class SettingTab extends PluginSettingTab {
         colorPicker.setValue(settings.focusColor).onChange(async (value) => {
           settings.focusColor = value;
           await this._plugin.saveData(this._plugin.settings);
-          this.updateStyleSheet();
         }),
       )
       .then((settingEl) => {
@@ -829,7 +792,6 @@ export class SettingTab extends PluginSettingTab {
         .onClick(async () => {
           setDefaultValue();
           await this._plugin.saveSettings();
-          this.updateStyleSheet();
           if (refreshView) {
             this.display();
           }
