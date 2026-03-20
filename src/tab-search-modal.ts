@@ -1,4 +1,11 @@
-import { App, FuzzyMatch, FuzzySuggestModal, prepareFuzzySearch, setIcon } from 'obsidian';
+import {
+  App,
+  FuzzyMatch,
+  FuzzySuggestModal,
+  prepareFuzzySearch,
+  SearchResult,
+  setIcon,
+} from 'obsidian';
 import { CustomView, CustomWsLeaf } from './type';
 import { SearchTabSettings, Settings } from './settings';
 
@@ -63,10 +70,19 @@ export class TabSearchModal extends FuzzySuggestModal<CustomWsLeaf> {
 
   getSuggestions(query: string): FuzzyMatch<CustomWsLeaf>[] {
     return this.getItems()
-      .filter((item) =>
-        this.getReferenceStrings(item).some((refString) => prepareFuzzySearch(query)(refString)),
-      )
-      .map((item) => ({ item, match: { score: 0, matches: [] } }));
+      .map((item) => {
+        const match = this.getReferenceStrings(item).reduce(
+          (acc, refString) => {
+            const search = prepareFuzzySearch(query);
+            const result = search(refString);
+            return result && (!acc || result.score > acc.score) ? result : acc;
+          },
+          null as SearchResult | null,
+        );
+        return { item, match };
+      })
+      .filter((item) => !!item.match)
+      .sort((a, b) => (b.match?.score || 0) - (a.match?.score || 0)) as FuzzyMatch<CustomWsLeaf>[];
   }
 
   onChooseItem(leaf: CustomWsLeaf): void {
