@@ -3,6 +3,7 @@ import {
   FuzzyMatch,
   FuzzySuggestModal,
   prepareFuzzySearch,
+  renderResults,
   SearchResult,
   setIcon,
 } from 'obsidian';
@@ -91,18 +92,18 @@ export class TabSearchModal extends FuzzySuggestModal<CustomWsLeaf> {
 
   renderSuggestion(item: FuzzyMatch<CustomWsLeaf>, suggestionItemEl: HTMLElement): HTMLElement {
     suggestionItemEl.createDiv('tse-item-row', (el) => {
-      el.setText(item.item.name || '');
+      this.renderSearchMatch(item.item.name || '', el);
     });
     if (this.modalSettings.showAliases) {
       suggestionItemEl.createDiv('tse-item-row', (el) => {
         setIcon(el, 'corner-up-right');
-        el.createEl('small').setText(item.item.aliases?.join(' | ') || '');
+        this.renderSearchMatch(item.item.aliases?.join(' | ') || '', el.createEl('small'));
       });
     }
     if (this.modalSettings.showPaths) {
       suggestionItemEl.createDiv('tse-item-row', (el) => {
         setIcon(el, 'folder-closed');
-        el.createEl('small').setText(item.item.path || '');
+        this.renderSearchMatch(item.item.path || '', el.createEl('small'));
       });
     }
     return suggestionItemEl;
@@ -132,5 +133,16 @@ export class TabSearchModal extends FuzzySuggestModal<CustomWsLeaf> {
         });
       });
     });
+  }
+
+  private renderSearchMatch(str: string, el: HTMLElement): void {
+    const query = this.inputEl.value;
+    const search = prepareFuzzySearch(query);
+    const result = search(str);
+    if (result) {
+      renderResults(el, str, result);
+    } else {
+      el.setText(str);
+    }
   }
 }

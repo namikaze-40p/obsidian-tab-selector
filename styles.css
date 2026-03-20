@@ -353,15 +353,18 @@ body.is-mobile .modal.tab-shortcuts-modal {
   & .suggestion-item {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
 
     &.is-selected {
       outline: 2px solid var(--tab-search-modal-focus-color);
     }
 
     & .tse-item-row {
-      display: flex;
       word-break: break-all;
+
+      & > svg {
+        display: inline-block;
+        vertical-align: middle;
+      }
 
       & svg {
         height: 0.875rem;
