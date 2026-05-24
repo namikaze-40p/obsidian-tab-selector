@@ -54,7 +54,7 @@ export class TabSelectorModal extends Modal {
         .flatMap((prop) => prop.value)
         .filter((value) => value != null);
 
-      const { file } = leaf.getViewState().state;
+      const file = leaf.getViewState().state?.['file'];
       const fullPath = typeof file === 'string' ? file.split(leaf.getDisplayText())[0] || '/' : '-';
       const splitPaths = fullPath
         .split('/')

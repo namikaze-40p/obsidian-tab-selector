@@ -36,7 +36,7 @@ export class TabSearchModal extends FuzzySuggestModal<CustomWsLeaf> {
         .flatMap((prop) => prop.value)
         .filter((value) => value != null);
 
-      const { file } = leaf.getViewState().state;
+      const file = leaf.getViewState().state?.['file'];
       const fullPath = typeof file === 'string' ? file.split(leaf.getDisplayText())[0] || '/' : '-';
       leaf.path = fullPath;
 
@@ -50,8 +50,8 @@ export class TabSearchModal extends FuzzySuggestModal<CustomWsLeaf> {
     }
   }
 
-  onOpen(): void {
-    super.onOpen();
+  async onOpen(): Promise<void> {
+    await super.onOpen();
     const focusColor = this.modalSettings.focusColor;
     this.modalEl.style.setProperty('--tab-search-modal-focus-color', `${focusColor}`);
   }

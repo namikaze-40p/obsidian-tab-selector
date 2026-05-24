@@ -18,7 +18,7 @@
     "cspell": "^8.4.1",
     "esbuild": "^0.25.1",
     "eslint": "^8.57.1",
-    "obsidian": "latest",
+    "obsidian": "^1.12.3",
     "prettier": "3.6.2",
     "tslib": "2.4.0",
     "typescript": "^5.9.2"
