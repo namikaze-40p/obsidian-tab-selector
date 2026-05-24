@@ -54,11 +54,11 @@ const SETTING_TYPE = {
 export interface GoToPreviousNextTabSettings {
   enableMultiWIndow: boolean;
   focusColor: string;
-  mainModifierKey: typeof MODIFIER_KEY[keyof typeof MODIFIER_KEY];
-  subModifierKey: typeof MODIFIER_KEY[keyof typeof MODIFIER_KEY];
-  actionKey: typeof ACTION_KEY[keyof typeof ACTION_KEY];
-  reverseActionKey: typeof ACTION_KEY[keyof typeof ACTION_KEY];
-  howToNextTab: typeof HOW_TO_NEXT_TAB[keyof typeof HOW_TO_NEXT_TAB];
+  mainModifierKey: (typeof MODIFIER_KEY)[keyof typeof MODIFIER_KEY];
+  subModifierKey: (typeof MODIFIER_KEY)[keyof typeof MODIFIER_KEY];
+  actionKey: (typeof ACTION_KEY)[keyof typeof ACTION_KEY];
+  reverseActionKey: (typeof ACTION_KEY)[keyof typeof ACTION_KEY];
+  howToNextTab: (typeof HOW_TO_NEXT_TAB)[keyof typeof HOW_TO_NEXT_TAB];
 }
 
 export interface OpenTabSelectorSettings {
@@ -173,7 +173,7 @@ export class SettingTab extends PluginSettingTab {
     {
       const detailsEl = containerEl.createEl('details', '', (el) => {
         el.createEl('summary', '', (summaryEl) => {
-          summaryEl.setText('For "Open tab selector" command');
+          summaryEl.setText('For "Browse tabs" command');
         });
       });
       if (this._isOpen.secondDetails) {
@@ -749,10 +749,7 @@ export class SettingTab extends PluginSettingTab {
     return chars.some((char, idx) => chars.slice(idx + 1).includes(char));
   }
 
-  private convertToKey(
-    value: string,
-    valueTexts: Record<string, string>,
-  ): string {
+  private convertToKey(value: string, valueTexts: Record<string, string>): string {
     const modifier = Object.entries(valueTexts).find(([, val]) => val === value);
     return modifier ? modifier[0] : '';
   }
