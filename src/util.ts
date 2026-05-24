@@ -3,8 +3,6 @@ import { CustomApp } from './type';
 import { GoToPreviousNextTabSettings, HOW_TO_NEXT_TAB, MODIFIER_KEY } from './settings';
 import { KeySettingsError } from './error';
 
-const STYLES_ID = 'tab-selector-styles';
-
 const INVALID_SETTING = {
   notOnlyOneHotkey: 'Not only one hotkey.',
   mismatchMainModifierKey: 'Mismatch main modifier key.',
