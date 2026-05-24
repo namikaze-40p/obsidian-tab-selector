@@ -141,7 +141,7 @@ export default class TabSelector extends Plugin {
       showLegend?: boolean;
     };
 
-    const oldSettings = this.settings as any as OldSettings;
+    const oldSettings = this.settings as unknown as OldSettings;
     {
       const settings = this.settings.openTabSelector;
       if (typeof oldSettings.showAliases === 'boolean') {
