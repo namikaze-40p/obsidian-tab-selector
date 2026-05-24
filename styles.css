@@ -19,7 +19,7 @@
   & details {
     font-size: var(--font-ui-medium);
     margin-bottom: 1rem;
-    border: 1px solid #aaa;
+    border: 1px solid #aaaaaa;
     padding: 0.5rem;
 
     &:last-child {
@@ -27,7 +27,7 @@
     }
 
     & .th-how-to-use {
-      border: 1px solid #aaa;
+      border: 1px solid #aaaaaa;
       padding: 0.5rem;
 
       & .th-settings-description {
@@ -330,7 +330,7 @@ body.is-phone .modal.tab-history-modal {
     height: 2rem;
     font-size: 1.5rem;
     background-color: var(--interactive-normal);
-    border: 1px solid #aaa;
+    border: 1px solid #aaaaaa;
     border-radius: var(--button-radius);
     display: flex;
     justify-content: center;
