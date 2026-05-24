@@ -222,7 +222,7 @@ export class TabHistoryModal extends Modal {
       return;
     }
 
-    setTimeout(() => {
+    activeWindow.setTimeout(() => {
       const focusLeaf = this._leaves[this._focusPosition];
       (this._leafButtonMap.get(focusLeaf?.id || '') as HTMLElement).focus();
     }, 1);
