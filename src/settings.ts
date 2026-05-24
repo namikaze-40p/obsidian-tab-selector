@@ -2,7 +2,7 @@ import { App, Platform, PluginSettingTab, Setting, setIcon } from 'obsidian';
 import TabSelector from './main';
 import { isValidSettings } from './util';
 
-export const MODIFIER_KEY: Record<string, string> = {
+export const MODIFIER_KEY = {
   ctrl: 'Control',
   alt: 'Alt',
   meta: 'Meta',
@@ -18,7 +18,7 @@ const DISPLAY_MODIFIER_KEY: Record<string, string> = {
   shift: IS_APPLE ? '⇧' : 'Shift',
 } as const;
 
-const ACTION_KEY: Record<string, string> = {
+const ACTION_KEY = {
   tab: 'Tab',
   arrowUp: 'ArrowUp',
   arrowDown: 'ArrowDown',
@@ -34,7 +34,7 @@ const DISPLAY_ACTION_KEY: Record<string, string> = {
   arrowRight: '→',
 } as const;
 
-export const HOW_TO_NEXT_TAB: Record<string, string> = {
+export const HOW_TO_NEXT_TAB = {
   useSubModifierKey: 'useSubModifierKey',
   useReverseActionKey: 'useReverseActionKey',
 } as const;
@@ -54,11 +54,11 @@ const SETTING_TYPE = {
 export interface GoToPreviousNextTabSettings {
   enableMultiWIndow: boolean;
   focusColor: string;
-  mainModifierKey: keyof typeof MODIFIER_KEY;
-  subModifierKey: keyof typeof MODIFIER_KEY;
-  actionKey: keyof typeof ACTION_KEY;
-  reverseActionKey: keyof typeof ACTION_KEY;
-  howToNextTab: keyof typeof HOW_TO_NEXT_TAB;
+  mainModifierKey: typeof MODIFIER_KEY[keyof typeof MODIFIER_KEY];
+  subModifierKey: typeof MODIFIER_KEY[keyof typeof MODIFIER_KEY];
+  actionKey: typeof ACTION_KEY[keyof typeof ACTION_KEY];
+  reverseActionKey: typeof ACTION_KEY[keyof typeof ACTION_KEY];
+  howToNextTab: typeof HOW_TO_NEXT_TAB[keyof typeof HOW_TO_NEXT_TAB];
 }
 
 export interface OpenTabSelectorSettings {
@@ -255,7 +255,7 @@ export class SettingTab extends PluginSettingTab {
           .addOptions(
             Object.keys(MODIFIER_KEY).reduce(
               (obj, key) => ((obj[key] = DISPLAY_MODIFIER_KEY[key]), obj),
-              {} as typeof MODIFIER_KEY,
+              {} as Record<string, string>,
             ),
           )
           .setValue(this.convertToKey(settings.mainModifierKey, MODIFIER_KEY))
@@ -283,7 +283,7 @@ export class SettingTab extends PluginSettingTab {
           .addOptions(
             Object.keys(ACTION_KEY).reduce(
               (obj, key) => ((obj[key] = DISPLAY_ACTION_KEY[key]), obj),
-              {} as typeof ACTION_KEY,
+              {} as Record<string, string>,
             ),
           )
           .setValue(this.convertToKey(settings.actionKey, ACTION_KEY))
@@ -312,7 +312,7 @@ export class SettingTab extends PluginSettingTab {
           .addOptions(
             Object.keys(HOW_TO_NEXT_TAB).reduce(
               (obj, key) => ((obj[key] = DISPLAY_HOW_TO_NEXT_TAB[key]), obj),
-              {} as typeof HOW_TO_NEXT_TAB,
+              {} as Record<string, string>,
             ),
           )
           .setValue(this.convertToKey(settings.howToNextTab, HOW_TO_NEXT_TAB))
@@ -336,7 +336,7 @@ export class SettingTab extends PluginSettingTab {
           .addOptions(
             Object.keys(MODIFIER_KEY).reduce(
               (obj, key) => ((obj[key] = DISPLAY_MODIFIER_KEY[key]), obj),
-              {} as typeof MODIFIER_KEY,
+              {} as Record<string, string>,
             ),
           )
           .setValue(this.convertToKey(settings.subModifierKey, MODIFIER_KEY))
@@ -367,7 +367,7 @@ export class SettingTab extends PluginSettingTab {
           .addOptions(
             Object.keys(ACTION_KEY).reduce(
               (obj, key) => ((obj[key] = DISPLAY_ACTION_KEY[key]), obj),
-              {} as typeof ACTION_KEY,
+              {} as Record<string, string>,
             ),
           )
           .setValue(this.convertToKey(settings.reverseActionKey, ACTION_KEY))
@@ -751,31 +751,25 @@ export class SettingTab extends PluginSettingTab {
 
   private convertToKey(
     value: string,
-    valueTexts: typeof MODIFIER_KEY | typeof ACTION_KEY | typeof HOW_TO_NEXT_TAB,
+    valueTexts: Record<string, string>,
   ): string {
     const modifier = Object.entries(valueTexts).find(([, val]) => val === value);
     return modifier ? modifier[0] : '';
   }
 
-  private convertToSettingValue(
+  private convertToSettingValue<T extends Record<string, string>>(
     value: string,
-    valueTexts: typeof MODIFIER_KEY | typeof ACTION_KEY | typeof HOW_TO_NEXT_TAB,
-    displayTexts:
-      | typeof DISPLAY_MODIFIER_KEY
-      | typeof DISPLAY_ACTION_KEY
-      | typeof DISPLAY_HOW_TO_NEXT_TAB,
-  ): string {
+    valueTexts: T,
+    displayTexts: Record<string, string>,
+  ): T[keyof T] {
     const key = Object.keys(displayTexts).find((key) => key === value);
-    return key ? valueTexts[key] : '';
+    return (key ? (valueTexts as Record<string, string>)[key] : '') as T[keyof T];
   }
 
   private convertToDisplayText(
     value: string,
-    valueTexts: typeof MODIFIER_KEY | typeof ACTION_KEY | typeof HOW_TO_NEXT_TAB,
-    displayTexts:
-      | typeof DISPLAY_MODIFIER_KEY
-      | typeof DISPLAY_ACTION_KEY
-      | typeof DISPLAY_HOW_TO_NEXT_TAB,
+    valueTexts: Record<string, string>,
+    displayTexts: Record<string, string>,
   ): string {
     return displayTexts[this.convertToKey(value, valueTexts)];
   }

@@ -184,23 +184,23 @@ export default class TabSelector extends Plugin {
         delete oldSettings.thFocusColor;
       }
       if (typeof oldSettings.mainModifierKey === 'string') {
-        settings.mainModifierKey = oldSettings.mainModifierKey;
+        settings.mainModifierKey = oldSettings.mainModifierKey as typeof settings.mainModifierKey;
         delete oldSettings.mainModifierKey;
       }
       if (typeof oldSettings.subModifierKey === 'string') {
-        settings.subModifierKey = oldSettings.subModifierKey;
+        settings.subModifierKey = oldSettings.subModifierKey as typeof settings.subModifierKey;
         delete oldSettings.subModifierKey;
       }
       if (typeof oldSettings.actionKey === 'string') {
-        settings.actionKey = oldSettings.actionKey;
+        settings.actionKey = oldSettings.actionKey as typeof settings.actionKey;
         delete oldSettings.actionKey;
       }
       if (typeof oldSettings.howToNextTab === 'string') {
-        settings.howToNextTab = oldSettings.howToNextTab;
+        settings.howToNextTab = oldSettings.howToNextTab as typeof settings.howToNextTab;
         delete oldSettings.howToNextTab;
       }
       if (typeof oldSettings.reverseActionKey === 'string') {
-        settings.reverseActionKey = oldSettings.reverseActionKey;
+        settings.reverseActionKey = oldSettings.reverseActionKey as typeof settings.reverseActionKey;
         delete oldSettings.reverseActionKey;
       }
     }
