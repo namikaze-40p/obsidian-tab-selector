@@ -5,7 +5,7 @@ This is an [Obsidian](https://obsidian.md/) plugin which can quickly switch tabs
 Switch tabs in the following ways:
 
 - `Go to previous/next tab`: Move between tabs like in most apps
-- `Open tab selector`: Use a modal to switch tabs with keeping the keyboard home position
+- `Browse tabs`: Use a modal to switch tabs with keeping the keyboard home position
 - `Show tab shortcuts`: Switch tabs with simple keyboard shortcuts, no modal needed
 - `Search tabs`: Find and open tabs by name
 
@@ -24,12 +24,12 @@ Switch tabs in the following ways:
 
 ![demo](https://raw.githubusercontent.com/namikaze-40p/obsidian-tab-selector/main/demo/ver-0.5.0/switch-tab-in-history.gif)
 
-### `Open tab selector`: Use a modal to switch tabs with keeping the keyboard home position
+### `Browse tabs`: Use a modal to switch tabs with keeping the keyboard home position
 
 1. Call the modal in one of the following ways.
     1. Using hotkey. (**recommend**)
-    1. Click the icon(`Open tab selector`) from the [Ribbon](https://help.obsidian.md/User+interface/Ribbon).
-    1. Selecting `Tab Selector: Open tab selector` from the command palette.
+    1. Click the icon(`Browse tabs`) from the [Ribbon](https://help.obsidian.md/User+interface/Ribbon).
+    1. Selecting `Tab Selector: Browse tabs` from the command palette.
 1. Select the tab you want to switch to in one of the following ways.
     1. Press the one-letter key displayed to the left of the tab name. (**recommend**)
     1. Move the cursor with arrow keys and select the tab.

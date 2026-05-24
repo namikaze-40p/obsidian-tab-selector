@@ -17,7 +17,7 @@ export default class TabSelector extends Plugin {
 
     this.addCommand({
       id: 'open-tab-selector',
-      name: 'Open tab selector',
+      name: 'Browse tabs',
       callback: () => this.openTabSelectorModal(),
     });
 
