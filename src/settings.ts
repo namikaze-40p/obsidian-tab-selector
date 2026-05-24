@@ -317,7 +317,7 @@ export class SettingTab extends PluginSettingTab {
           )
           .setValue(this.convertToKey(settings.howToNextTab, HOW_TO_NEXT_TAB))
           .onChange(async (value) => {
-            settings.howToNextTab = value as keyof typeof HOW_TO_NEXT_TAB;
+            settings.howToNextTab = HOW_TO_NEXT_TAB[value as keyof typeof HOW_TO_NEXT_TAB];
             await this._plugin.saveData(this._plugin.settings);
             this.display();
           }),
