@@ -310,7 +310,7 @@ export class TabSelectorModal extends Modal {
     if (
       index == null &&
       !this._leaves.some(
-        (leaf) => this._leafButtonMap.get(leaf.id || '') === document.activeElement,
+        (leaf) => this._leafButtonMap.get(leaf.id || '') === activeDocument.activeElement,
       )
     ) {
       return;
