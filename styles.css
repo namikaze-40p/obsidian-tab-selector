@@ -7,8 +7,8 @@
 /* For settings screen */
 .ts-settings {
   & .setting-item {
-    & .ts-setting-is-invalid {
-      border-color: red !important;
+    & input.ts-setting-is-invalid {
+      border-color: #ff0000;
     }
 
     &.is-disabled {
