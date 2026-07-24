@@ -203,8 +203,8 @@ export class TabHistoryModal extends Modal {
   }
 
   private switchToFocusedTab(leaf: CustomWsLeaf): void {
-    this.app.workspace.setActiveLeaf(leaf, { focus: true });
     this.close();
+    this.app.workspace.setActiveLeaf(leaf, { focus: true });
   }
 
   private clickCloseLeafButton(leaf: CustomWsLeaf, divEl: HTMLDivElement): void {
