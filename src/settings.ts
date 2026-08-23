@@ -152,6 +152,11 @@ export class SettingTab extends PluginSettingTab {
     fourthDetails: false,
   };
 
+  // Tracks which of `display()` (pre-1.13.0) or `getSettingDefinitions()`
+  // (1.13.0+) rendered the currently visible UI, so that shared setting logic
+  // can refresh the correct one via `refreshSettingsView()`.
+  private _renderMode: 'imperative' | 'declarative' = 'imperative';
+
   constructor(
     app: App,
     private _plugin: TabSelector,
@@ -163,6 +168,7 @@ export class SettingTab extends PluginSettingTab {
   }
 
   display(): void {
+    this._renderMode = 'imperative';
     const { containerEl } = this;
     containerEl.empty();
 
@@ -228,6 +234,7 @@ export class SettingTab extends PluginSettingTab {
    * returns a non-empty array).
    */
   getSettingDefinitions(): SettingDefinitionItem[] {
+    this._renderMode = 'declarative';
     return [
       {
         type: 'group',
@@ -254,159 +261,7 @@ export class SettingTab extends PluginSettingTab {
   }
 
   private setForGoToPrevNextTabCommands(detailsEl: HTMLDetailsElement): void {
-    const settingType = SETTING_TYPE.goToPreviousNextTab;
-    const settings = this._plugin.settings[settingType];
-
-    if (Platform.isDesktop) {
-      new Setting(detailsEl)
-        .setName(`Enable multiple window`)
-        .setDesc(
-          `When enabled, all window's tabs is selectable. When disabled, only active window's tabs is selectable.`,
-        )
-        .addToggle((toggle) =>
-          toggle.setValue(settings.enableMultiWIndow).onChange(async (value) => {
-            settings.enableMultiWIndow = value;
-            await this._plugin.saveData(this._plugin.settings);
-          }),
-        );
-    }
-
-    new Setting(detailsEl)
-      .setName('Color of button frame on focus')
-      .setDesc('Choose your favorite color.')
-      .addColorPicker((colorPicker) =>
-        colorPicker.setValue(settings.focusColor).onChange(async (value) => {
-          settings.focusColor = value;
-          await this._plugin.saveData(this._plugin.settings);
-        }),
-      )
-      .then((settingEl) => {
-        const setDefaultValue = () =>
-          (settings.focusColor = DEFAULT_SETTINGS[settingType].focusColor);
-        this.addResetButton(settingEl, setDefaultValue);
-      });
-
-    new Setting(detailsEl)
-      .setName('Main modifier key')
-      .setDesc(
-        'Holding this key down keeps the modal open. When this key is released, it switches to the focused tab.',
-      )
-      .addDropdown((item) =>
-        item
-          .addOptions(this.buildDropdownOptions(MODIFIER_KEY, DISPLAY_MODIFIER_KEY))
-          .setValue(this.convertToKey(settings.mainModifierKey, MODIFIER_KEY))
-          .onChange(async (value) => {
-            settings.mainModifierKey = this.convertToSettingValue(
-              value,
-              MODIFIER_KEY,
-              DISPLAY_MODIFIER_KEY,
-            );
-            await this._plugin.saveData(this._plugin.settings);
-            this.display();
-          }),
-      )
-      .then((settingEl) => {
-        const setDefaultValue = () =>
-          (settings.mainModifierKey = DEFAULT_SETTINGS[settingType].mainModifierKey);
-        this.addResetButton(settingEl, setDefaultValue);
-      });
-
-    new Setting(detailsEl)
-      .setName('Action key')
-      .setDesc('Press this key while holding down the Main modifier key moves to the previous tab.')
-      .addDropdown((item) =>
-        item
-          .addOptions(this.buildDropdownOptions(ACTION_KEY, DISPLAY_ACTION_KEY))
-          .setValue(this.convertToKey(settings.actionKey, ACTION_KEY))
-          .onChange(async (value) => {
-            settings.actionKey = this.convertToSettingValue(value, ACTION_KEY, DISPLAY_ACTION_KEY);
-            await this._plugin.saveData(this._plugin.settings);
-            this.display();
-          }),
-      )
-      .then((settingEl) => {
-        const setDefaultValue = () =>
-          (settings.actionKey = DEFAULT_SETTINGS[settingType].actionKey);
-        this.addResetButton(settingEl, setDefaultValue);
-      });
-
-    new Setting(detailsEl)
-      .setName('Choose how to go to the next tab')
-      .setDesc(
-        `
-				When go to the next tab, if you want to use the same key as the Action key, choose “Sub modifier key”.
-				If you want to use a different key from the Action key, choose “Reverse action key".
-			`,
-      )
-      .addDropdown((item) =>
-        item
-          .addOptions(this.buildDropdownOptions(HOW_TO_NEXT_TAB, DISPLAY_HOW_TO_NEXT_TAB))
-          .setValue(this.convertToKey(settings.howToNextTab, HOW_TO_NEXT_TAB))
-          .onChange(async (value) => {
-            settings.howToNextTab = HOW_TO_NEXT_TAB[value as keyof typeof HOW_TO_NEXT_TAB];
-            await this._plugin.saveData(this._plugin.settings);
-            this.display();
-          }),
-      )
-      .then((settingEl) => {
-        const setDefaultValue = () =>
-          (settings.howToNextTab = DEFAULT_SETTINGS[settingType].howToNextTab);
-        this.addResetButton(settingEl, setDefaultValue);
-      });
-
-    new Setting(detailsEl)
-      .setName('Sub modifier key')
-      .setDesc('Pressing the Action key while holding this key down moves to the next tab.')
-      .addDropdown((item) =>
-        item
-          .addOptions(this.buildDropdownOptions(MODIFIER_KEY, DISPLAY_MODIFIER_KEY))
-          .setValue(this.convertToKey(settings.subModifierKey, MODIFIER_KEY))
-          .onChange(async (value) => {
-            settings.subModifierKey = this.convertToSettingValue(
-              value,
-              MODIFIER_KEY,
-              DISPLAY_MODIFIER_KEY,
-            );
-            await this._plugin.saveData(this._plugin.settings);
-            this.display();
-          }),
-      )
-      .setDisabled(settings.howToNextTab !== HOW_TO_NEXT_TAB.useSubModifierKey)
-      .then((settingEl) => {
-        if (settings.howToNextTab === HOW_TO_NEXT_TAB.useSubModifierKey) {
-          const setDefaultValue = () =>
-            (settings.subModifierKey = DEFAULT_SETTINGS[settingType].subModifierKey);
-          this.addResetButton(settingEl, setDefaultValue);
-        }
-      });
-
-    new Setting(detailsEl)
-      .setName('Reverse action key')
-      .setDesc('Press this key while holding down the Main modifier key moves to the next tab.')
-      .addDropdown((item) =>
-        item
-          .addOptions(this.buildDropdownOptions(ACTION_KEY, DISPLAY_ACTION_KEY))
-          .setValue(this.convertToKey(settings.reverseActionKey, ACTION_KEY))
-          .onChange(async (value) => {
-            settings.reverseActionKey = this.convertToSettingValue(
-              value,
-              ACTION_KEY,
-              DISPLAY_ACTION_KEY,
-            );
-            await this._plugin.saveData(this._plugin.settings);
-            this.display();
-          }),
-      )
-      .setDisabled(settings.howToNextTab !== HOW_TO_NEXT_TAB.useReverseActionKey)
-      .then((settingEl) => {
-        if (settings.howToNextTab === HOW_TO_NEXT_TAB.useSubModifierKey) {
-          const setDefaultValue = () =>
-            (settings.reverseActionKey = DEFAULT_SETTINGS[settingType].reverseActionKey);
-          this.addResetButton(settingEl, setDefaultValue);
-        }
-      });
-
-    detailsEl.createDiv('th-how-to-use', (el) => this.renderGoToPrevNextTabHowToUse(el, settings));
+    this.renderDefinitionsInto(detailsEl, this.getGoToPrevNextTabCommandsDefinitions());
   }
 
   private renderGoToPrevNextTabHowToUse(
@@ -474,6 +329,30 @@ export class SettingTab extends PluginSettingTab {
     });
   }
 
+  /**
+   * Renders a `getSettingDefinitions()`-style item list imperatively into a
+   * container, so `display()` (pre-1.13.0 fallback) can reuse the same
+   * per-setting logic as the declarative API instead of duplicating it.
+   * Only handles the `render`-type items this plugin actually produces.
+   */
+  private renderDefinitionsInto(containerEl: HTMLElement, items: SettingGroupItem[]): void {
+    for (const item of items) {
+      if (!('render' in item) || typeof item.render !== 'function') {
+        continue;
+      }
+      const isVisible =
+        typeof item.visible === 'function' ? item.visible() : (item.visible ?? true);
+      if (!isVisible) {
+        continue;
+      }
+      const setting = new Setting(containerEl).setName(item.name);
+      if (item.desc) {
+        setting.setDesc(item.desc);
+      }
+      (item.render as (setting: Setting) => void | (() => void))(setting);
+    }
+  }
+
   private getGoToPrevNextTabCommandsDefinitions(): SettingGroupItem[] {
     const settingType = SETTING_TYPE.goToPreviousNextTab;
     const settings = this._plugin.settings[settingType];
@@ -504,7 +383,7 @@ export class SettingTab extends PluginSettingTab {
           );
           const setDefaultValue = () =>
             (settings.focusColor = DEFAULT_SETTINGS[settingType].focusColor);
-          this.addResetButton(setting, setDefaultValue, () => this.update());
+          this.addResetButton(setting, setDefaultValue);
         },
       },
       {
@@ -522,12 +401,12 @@ export class SettingTab extends PluginSettingTab {
                   DISPLAY_MODIFIER_KEY,
                 );
                 await this._plugin.saveData(this._plugin.settings);
-                this.update();
+                this.refreshSettingsView();
               }),
           );
           const setDefaultValue = () =>
             (settings.mainModifierKey = DEFAULT_SETTINGS[settingType].mainModifierKey);
-          this.addResetButton(setting, setDefaultValue, () => this.update());
+          this.addResetButton(setting, setDefaultValue);
         },
       },
       {
@@ -545,12 +424,12 @@ export class SettingTab extends PluginSettingTab {
                   DISPLAY_ACTION_KEY,
                 );
                 await this._plugin.saveData(this._plugin.settings);
-                this.update();
+                this.refreshSettingsView();
               }),
           );
           const setDefaultValue = () =>
             (settings.actionKey = DEFAULT_SETTINGS[settingType].actionKey);
-          this.addResetButton(setting, setDefaultValue, () => this.update());
+          this.addResetButton(setting, setDefaultValue);
         },
       },
       {
@@ -567,12 +446,12 @@ export class SettingTab extends PluginSettingTab {
               .onChange(async (value) => {
                 settings.howToNextTab = HOW_TO_NEXT_TAB[value as keyof typeof HOW_TO_NEXT_TAB];
                 await this._plugin.saveData(this._plugin.settings);
-                this.update();
+                this.refreshSettingsView();
               }),
           );
           const setDefaultValue = () =>
             (settings.howToNextTab = DEFAULT_SETTINGS[settingType].howToNextTab);
-          this.addResetButton(setting, setDefaultValue, () => this.update());
+          this.addResetButton(setting, setDefaultValue);
         },
       },
       {
@@ -591,14 +470,14 @@ export class SettingTab extends PluginSettingTab {
                     DISPLAY_MODIFIER_KEY,
                   );
                   await this._plugin.saveData(this._plugin.settings);
-                  this.update();
+                  this.refreshSettingsView();
                 }),
             )
             .setDisabled(settings.howToNextTab !== HOW_TO_NEXT_TAB.useSubModifierKey);
           if (settings.howToNextTab === HOW_TO_NEXT_TAB.useSubModifierKey) {
             const setDefaultValue = () =>
               (settings.subModifierKey = DEFAULT_SETTINGS[settingType].subModifierKey);
-            this.addResetButton(setting, setDefaultValue, () => this.update());
+            this.addResetButton(setting, setDefaultValue);
           }
         },
       },
@@ -618,14 +497,14 @@ export class SettingTab extends PluginSettingTab {
                     DISPLAY_ACTION_KEY,
                   );
                   await this._plugin.saveData(this._plugin.settings);
-                  this.update();
+                  this.refreshSettingsView();
                 }),
             )
             .setDisabled(settings.howToNextTab !== HOW_TO_NEXT_TAB.useReverseActionKey);
           if (settings.howToNextTab === HOW_TO_NEXT_TAB.useSubModifierKey) {
             const setDefaultValue = () =>
               (settings.reverseActionKey = DEFAULT_SETTINGS[settingType].reverseActionKey);
-            this.addResetButton(setting, setDefaultValue, () => this.update());
+            this.addResetButton(setting, setDefaultValue);
           }
         },
       },
@@ -642,114 +521,7 @@ export class SettingTab extends PluginSettingTab {
   }
 
   private setForOpenTabSelectorCommand(detailsEl: HTMLDetailsElement): void {
-    const settingType = SETTING_TYPE.openTabSelector;
-    const settings = this._plugin.settings[settingType];
-
-    if (Platform.isDesktop) {
-      new Setting(detailsEl)
-        .setName(`Enable multiple window`)
-        .setDesc(
-          `When enabled, all window's tabs is selectable. When disabled, only active window's tabs is selectable.`,
-        )
-        .addToggle((toggle) =>
-          toggle.setValue(settings.enableMultiWIndow).onChange(async (value) => {
-            settings.enableMultiWIndow = value;
-            await this._plugin.saveData(this._plugin.settings);
-          }),
-        );
-    }
-
-    new Setting(detailsEl)
-      .setName(`Show aliases`)
-      .setDesc(`When enabled, show file's aliases on button.`)
-      .addToggle((toggle) =>
-        toggle.setValue(settings.showAliases).onChange(async (value) => {
-          settings.showAliases = value;
-          settings.replaceToAliases = false;
-          await this._plugin.saveData(this._plugin.settings);
-          this.display();
-        }),
-      );
-
-    new Setting(detailsEl)
-      .setName(`Replace the filename to aliases`)
-      .setDesc(`When enabled, if aliases is set the file, replace the filename to aliases.`)
-      .addToggle((toggle) =>
-        toggle.setValue(settings.replaceToAliases).onChange(async (value) => {
-          settings.replaceToAliases = value;
-          await this._plugin.saveData(this._plugin.settings);
-        }),
-      )
-      .setDisabled(!settings.showAliases);
-
-    new Setting(detailsEl)
-      .setName(`Show paths`)
-      .setDesc(`When enabled, show file's paths on button.`)
-      .addToggle((toggle) =>
-        toggle.setValue(settings.showPaths).onChange(async (value) => {
-          settings.showPaths = value;
-          await this._plugin.saveData(this._plugin.settings);
-        }),
-      );
-
-    new Setting(detailsEl)
-      .setName(`Show pagination buttons`)
-      .setDesc('When enabled, show pagination buttons on modal.')
-      .addToggle((toggle) =>
-        toggle.setValue(settings.showPaginationButtons).onChange(async (value) => {
-          settings.showPaginationButtons = value;
-          await this._plugin.saveData(this._plugin.settings);
-        }),
-      );
-
-    new Setting(detailsEl)
-      .setName(`Show legends`)
-      .setDesc('When enabled, show legends on modal.')
-      .addToggle((toggle) =>
-        toggle.setValue(settings.showLegends).onChange(async (value) => {
-          settings.showLegends = value;
-          await this._plugin.saveData(this._plugin.settings);
-        }),
-      );
-
-    new Setting(detailsEl)
-      .setName('Color of button frame on focus')
-      .setDesc('Choice your favorite color.')
-      .addColorPicker((colorPicker) =>
-        colorPicker.setValue(settings.focusColor).onChange(async (value) => {
-          settings.focusColor = value;
-          await this._plugin.saveData(this._plugin.settings);
-        }),
-      )
-      .then((settingEl) => {
-        const setDefaultValue = () =>
-          (settings.focusColor = DEFAULT_SETTINGS[settingType].focusColor);
-        this.addResetButton(settingEl, setDefaultValue);
-      });
-
-    this.applyCharactersTextControl(
-      new Setting(detailsEl)
-        .setName('Characters used for button hints')
-        .setDesc(
-          `Enter ${CHAR_LENGTH.min}~${CHAR_LENGTH.max} non-duplicate alphanumeric characters or symbols.`,
-        ),
-      settings,
-      { maxLength: CHAR_LENGTH.max, pattern: `[!-~]{${CHAR_LENGTH.min},${CHAR_LENGTH.max}}` },
-    ).then((settingEl) => {
-      const setDefaultValue = () =>
-        (settings.characters = DEFAULT_SETTINGS[settingType].characters);
-      this.addResetButton(settingEl, setDefaultValue);
-    });
-
-    new Setting(detailsEl)
-      .setName(`Enable tabs close`)
-      .setDesc('When enabled, the operation of closing tabs is enabled.')
-      .addToggle((toggle) =>
-        toggle.setValue(settings.enableClose).onChange(async (value) => {
-          settings.enableClose = value;
-          await this._plugin.saveData(this._plugin.settings);
-        }),
-      );
+    this.renderDefinitionsInto(detailsEl, this.getOpenTabSelectorCommandDefinitions());
   }
 
   private getOpenTabSelectorCommandDefinitions(): SettingGroupItem[] {
@@ -779,7 +551,7 @@ export class SettingTab extends PluginSettingTab {
               settings.showAliases = value;
               settings.replaceToAliases = false;
               await this._plugin.saveData(this._plugin.settings);
-              this.update();
+              this.refreshSettingsView();
             }),
           );
         },
@@ -846,7 +618,7 @@ export class SettingTab extends PluginSettingTab {
           );
           const setDefaultValue = () =>
             (settings.focusColor = DEFAULT_SETTINGS[settingType].focusColor);
-          this.addResetButton(setting, setDefaultValue, () => this.update());
+          this.addResetButton(setting, setDefaultValue);
         },
       },
       {
@@ -859,7 +631,7 @@ export class SettingTab extends PluginSettingTab {
           });
           const setDefaultValue = () =>
             (settings.characters = DEFAULT_SETTINGS[settingType].characters);
-          this.addResetButton(setting, setDefaultValue, () => this.update());
+          this.addResetButton(setting, setDefaultValue);
         },
       },
       {
@@ -878,34 +650,7 @@ export class SettingTab extends PluginSettingTab {
   }
 
   private setForShowTabShortcutCommand(detailsEl: HTMLDetailsElement): void {
-    const settingType = SETTING_TYPE.showTabShortcuts;
-    const settings = this._plugin.settings[settingType];
-
-    if (Platform.isDesktop) {
-      new Setting(detailsEl)
-        .setName(`Enable multiple window`)
-        .setDesc(
-          `When enabled, all window's tabs is selectable. When disabled, only active window's tabs is selectable.`,
-        )
-        .addToggle((toggle) =>
-          toggle.setValue(settings.enableMultiWIndow).onChange(async (value) => {
-            settings.enableMultiWIndow = value;
-            await this._plugin.saveData(this._plugin.settings);
-          }),
-        );
-    }
-
-    this.applyCharactersTextControl(
-      new Setting(detailsEl)
-        .setName('Characters used for shortcut hints')
-        .setDesc(`Enter non-duplicate alphanumeric characters or symbols.`),
-      settings,
-      { pattern: `[!-~]{1,}` },
-    ).then((settingEl) => {
-      const setDefaultValue = () =>
-        (settings.characters = DEFAULT_SETTINGS[settingType].characters);
-      this.addResetButton(settingEl, setDefaultValue);
-    });
+    this.renderDefinitionsInto(detailsEl, this.getShowTabShortcutCommandDefinitions());
   }
 
   private getShowTabShortcutCommandDefinitions(): SettingGroupItem[] {
@@ -933,102 +678,14 @@ export class SettingTab extends PluginSettingTab {
           this.applyCharactersTextControl(setting, settings, { pattern: `[!-~]{1,}` });
           const setDefaultValue = () =>
             (settings.characters = DEFAULT_SETTINGS[settingType].characters);
-          this.addResetButton(setting, setDefaultValue, () => this.update());
+          this.addResetButton(setting, setDefaultValue);
         },
       },
     ];
   }
 
   private setForSearchTabCommand(detailsEl: HTMLDetailsElement): void {
-    const settingType = SETTING_TYPE.searchTab;
-    const settings = this._plugin.settings[settingType];
-
-    if (Platform.isDesktop) {
-      new Setting(detailsEl)
-        .setName(`Enable multiple window`)
-        .setDesc(
-          `When enabled, all window's tabs is selectable. When disabled, only active window's tabs is selectable.`,
-        )
-        .addToggle((toggle) =>
-          toggle.setValue(settings.enableMultiWIndow).onChange(async (value) => {
-            settings.enableMultiWIndow = value;
-            await this._plugin.saveData(this._plugin.settings);
-          }),
-        );
-    }
-
-    new Setting(detailsEl)
-      .setName(`Show aliases`)
-      .setDesc(`When enabled, show file's aliases on list item.`)
-      .addToggle((toggle) =>
-        toggle.setValue(settings.showAliases).onChange(async (value) => {
-          settings.showAliases = value;
-          await this._plugin.saveData(this._plugin.settings);
-          this.display();
-        }),
-      );
-
-    new Setting(detailsEl)
-      .setDisabled(!settings.showAliases)
-      .setName(`Include aliases in the search`)
-      .setDesc(
-        `When enabled, include aliases in the search. This setting is valid when "Show aliases" is enabled.`,
-      )
-      .addToggle((toggle) =>
-        toggle.setValue(settings.includeAliases).onChange(async (value) => {
-          settings.includeAliases = value;
-          await this._plugin.saveData(this._plugin.settings);
-        }),
-      );
-
-    new Setting(detailsEl)
-      .setName(`Show paths`)
-      .setDesc(`When enabled, show file's paths on list item.`)
-      .addToggle((toggle) =>
-        toggle.setValue(settings.showPaths).onChange(async (value) => {
-          settings.showPaths = value;
-          await this._plugin.saveData(this._plugin.settings);
-          this.display();
-        }),
-      );
-
-    new Setting(detailsEl)
-      .setDisabled(!settings.showPaths)
-      .setName(`Include paths in the search`)
-      .setDesc(
-        `When enabled, include paths in the search. This setting is valid when "Show paths" is enabled.`,
-      )
-      .addToggle((toggle) =>
-        toggle.setValue(settings.includePaths).onChange(async (value) => {
-          settings.includePaths = value;
-          await this._plugin.saveData(this._plugin.settings);
-        }),
-      );
-
-    new Setting(detailsEl)
-      .setName(`Show legends`)
-      .setDesc('When enabled, show legends on modal.')
-      .addToggle((toggle) =>
-        toggle.setValue(settings.showLegends).onChange(async (value) => {
-          settings.showLegends = value;
-          await this._plugin.saveData(this._plugin.settings);
-        }),
-      );
-
-    new Setting(detailsEl)
-      .setName('Color of button frame on focus')
-      .setDesc('Choice your favorite color.')
-      .addColorPicker((colorPicker) =>
-        colorPicker.setValue(settings.focusColor).onChange(async (value) => {
-          settings.focusColor = value;
-          await this._plugin.saveData(this._plugin.settings);
-        }),
-      )
-      .then((settingEl) => {
-        const setDefaultValue = () =>
-          (settings.focusColor = DEFAULT_SETTINGS[settingType].focusColor);
-        this.addResetButton(settingEl, setDefaultValue);
-      });
+    this.renderDefinitionsInto(detailsEl, this.getSearchTabCommandDefinitions());
   }
 
   private getSearchTabCommandDefinitions(): SettingGroupItem[] {
@@ -1057,7 +714,7 @@ export class SettingTab extends PluginSettingTab {
             toggle.setValue(settings.showAliases).onChange(async (value) => {
               settings.showAliases = value;
               await this._plugin.saveData(this._plugin.settings);
-              this.update();
+              this.refreshSettingsView();
             }),
           );
         },
@@ -1082,7 +739,7 @@ export class SettingTab extends PluginSettingTab {
             toggle.setValue(settings.showPaths).onChange(async (value) => {
               settings.showPaths = value;
               await this._plugin.saveData(this._plugin.settings);
-              this.update();
+              this.refreshSettingsView();
             }),
           );
         },
@@ -1123,7 +780,7 @@ export class SettingTab extends PluginSettingTab {
           );
           const setDefaultValue = () =>
             (settings.focusColor = DEFAULT_SETTINGS[settingType].focusColor);
-          this.addResetButton(setting, setDefaultValue, () => this.update());
+          this.addResetButton(setting, setDefaultValue);
         },
       },
     ];
@@ -1204,11 +861,7 @@ export class SettingTab extends PluginSettingTab {
     return displayTexts[this.convertToKey(value, valueTexts)];
   }
 
-  private addResetButton(
-    settingEl: Setting,
-    setDefaultValue: () => void,
-    refresh: (() => void) | null = () => this.display(),
-  ): void {
+  private addResetButton(settingEl: Setting, setDefaultValue: () => void): void {
     settingEl.addExtraButton((button) =>
       button
         .setIcon('reset')
@@ -1216,8 +869,22 @@ export class SettingTab extends PluginSettingTab {
         .onClick(async () => {
           setDefaultValue();
           await this._plugin.saveSettings();
-          refresh?.();
+          this.refreshSettingsView();
         }),
     );
+  }
+
+  /**
+   * Re-renders whichever of `display()` / `getSettingDefinitions()` produced
+   * the currently visible settings UI. Setting-control logic is shared
+   * between both render paths (see `renderDefinitionsInto`) and should call
+   * this instead of `display()` or `update()` directly.
+   */
+  private refreshSettingsView(): void {
+    if (this._renderMode === 'declarative') {
+      this.update();
+    } else {
+      this.display();
+    }
   }
 }
