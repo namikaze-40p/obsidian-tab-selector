@@ -293,12 +293,7 @@ export class SettingTab extends PluginSettingTab {
       )
       .addDropdown((item) =>
         item
-          .addOptions(
-            Object.keys(MODIFIER_KEY).reduce(
-              (obj, key) => ((obj[key] = DISPLAY_MODIFIER_KEY[key]), obj),
-              {} as Record<string, string>,
-            ),
-          )
+          .addOptions(this.buildDropdownOptions(MODIFIER_KEY, DISPLAY_MODIFIER_KEY))
           .setValue(this.convertToKey(settings.mainModifierKey, MODIFIER_KEY))
           .onChange(async (value) => {
             settings.mainModifierKey = this.convertToSettingValue(
@@ -321,12 +316,7 @@ export class SettingTab extends PluginSettingTab {
       .setDesc('Press this key while holding down the Main modifier key moves to the previous tab.')
       .addDropdown((item) =>
         item
-          .addOptions(
-            Object.keys(ACTION_KEY).reduce(
-              (obj, key) => ((obj[key] = DISPLAY_ACTION_KEY[key]), obj),
-              {} as Record<string, string>,
-            ),
-          )
+          .addOptions(this.buildDropdownOptions(ACTION_KEY, DISPLAY_ACTION_KEY))
           .setValue(this.convertToKey(settings.actionKey, ACTION_KEY))
           .onChange(async (value) => {
             settings.actionKey = this.convertToSettingValue(value, ACTION_KEY, DISPLAY_ACTION_KEY);
@@ -350,12 +340,7 @@ export class SettingTab extends PluginSettingTab {
       )
       .addDropdown((item) =>
         item
-          .addOptions(
-            Object.keys(HOW_TO_NEXT_TAB).reduce(
-              (obj, key) => ((obj[key] = DISPLAY_HOW_TO_NEXT_TAB[key]), obj),
-              {} as Record<string, string>,
-            ),
-          )
+          .addOptions(this.buildDropdownOptions(HOW_TO_NEXT_TAB, DISPLAY_HOW_TO_NEXT_TAB))
           .setValue(this.convertToKey(settings.howToNextTab, HOW_TO_NEXT_TAB))
           .onChange(async (value) => {
             settings.howToNextTab = HOW_TO_NEXT_TAB[value as keyof typeof HOW_TO_NEXT_TAB];
@@ -374,12 +359,7 @@ export class SettingTab extends PluginSettingTab {
       .setDesc('Pressing the Action key while holding this key down moves to the next tab.')
       .addDropdown((item) =>
         item
-          .addOptions(
-            Object.keys(MODIFIER_KEY).reduce(
-              (obj, key) => ((obj[key] = DISPLAY_MODIFIER_KEY[key]), obj),
-              {} as Record<string, string>,
-            ),
-          )
+          .addOptions(this.buildDropdownOptions(MODIFIER_KEY, DISPLAY_MODIFIER_KEY))
           .setValue(this.convertToKey(settings.subModifierKey, MODIFIER_KEY))
           .onChange(async (value) => {
             settings.subModifierKey = this.convertToSettingValue(
@@ -405,12 +385,7 @@ export class SettingTab extends PluginSettingTab {
       .setDesc('Press this key while holding down the Main modifier key moves to the next tab.')
       .addDropdown((item) =>
         item
-          .addOptions(
-            Object.keys(ACTION_KEY).reduce(
-              (obj, key) => ((obj[key] = DISPLAY_ACTION_KEY[key]), obj),
-              {} as Record<string, string>,
-            ),
-          )
+          .addOptions(this.buildDropdownOptions(ACTION_KEY, DISPLAY_ACTION_KEY))
           .setValue(this.convertToKey(settings.reverseActionKey, ACTION_KEY))
           .onChange(async (value) => {
             settings.reverseActionKey = this.convertToSettingValue(
@@ -444,8 +419,7 @@ export class SettingTab extends PluginSettingTab {
       divEl.createSpan('').setText('2. Set the hotkeys to match for the following commands.');
     });
 
-    const { mainModifierKey, subModifierKey, actionKey, reverseActionKey, howToNextTab } =
-      settings;
+    const { mainModifierKey, subModifierKey, actionKey, reverseActionKey, howToNextTab } = settings;
     const mainModifier = this.convertToDisplayText(
       mainModifierKey,
       MODIFIER_KEY,
@@ -539,12 +513,7 @@ export class SettingTab extends PluginSettingTab {
         render: (setting) => {
           setting.addDropdown((item) =>
             item
-              .addOptions(
-                Object.keys(MODIFIER_KEY).reduce(
-                  (obj, key) => ((obj[key] = DISPLAY_MODIFIER_KEY[key]), obj),
-                  {} as Record<string, string>,
-                ),
-              )
+              .addOptions(this.buildDropdownOptions(MODIFIER_KEY, DISPLAY_MODIFIER_KEY))
               .setValue(this.convertToKey(settings.mainModifierKey, MODIFIER_KEY))
               .onChange(async (value) => {
                 settings.mainModifierKey = this.convertToSettingValue(
@@ -567,12 +536,7 @@ export class SettingTab extends PluginSettingTab {
         render: (setting) => {
           setting.addDropdown((item) =>
             item
-              .addOptions(
-                Object.keys(ACTION_KEY).reduce(
-                  (obj, key) => ((obj[key] = DISPLAY_ACTION_KEY[key]), obj),
-                  {} as Record<string, string>,
-                ),
-              )
+              .addOptions(this.buildDropdownOptions(ACTION_KEY, DISPLAY_ACTION_KEY))
               .setValue(this.convertToKey(settings.actionKey, ACTION_KEY))
               .onChange(async (value) => {
                 settings.actionKey = this.convertToSettingValue(
@@ -598,12 +562,7 @@ export class SettingTab extends PluginSettingTab {
         render: (setting) => {
           setting.addDropdown((item) =>
             item
-              .addOptions(
-                Object.keys(HOW_TO_NEXT_TAB).reduce(
-                  (obj, key) => ((obj[key] = DISPLAY_HOW_TO_NEXT_TAB[key]), obj),
-                  {} as Record<string, string>,
-                ),
-              )
+              .addOptions(this.buildDropdownOptions(HOW_TO_NEXT_TAB, DISPLAY_HOW_TO_NEXT_TAB))
               .setValue(this.convertToKey(settings.howToNextTab, HOW_TO_NEXT_TAB))
               .onChange(async (value) => {
                 settings.howToNextTab = HOW_TO_NEXT_TAB[value as keyof typeof HOW_TO_NEXT_TAB];
@@ -623,12 +582,7 @@ export class SettingTab extends PluginSettingTab {
           setting
             .addDropdown((item) =>
               item
-                .addOptions(
-                  Object.keys(MODIFIER_KEY).reduce(
-                    (obj, key) => ((obj[key] = DISPLAY_MODIFIER_KEY[key]), obj),
-                    {} as Record<string, string>,
-                  ),
-                )
+                .addOptions(this.buildDropdownOptions(MODIFIER_KEY, DISPLAY_MODIFIER_KEY))
                 .setValue(this.convertToKey(settings.subModifierKey, MODIFIER_KEY))
                 .onChange(async (value) => {
                   settings.subModifierKey = this.convertToSettingValue(
@@ -655,12 +609,7 @@ export class SettingTab extends PluginSettingTab {
           setting
             .addDropdown((item) =>
               item
-                .addOptions(
-                  Object.keys(ACTION_KEY).reduce(
-                    (obj, key) => ((obj[key] = DISPLAY_ACTION_KEY[key]), obj),
-                    {} as Record<string, string>,
-                  ),
-                )
+                .addOptions(this.buildDropdownOptions(ACTION_KEY, DISPLAY_ACTION_KEY))
                 .setValue(this.convertToKey(settings.reverseActionKey, ACTION_KEY))
                 .onChange(async (value) => {
                   settings.reverseActionKey = this.convertToSettingValue(
@@ -778,48 +727,19 @@ export class SettingTab extends PluginSettingTab {
         this.addResetButton(settingEl, setDefaultValue);
       });
 
-    new Setting(detailsEl)
-      .setName('Characters used for button hints')
-      .setDesc(
-        `Enter ${CHAR_LENGTH.min}~${CHAR_LENGTH.max} non-duplicate alphanumeric characters or symbols.`,
-      )
-      .addText((text) => {
-        let orgCharacters = settings.characters;
-        const textComponent = text
-          .setPlaceholder('Enter characters')
-          .setValue(settings.characters)
-          .onChange(async (value) => {
-            const { inputEl } = textComponent;
-            if (!this.isDuplicateChars([...value]) && inputEl.validity.valid) {
-              inputEl.removeClass('ts-setting-is-invalid');
-              settings.characters = value;
-              orgCharacters = value;
-              await this._plugin.saveSettings();
-            } else {
-              inputEl.addClass('ts-setting-is-invalid');
-            }
-          });
-
-        textComponent.inputEl.addEventListener('blur', () => {
-          if (
-            this.isDuplicateChars([...textComponent.inputEl.value]) ||
-            !textComponent.inputEl.validity.valid
-          ) {
-            settings.characters = orgCharacters;
-          }
-        });
-        textComponent.inputEl.setAttrs({
-          maxLength: CHAR_LENGTH.max,
-          required: true,
-          pattern: `[!-~]{${CHAR_LENGTH.min},${CHAR_LENGTH.max}}`,
-        });
-        return textComponent;
-      })
-      .then((settingEl) => {
-        const setDefaultValue = () =>
-          (settings.characters = DEFAULT_SETTINGS[settingType].characters);
-        this.addResetButton(settingEl, setDefaultValue);
-      });
+    this.applyCharactersTextControl(
+      new Setting(detailsEl)
+        .setName('Characters used for button hints')
+        .setDesc(
+          `Enter ${CHAR_LENGTH.min}~${CHAR_LENGTH.max} non-duplicate alphanumeric characters or symbols.`,
+        ),
+      settings,
+      { maxLength: CHAR_LENGTH.max, pattern: `[!-~]{${CHAR_LENGTH.min},${CHAR_LENGTH.max}}` },
+    ).then((settingEl) => {
+      const setDefaultValue = () =>
+        (settings.characters = DEFAULT_SETTINGS[settingType].characters);
+      this.addResetButton(settingEl, setDefaultValue);
+    });
 
     new Setting(detailsEl)
       .setName(`Enable tabs close`)
@@ -933,37 +853,9 @@ export class SettingTab extends PluginSettingTab {
         name: 'Characters used for button hints',
         desc: `Enter ${CHAR_LENGTH.min}~${CHAR_LENGTH.max} non-duplicate alphanumeric characters or symbols.`,
         render: (setting) => {
-          setting.addText((text) => {
-            let orgCharacters = settings.characters;
-            const textComponent = text
-              .setPlaceholder('Enter characters')
-              .setValue(settings.characters)
-              .onChange(async (value) => {
-                const { inputEl } = textComponent;
-                if (!this.isDuplicateChars([...value]) && inputEl.validity.valid) {
-                  inputEl.removeClass('ts-setting-is-invalid');
-                  settings.characters = value;
-                  orgCharacters = value;
-                  await this._plugin.saveSettings();
-                } else {
-                  inputEl.addClass('ts-setting-is-invalid');
-                }
-              });
-
-            textComponent.inputEl.addEventListener('blur', () => {
-              if (
-                this.isDuplicateChars([...textComponent.inputEl.value]) ||
-                !textComponent.inputEl.validity.valid
-              ) {
-                settings.characters = orgCharacters;
-              }
-            });
-            textComponent.inputEl.setAttrs({
-              maxLength: CHAR_LENGTH.max,
-              required: true,
-              pattern: `[!-~]{${CHAR_LENGTH.min},${CHAR_LENGTH.max}}`,
-            });
-            return textComponent;
+          this.applyCharactersTextControl(setting, settings, {
+            maxLength: CHAR_LENGTH.max,
+            pattern: `[!-~]{${CHAR_LENGTH.min},${CHAR_LENGTH.max}}`,
           });
           const setDefaultValue = () =>
             (settings.characters = DEFAULT_SETTINGS[settingType].characters);
@@ -1003,45 +895,17 @@ export class SettingTab extends PluginSettingTab {
         );
     }
 
-    new Setting(detailsEl)
-      .setName('Characters used for shortcut hints')
-      .setDesc(`Enter non-duplicate alphanumeric characters or symbols.`)
-      .addText((text) => {
-        let orgCharacters = settings.characters;
-        const textComponent = text
-          .setPlaceholder('Enter characters')
-          .setValue(settings.characters)
-          .onChange(async (value) => {
-            const { inputEl } = textComponent;
-            if (!this.isDuplicateChars([...value]) && inputEl.validity.valid) {
-              inputEl.removeClass('ts-setting-is-invalid');
-              settings.characters = value;
-              orgCharacters = value;
-              await this._plugin.saveSettings();
-            } else {
-              inputEl.addClass('ts-setting-is-invalid');
-            }
-          });
-
-        textComponent.inputEl.addEventListener('blur', () => {
-          if (
-            this.isDuplicateChars([...textComponent.inputEl.value]) ||
-            !textComponent.inputEl.validity.valid
-          ) {
-            settings.characters = orgCharacters;
-          }
-        });
-        textComponent.inputEl.setAttrs({
-          required: true,
-          pattern: `[!-~]{1,}`,
-        });
-        return textComponent;
-      })
-      .then((settingEl) => {
-        const setDefaultValue = () =>
-          (settings.characters = DEFAULT_SETTINGS[settingType].characters);
-        this.addResetButton(settingEl, setDefaultValue);
-      });
+    this.applyCharactersTextControl(
+      new Setting(detailsEl)
+        .setName('Characters used for shortcut hints')
+        .setDesc(`Enter non-duplicate alphanumeric characters or symbols.`),
+      settings,
+      { pattern: `[!-~]{1,}` },
+    ).then((settingEl) => {
+      const setDefaultValue = () =>
+        (settings.characters = DEFAULT_SETTINGS[settingType].characters);
+      this.addResetButton(settingEl, setDefaultValue);
+    });
   }
 
   private getShowTabShortcutCommandDefinitions(): SettingGroupItem[] {
@@ -1066,37 +930,7 @@ export class SettingTab extends PluginSettingTab {
         name: 'Characters used for shortcut hints',
         desc: `Enter non-duplicate alphanumeric characters or symbols.`,
         render: (setting) => {
-          setting.addText((text) => {
-            let orgCharacters = settings.characters;
-            const textComponent = text
-              .setPlaceholder('Enter characters')
-              .setValue(settings.characters)
-              .onChange(async (value) => {
-                const { inputEl } = textComponent;
-                if (!this.isDuplicateChars([...value]) && inputEl.validity.valid) {
-                  inputEl.removeClass('ts-setting-is-invalid');
-                  settings.characters = value;
-                  orgCharacters = value;
-                  await this._plugin.saveSettings();
-                } else {
-                  inputEl.addClass('ts-setting-is-invalid');
-                }
-              });
-
-            textComponent.inputEl.addEventListener('blur', () => {
-              if (
-                this.isDuplicateChars([...textComponent.inputEl.value]) ||
-                !textComponent.inputEl.validity.valid
-              ) {
-                settings.characters = orgCharacters;
-              }
-            });
-            textComponent.inputEl.setAttrs({
-              required: true,
-              pattern: `[!-~]{1,}`,
-            });
-            return textComponent;
-          });
+          this.applyCharactersTextControl(setting, settings, { pattern: `[!-~]{1,}` });
           const setDefaultValue = () =>
             (settings.characters = DEFAULT_SETTINGS[settingType].characters);
           this.addResetButton(setting, setDefaultValue, () => this.update());
@@ -1232,14 +1066,12 @@ export class SettingTab extends PluginSettingTab {
         name: 'Include aliases in the search',
         desc: `When enabled, include aliases in the search. This setting is valid when "Show aliases" is enabled.`,
         render: (setting) => {
-          setting
-            .setDisabled(!settings.showAliases)
-            .addToggle((toggle) =>
-              toggle.setValue(settings.includeAliases).onChange(async (value) => {
-                settings.includeAliases = value;
-                await this._plugin.saveData(this._plugin.settings);
-              }),
-            );
+          setting.setDisabled(!settings.showAliases).addToggle((toggle) =>
+            toggle.setValue(settings.includeAliases).onChange(async (value) => {
+              settings.includeAliases = value;
+              await this._plugin.saveData(this._plugin.settings);
+            }),
+          );
         },
       },
       {
@@ -1259,14 +1091,12 @@ export class SettingTab extends PluginSettingTab {
         name: 'Include paths in the search',
         desc: `When enabled, include paths in the search. This setting is valid when "Show paths" is enabled.`,
         render: (setting) => {
-          setting
-            .setDisabled(!settings.showPaths)
-            .addToggle((toggle) =>
-              toggle.setValue(settings.includePaths).onChange(async (value) => {
-                settings.includePaths = value;
-                await this._plugin.saveData(this._plugin.settings);
-              }),
-            );
+          setting.setDisabled(!settings.showPaths).addToggle((toggle) =>
+            toggle.setValue(settings.includePaths).onChange(async (value) => {
+              settings.includePaths = value;
+              await this._plugin.saveData(this._plugin.settings);
+            }),
+          );
         },
       },
       {
@@ -1301,6 +1131,55 @@ export class SettingTab extends PluginSettingTab {
 
   private isDuplicateChars(chars: string[]): boolean {
     return chars.some((char, idx) => chars.slice(idx + 1).includes(char));
+  }
+
+  private applyCharactersTextControl(
+    setting: Setting,
+    settings: { characters: string },
+    attrs: { maxLength?: number; pattern: string },
+  ): Setting {
+    return setting.addText((text) => {
+      let orgCharacters = settings.characters;
+      const textComponent = text
+        .setPlaceholder('Enter characters')
+        .setValue(settings.characters)
+        .onChange(async (value) => {
+          const { inputEl } = textComponent;
+          if (!this.isDuplicateChars([...value]) && inputEl.validity.valid) {
+            inputEl.removeClass('ts-setting-is-invalid');
+            settings.characters = value;
+            orgCharacters = value;
+            await this._plugin.saveSettings();
+          } else {
+            inputEl.addClass('ts-setting-is-invalid');
+          }
+        });
+
+      textComponent.inputEl.addEventListener('blur', () => {
+        if (
+          this.isDuplicateChars([...textComponent.inputEl.value]) ||
+          !textComponent.inputEl.validity.valid
+        ) {
+          settings.characters = orgCharacters;
+        }
+      });
+      textComponent.inputEl.setAttrs({
+        ...(attrs.maxLength !== undefined ? { maxLength: attrs.maxLength } : {}),
+        required: true,
+        pattern: attrs.pattern,
+      });
+      return textComponent;
+    });
+  }
+
+  private buildDropdownOptions(
+    valueTexts: Record<string, string>,
+    displayTexts: Record<string, string>,
+  ): Record<string, string> {
+    return Object.keys(valueTexts).reduce(
+      (obj, key) => ((obj[key] = displayTexts[key]), obj),
+      {} as Record<string, string>,
+    );
   }
 
   private convertToKey(value: string, valueTexts: Record<string, string>): string {
