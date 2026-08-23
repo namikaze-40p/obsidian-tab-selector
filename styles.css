@@ -25,63 +25,71 @@
     &:last-child {
       margin-bottom: 0;
     }
+  }
 
-    & .th-how-to-use {
-      border: 1px solid #aaaaaa;
+  /*
+   * Not scoped under `details`: Obsidian 1.13.0+'s declarative settings API
+   * renders this panel via a `render`-type setting definition, outside any
+   * `<details>` element.
+   */
+  & .th-how-to-use {
+    /* Overrides Obsidian's `.setting-item` flex/grid layout, which this
+     * panel's row is rendered as under the declarative settings API. */
+    display: block;
+    border: 1px solid #aaaaaa;
+    padding: 0.5rem;
+
+    & .th-settings-description {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 0.5rem;
+
+      & .th-description-title {
+        font-weight: bold;
+      }
+    }
+
+    & .th-hotkey-preview {
+      display: flex;
+      justify-content: space-between;
+      padding: 0 1rem;
+
+      & .th-hotkey-preview-value {
+        font-weight: bold;
+      }
+    }
+
+    & .th-match-state {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      width: max-content;
+      max-width: 100%;
+      border: 2px solid var(--color-red);
+      margin: 0.5rem auto;
       padding: 0.5rem;
 
-      & .th-settings-description {
+      & .th-match-icon {
         display: flex;
-        flex-direction: column;
-        margin-bottom: 0.5rem;
-
-        & .th-description-title {
-          font-weight: bold;
-        }
+        align-items: center;
+        color: var(--color-red);
       }
 
-      & .th-hotkey-preview {
-        display: flex;
-        justify-content: space-between;
-        padding: 0 1rem;
-
-        & .th-hotkey-preview-value {
-          font-weight: bold;
-        }
-      }
-
-      & .th-match-state {
-        display: flex;
-        justify-content: center;
-        gap: 0.5rem;
-        width: max-content;
-        max-width: 100%;
-        border: 2px solid var(--color-red);
-        margin: 0.5rem auto;
-        padding: 0.5rem;
+      &.is-match {
+        border-color: var(--color-green);
 
         & .th-match-icon {
-          display: flex;
-          align-items: center;
-          color: var(--color-red);
-        }
-
-        &.is-match {
-          border-color: var(--color-green);
-
-          & .th-match-icon {
-            color: var(--color-green);
-          }
+          color: var(--color-green);
         }
       }
+    }
 
-      & .th-settings-caution {
-        display: flex;
-        flex-direction: column;
+    & .th-settings-caution {
+      display: flex;
+      flex-direction: column;
 
-        & .th-settings-caution-title {
-          font-weight: bold;
-        }
+      & .th-settings-caution-title {
+        font-weight: bold;
       }
     }
   }

@@ -1,4 +1,12 @@
-import { App, Platform, PluginSettingTab, Setting, setIcon } from 'obsidian';
+import {
+  App,
+  Platform,
+  PluginSettingTab,
+  Setting,
+  SettingDefinitionItem,
+  SettingGroupItem,
+  setIcon,
+} from 'obsidian';
 import TabSelector from './main';
 import { isValidSettings } from './util';
 
@@ -149,13 +157,14 @@ export class SettingTab extends PluginSettingTab {
     private _plugin: TabSelector,
   ) {
     super(app, _plugin);
+    // Applied here (not just in `display()`) because Obsidian 1.13.0+ renders
+    // from `getSettingDefinitions()` without ever calling `display()`.
+    this.containerEl.addClass('ts-settings');
   }
 
   display(): void {
     const { containerEl } = this;
     containerEl.empty();
-
-    containerEl.addClass('ts-settings');
 
     {
       const detailsEl = containerEl.createEl('details', '', (el) => {
@@ -210,6 +219,38 @@ export class SettingTab extends PluginSettingTab {
       detailsEl.addEventListener('toggle', () => (this._isOpen.fourthDetails = detailsEl.open));
       this.setForSearchTabCommand(detailsEl);
     }
+  }
+
+  /**
+   * Declarative counterpart of `display()`, used by Obsidian 1.13.0+ to make
+   * these settings appear in the settings search. `display()` is kept as a
+   * fallback for older Obsidian versions (it is not called once this method
+   * returns a non-empty array).
+   */
+  getSettingDefinitions(): SettingDefinitionItem[] {
+    return [
+      {
+        type: 'group',
+        heading: 'For "Go to previous/next tab" command',
+        items: this.getGoToPrevNextTabCommandsDefinitions(),
+      },
+      {
+        type: 'group',
+        heading: 'For "Browse tabs" command',
+        items: this.getOpenTabSelectorCommandDefinitions(),
+      },
+      {
+        type: 'group',
+        heading: 'For "Show tab shortcuts" command',
+        visible: () => Platform.isDesktop || Platform.isTablet,
+        items: this.getShowTabShortcutCommandDefinitions(),
+      },
+      {
+        type: 'group',
+        heading: 'For "Search tabs" command',
+        items: this.getSearchTabCommandDefinitions(),
+      },
+    ];
   }
 
   private setForGoToPrevNextTabCommands(detailsEl: HTMLDetailsElement): void {
@@ -390,68 +431,265 @@ export class SettingTab extends PluginSettingTab {
         }
       });
 
-    detailsEl.createDiv('th-how-to-use', (el) => {
-      el.createDiv('th-settings-description', (divEl) => {
-        divEl.createSpan('th-description-title').setText('How to use');
-        divEl.createSpan('').setText('1. Configure the above settings.');
-        divEl.createSpan('').setText('2. Set the hotkeys to match for the following commands.');
-      });
+    detailsEl.createDiv('th-how-to-use', (el) => this.renderGoToPrevNextTabHowToUse(el, settings));
+  }
 
-      const { mainModifierKey, subModifierKey, actionKey, reverseActionKey, howToNextTab } =
-        settings;
-      const mainModifier = this.convertToDisplayText(
-        mainModifierKey,
-        MODIFIER_KEY,
-        DISPLAY_MODIFIER_KEY,
-      );
-      const subModifier = this.convertToDisplayText(
-        subModifierKey,
-        MODIFIER_KEY,
-        DISPLAY_MODIFIER_KEY,
-      );
-      const action = this.convertToDisplayText(actionKey, ACTION_KEY, DISPLAY_ACTION_KEY);
-      const reverseAction = this.convertToDisplayText(
-        reverseActionKey,
-        ACTION_KEY,
-        DISPLAY_ACTION_KEY,
-      );
-      const useSubModifier = howToNextTab === HOW_TO_NEXT_TAB.useSubModifierKey;
+  private renderGoToPrevNextTabHowToUse(
+    el: HTMLElement,
+    settings: GoToPreviousNextTabSettings,
+  ): void {
+    el.createDiv('th-settings-description', (divEl) => {
+      divEl.createSpan('th-description-title').setText('How to use');
+      divEl.createSpan('').setText('1. Configure the above settings.');
+      divEl.createSpan('').setText('2. Set the hotkeys to match for the following commands.');
+    });
 
-      el.createDiv('th-hotkey-preview', (divEl) => {
-        divEl.createSpan('th-hotkey-preview-label').setText('"Tab Selector: Go to next tab": ');
-        divEl
-          .createSpan('th-hotkey-preview-value')
-          .setText(
-            (useSubModifier
-              ? [mainModifier, subModifier, action]
-              : [mainModifier, reverseAction]
-            ).join(IS_APPLE ? '' : ' + '),
-          );
-      });
-      el.createDiv('th-hotkey-preview', (divEl) => {
-        divEl.createSpan('th-hotkey-preview-label').setText('"Tab Selector: Go to previous tab": ');
-        divEl
-          .createSpan('th-hotkey-preview-value')
-          .setText([mainModifier, action].join(IS_APPLE ? '' : ' + '));
-      });
+    const { mainModifierKey, subModifierKey, actionKey, reverseActionKey, howToNextTab } =
+      settings;
+    const mainModifier = this.convertToDisplayText(
+      mainModifierKey,
+      MODIFIER_KEY,
+      DISPLAY_MODIFIER_KEY,
+    );
+    const subModifier = this.convertToDisplayText(
+      subModifierKey,
+      MODIFIER_KEY,
+      DISPLAY_MODIFIER_KEY,
+    );
+    const action = this.convertToDisplayText(actionKey, ACTION_KEY, DISPLAY_ACTION_KEY);
+    const reverseAction = this.convertToDisplayText(
+      reverseActionKey,
+      ACTION_KEY,
+      DISPLAY_ACTION_KEY,
+    );
+    const useSubModifier = howToNextTab === HOW_TO_NEXT_TAB.useSubModifierKey;
 
-      el.createDiv('th-match-state', (divEl) => {
-        const isMatchKeys = isValidSettings(this.app, settings, false);
-        divEl.addClass(isMatchKeys ? 'is-match' : 'is-mismatch');
-        divEl.createSpan('th-match-icon', (spanEl) => setIcon(spanEl, isMatchKeys ? 'check' : 'x'));
-        divEl
-          .createSpan('')
-          .setText(`Currently hotkeys ${isMatchKeys ? 'match' : 'mismatch'} the above commands.`);
-      });
+    el.createDiv('th-hotkey-preview', (divEl) => {
+      divEl.createSpan('th-hotkey-preview-label').setText('"Tab Selector: Go to next tab": ');
+      divEl
+        .createSpan('th-hotkey-preview-value')
+        .setText(
+          (useSubModifier
+            ? [mainModifier, subModifier, action]
+            : [mainModifier, reverseAction]
+          ).join(IS_APPLE ? '' : ' + '),
+        );
+    });
+    el.createDiv('th-hotkey-preview', (divEl) => {
+      divEl.createSpan('th-hotkey-preview-label').setText('"Tab Selector: Go to previous tab": ');
+      divEl
+        .createSpan('th-hotkey-preview-value')
+        .setText([mainModifier, action].join(IS_APPLE ? '' : ' + '));
+    });
 
-      el.createDiv('th-settings-caution', (divEl) => {
-        divEl.createSpan('th-settings-caution-title').setText('Caution');
-        divEl.createSpan('').setText(`
+    el.createDiv('th-match-state', (divEl) => {
+      const isMatchKeys = isValidSettings(this.app, settings, false);
+      divEl.addClass(isMatchKeys ? 'is-match' : 'is-mismatch');
+      divEl.createSpan('th-match-icon', (spanEl) => setIcon(spanEl, isMatchKeys ? 'check' : 'x'));
+      divEl
+        .createSpan('')
+        .setText(`Currently hotkeys ${isMatchKeys ? 'match' : 'mismatch'} the above commands.`);
+    });
+
+    el.createDiv('th-settings-caution', (divEl) => {
+      divEl.createSpan('th-settings-caution-title').setText('Caution');
+      divEl.createSpan('').setText(`
 					Don't use shortcut keys reserved by the OS.
 					OS shortcut keys take precedence and don't work properly.
 				`);
-      });
     });
+  }
+
+  private getGoToPrevNextTabCommandsDefinitions(): SettingGroupItem[] {
+    const settingType = SETTING_TYPE.goToPreviousNextTab;
+    const settings = this._plugin.settings[settingType];
+
+    return [
+      {
+        name: 'Enable multiple window',
+        desc: `When enabled, all window's tabs is selectable. When disabled, only active window's tabs is selectable.`,
+        visible: () => Platform.isDesktop,
+        render: (setting) => {
+          setting.addToggle((toggle) =>
+            toggle.setValue(settings.enableMultiWIndow).onChange(async (value) => {
+              settings.enableMultiWIndow = value;
+              await this._plugin.saveData(this._plugin.settings);
+            }),
+          );
+        },
+      },
+      {
+        name: 'Color of button frame on focus',
+        desc: 'Choose your favorite color.',
+        render: (setting) => {
+          setting.addColorPicker((colorPicker) =>
+            colorPicker.setValue(settings.focusColor).onChange(async (value) => {
+              settings.focusColor = value;
+              await this._plugin.saveData(this._plugin.settings);
+            }),
+          );
+          const setDefaultValue = () =>
+            (settings.focusColor = DEFAULT_SETTINGS[settingType].focusColor);
+          this.addResetButton(setting, setDefaultValue, () => this.update());
+        },
+      },
+      {
+        name: 'Main modifier key',
+        desc: 'Holding this key down keeps the modal open. When this key is released, it switches to the focused tab.',
+        render: (setting) => {
+          setting.addDropdown((item) =>
+            item
+              .addOptions(
+                Object.keys(MODIFIER_KEY).reduce(
+                  (obj, key) => ((obj[key] = DISPLAY_MODIFIER_KEY[key]), obj),
+                  {} as Record<string, string>,
+                ),
+              )
+              .setValue(this.convertToKey(settings.mainModifierKey, MODIFIER_KEY))
+              .onChange(async (value) => {
+                settings.mainModifierKey = this.convertToSettingValue(
+                  value,
+                  MODIFIER_KEY,
+                  DISPLAY_MODIFIER_KEY,
+                );
+                await this._plugin.saveData(this._plugin.settings);
+                this.update();
+              }),
+          );
+          const setDefaultValue = () =>
+            (settings.mainModifierKey = DEFAULT_SETTINGS[settingType].mainModifierKey);
+          this.addResetButton(setting, setDefaultValue, () => this.update());
+        },
+      },
+      {
+        name: 'Action key',
+        desc: 'Press this key while holding down the Main modifier key moves to the previous tab.',
+        render: (setting) => {
+          setting.addDropdown((item) =>
+            item
+              .addOptions(
+                Object.keys(ACTION_KEY).reduce(
+                  (obj, key) => ((obj[key] = DISPLAY_ACTION_KEY[key]), obj),
+                  {} as Record<string, string>,
+                ),
+              )
+              .setValue(this.convertToKey(settings.actionKey, ACTION_KEY))
+              .onChange(async (value) => {
+                settings.actionKey = this.convertToSettingValue(
+                  value,
+                  ACTION_KEY,
+                  DISPLAY_ACTION_KEY,
+                );
+                await this._plugin.saveData(this._plugin.settings);
+                this.update();
+              }),
+          );
+          const setDefaultValue = () =>
+            (settings.actionKey = DEFAULT_SETTINGS[settingType].actionKey);
+          this.addResetButton(setting, setDefaultValue, () => this.update());
+        },
+      },
+      {
+        name: 'Choose how to go to the next tab',
+        desc: `
+					When go to the next tab, if you want to use the same key as the Action key, choose “Sub modifier key”.
+					If you want to use a different key from the Action key, choose “Reverse action key".
+				`,
+        render: (setting) => {
+          setting.addDropdown((item) =>
+            item
+              .addOptions(
+                Object.keys(HOW_TO_NEXT_TAB).reduce(
+                  (obj, key) => ((obj[key] = DISPLAY_HOW_TO_NEXT_TAB[key]), obj),
+                  {} as Record<string, string>,
+                ),
+              )
+              .setValue(this.convertToKey(settings.howToNextTab, HOW_TO_NEXT_TAB))
+              .onChange(async (value) => {
+                settings.howToNextTab = HOW_TO_NEXT_TAB[value as keyof typeof HOW_TO_NEXT_TAB];
+                await this._plugin.saveData(this._plugin.settings);
+                this.update();
+              }),
+          );
+          const setDefaultValue = () =>
+            (settings.howToNextTab = DEFAULT_SETTINGS[settingType].howToNextTab);
+          this.addResetButton(setting, setDefaultValue, () => this.update());
+        },
+      },
+      {
+        name: 'Sub modifier key',
+        desc: 'Pressing the Action key while holding this key down moves to the next tab.',
+        render: (setting) => {
+          setting
+            .addDropdown((item) =>
+              item
+                .addOptions(
+                  Object.keys(MODIFIER_KEY).reduce(
+                    (obj, key) => ((obj[key] = DISPLAY_MODIFIER_KEY[key]), obj),
+                    {} as Record<string, string>,
+                  ),
+                )
+                .setValue(this.convertToKey(settings.subModifierKey, MODIFIER_KEY))
+                .onChange(async (value) => {
+                  settings.subModifierKey = this.convertToSettingValue(
+                    value,
+                    MODIFIER_KEY,
+                    DISPLAY_MODIFIER_KEY,
+                  );
+                  await this._plugin.saveData(this._plugin.settings);
+                  this.update();
+                }),
+            )
+            .setDisabled(settings.howToNextTab !== HOW_TO_NEXT_TAB.useSubModifierKey);
+          if (settings.howToNextTab === HOW_TO_NEXT_TAB.useSubModifierKey) {
+            const setDefaultValue = () =>
+              (settings.subModifierKey = DEFAULT_SETTINGS[settingType].subModifierKey);
+            this.addResetButton(setting, setDefaultValue, () => this.update());
+          }
+        },
+      },
+      {
+        name: 'Reverse action key',
+        desc: 'Press this key while holding down the Main modifier key moves to the next tab.',
+        render: (setting) => {
+          setting
+            .addDropdown((item) =>
+              item
+                .addOptions(
+                  Object.keys(ACTION_KEY).reduce(
+                    (obj, key) => ((obj[key] = DISPLAY_ACTION_KEY[key]), obj),
+                    {} as Record<string, string>,
+                  ),
+                )
+                .setValue(this.convertToKey(settings.reverseActionKey, ACTION_KEY))
+                .onChange(async (value) => {
+                  settings.reverseActionKey = this.convertToSettingValue(
+                    value,
+                    ACTION_KEY,
+                    DISPLAY_ACTION_KEY,
+                  );
+                  await this._plugin.saveData(this._plugin.settings);
+                  this.update();
+                }),
+            )
+            .setDisabled(settings.howToNextTab !== HOW_TO_NEXT_TAB.useReverseActionKey);
+          if (settings.howToNextTab === HOW_TO_NEXT_TAB.useSubModifierKey) {
+            const setDefaultValue = () =>
+              (settings.reverseActionKey = DEFAULT_SETTINGS[settingType].reverseActionKey);
+            this.addResetButton(setting, setDefaultValue, () => this.update());
+          }
+        },
+      },
+      {
+        name: 'How to use',
+        searchable: false,
+        render: (setting) => {
+          setting.settingEl.empty();
+          setting.settingEl.addClass('th-how-to-use');
+          this.renderGoToPrevNextTabHowToUse(setting.settingEl, settings);
+        },
+      },
+    ];
   }
 
   private setForOpenTabSelectorCommand(detailsEl: HTMLDetailsElement): void {
@@ -594,6 +832,159 @@ export class SettingTab extends PluginSettingTab {
       );
   }
 
+  private getOpenTabSelectorCommandDefinitions(): SettingGroupItem[] {
+    const settingType = SETTING_TYPE.openTabSelector;
+    const settings = this._plugin.settings[settingType];
+
+    return [
+      {
+        name: 'Enable multiple window',
+        desc: `When enabled, all window's tabs is selectable. When disabled, only active window's tabs is selectable.`,
+        visible: () => Platform.isDesktop,
+        render: (setting) => {
+          setting.addToggle((toggle) =>
+            toggle.setValue(settings.enableMultiWIndow).onChange(async (value) => {
+              settings.enableMultiWIndow = value;
+              await this._plugin.saveData(this._plugin.settings);
+            }),
+          );
+        },
+      },
+      {
+        name: 'Show aliases',
+        desc: `When enabled, show file's aliases on button.`,
+        render: (setting) => {
+          setting.addToggle((toggle) =>
+            toggle.setValue(settings.showAliases).onChange(async (value) => {
+              settings.showAliases = value;
+              settings.replaceToAliases = false;
+              await this._plugin.saveData(this._plugin.settings);
+              this.update();
+            }),
+          );
+        },
+      },
+      {
+        name: 'Replace the filename to aliases',
+        desc: `When enabled, if aliases is set the file, replace the filename to aliases.`,
+        render: (setting) => {
+          setting
+            .addToggle((toggle) =>
+              toggle.setValue(settings.replaceToAliases).onChange(async (value) => {
+                settings.replaceToAliases = value;
+                await this._plugin.saveData(this._plugin.settings);
+              }),
+            )
+            .setDisabled(!settings.showAliases);
+        },
+      },
+      {
+        name: 'Show paths',
+        desc: `When enabled, show file's paths on button.`,
+        render: (setting) => {
+          setting.addToggle((toggle) =>
+            toggle.setValue(settings.showPaths).onChange(async (value) => {
+              settings.showPaths = value;
+              await this._plugin.saveData(this._plugin.settings);
+            }),
+          );
+        },
+      },
+      {
+        name: 'Show pagination buttons',
+        desc: 'When enabled, show pagination buttons on modal.',
+        render: (setting) => {
+          setting.addToggle((toggle) =>
+            toggle.setValue(settings.showPaginationButtons).onChange(async (value) => {
+              settings.showPaginationButtons = value;
+              await this._plugin.saveData(this._plugin.settings);
+            }),
+          );
+        },
+      },
+      {
+        name: 'Show legends',
+        desc: 'When enabled, show legends on modal.',
+        render: (setting) => {
+          setting.addToggle((toggle) =>
+            toggle.setValue(settings.showLegends).onChange(async (value) => {
+              settings.showLegends = value;
+              await this._plugin.saveData(this._plugin.settings);
+            }),
+          );
+        },
+      },
+      {
+        name: 'Color of button frame on focus',
+        desc: 'Choice your favorite color.',
+        render: (setting) => {
+          setting.addColorPicker((colorPicker) =>
+            colorPicker.setValue(settings.focusColor).onChange(async (value) => {
+              settings.focusColor = value;
+              await this._plugin.saveData(this._plugin.settings);
+            }),
+          );
+          const setDefaultValue = () =>
+            (settings.focusColor = DEFAULT_SETTINGS[settingType].focusColor);
+          this.addResetButton(setting, setDefaultValue, () => this.update());
+        },
+      },
+      {
+        name: 'Characters used for button hints',
+        desc: `Enter ${CHAR_LENGTH.min}~${CHAR_LENGTH.max} non-duplicate alphanumeric characters or symbols.`,
+        render: (setting) => {
+          setting.addText((text) => {
+            let orgCharacters = settings.characters;
+            const textComponent = text
+              .setPlaceholder('Enter characters')
+              .setValue(settings.characters)
+              .onChange(async (value) => {
+                const { inputEl } = textComponent;
+                if (!this.isDuplicateChars([...value]) && inputEl.validity.valid) {
+                  inputEl.removeClass('ts-setting-is-invalid');
+                  settings.characters = value;
+                  orgCharacters = value;
+                  await this._plugin.saveSettings();
+                } else {
+                  inputEl.addClass('ts-setting-is-invalid');
+                }
+              });
+
+            textComponent.inputEl.addEventListener('blur', () => {
+              if (
+                this.isDuplicateChars([...textComponent.inputEl.value]) ||
+                !textComponent.inputEl.validity.valid
+              ) {
+                settings.characters = orgCharacters;
+              }
+            });
+            textComponent.inputEl.setAttrs({
+              maxLength: CHAR_LENGTH.max,
+              required: true,
+              pattern: `[!-~]{${CHAR_LENGTH.min},${CHAR_LENGTH.max}}`,
+            });
+            return textComponent;
+          });
+          const setDefaultValue = () =>
+            (settings.characters = DEFAULT_SETTINGS[settingType].characters);
+          this.addResetButton(setting, setDefaultValue, () => this.update());
+        },
+      },
+      {
+        name: 'Enable tabs close',
+        desc: 'When enabled, the operation of closing tabs is enabled.',
+        render: (setting) => {
+          setting.addToggle((toggle) =>
+            toggle.setValue(settings.enableClose).onChange(async (value) => {
+              settings.enableClose = value;
+              await this._plugin.saveData(this._plugin.settings);
+            }),
+          );
+        },
+      },
+    ];
+  }
+
   private setForShowTabShortcutCommand(detailsEl: HTMLDetailsElement): void {
     const settingType = SETTING_TYPE.showTabShortcuts;
     const settings = this._plugin.settings[settingType];
@@ -651,6 +1042,67 @@ export class SettingTab extends PluginSettingTab {
           (settings.characters = DEFAULT_SETTINGS[settingType].characters);
         this.addResetButton(settingEl, setDefaultValue);
       });
+  }
+
+  private getShowTabShortcutCommandDefinitions(): SettingGroupItem[] {
+    const settingType = SETTING_TYPE.showTabShortcuts;
+    const settings = this._plugin.settings[settingType];
+
+    return [
+      {
+        name: 'Enable multiple window',
+        desc: `When enabled, all window's tabs is selectable. When disabled, only active window's tabs is selectable.`,
+        visible: () => Platform.isDesktop,
+        render: (setting) => {
+          setting.addToggle((toggle) =>
+            toggle.setValue(settings.enableMultiWIndow).onChange(async (value) => {
+              settings.enableMultiWIndow = value;
+              await this._plugin.saveData(this._plugin.settings);
+            }),
+          );
+        },
+      },
+      {
+        name: 'Characters used for shortcut hints',
+        desc: `Enter non-duplicate alphanumeric characters or symbols.`,
+        render: (setting) => {
+          setting.addText((text) => {
+            let orgCharacters = settings.characters;
+            const textComponent = text
+              .setPlaceholder('Enter characters')
+              .setValue(settings.characters)
+              .onChange(async (value) => {
+                const { inputEl } = textComponent;
+                if (!this.isDuplicateChars([...value]) && inputEl.validity.valid) {
+                  inputEl.removeClass('ts-setting-is-invalid');
+                  settings.characters = value;
+                  orgCharacters = value;
+                  await this._plugin.saveSettings();
+                } else {
+                  inputEl.addClass('ts-setting-is-invalid');
+                }
+              });
+
+            textComponent.inputEl.addEventListener('blur', () => {
+              if (
+                this.isDuplicateChars([...textComponent.inputEl.value]) ||
+                !textComponent.inputEl.validity.valid
+              ) {
+                settings.characters = orgCharacters;
+              }
+            });
+            textComponent.inputEl.setAttrs({
+              required: true,
+              pattern: `[!-~]{1,}`,
+            });
+            return textComponent;
+          });
+          const setDefaultValue = () =>
+            (settings.characters = DEFAULT_SETTINGS[settingType].characters);
+          this.addResetButton(setting, setDefaultValue, () => this.update());
+        },
+      },
+    ];
   }
 
   private setForSearchTabCommand(detailsEl: HTMLDetailsElement): void {
@@ -745,6 +1197,108 @@ export class SettingTab extends PluginSettingTab {
       });
   }
 
+  private getSearchTabCommandDefinitions(): SettingGroupItem[] {
+    const settingType = SETTING_TYPE.searchTab;
+    const settings = this._plugin.settings[settingType];
+
+    return [
+      {
+        name: 'Enable multiple window',
+        desc: `When enabled, all window's tabs is selectable. When disabled, only active window's tabs is selectable.`,
+        visible: () => Platform.isDesktop,
+        render: (setting) => {
+          setting.addToggle((toggle) =>
+            toggle.setValue(settings.enableMultiWIndow).onChange(async (value) => {
+              settings.enableMultiWIndow = value;
+              await this._plugin.saveData(this._plugin.settings);
+            }),
+          );
+        },
+      },
+      {
+        name: 'Show aliases',
+        desc: `When enabled, show file's aliases on list item.`,
+        render: (setting) => {
+          setting.addToggle((toggle) =>
+            toggle.setValue(settings.showAliases).onChange(async (value) => {
+              settings.showAliases = value;
+              await this._plugin.saveData(this._plugin.settings);
+              this.update();
+            }),
+          );
+        },
+      },
+      {
+        name: 'Include aliases in the search',
+        desc: `When enabled, include aliases in the search. This setting is valid when "Show aliases" is enabled.`,
+        render: (setting) => {
+          setting
+            .setDisabled(!settings.showAliases)
+            .addToggle((toggle) =>
+              toggle.setValue(settings.includeAliases).onChange(async (value) => {
+                settings.includeAliases = value;
+                await this._plugin.saveData(this._plugin.settings);
+              }),
+            );
+        },
+      },
+      {
+        name: 'Show paths',
+        desc: `When enabled, show file's paths on list item.`,
+        render: (setting) => {
+          setting.addToggle((toggle) =>
+            toggle.setValue(settings.showPaths).onChange(async (value) => {
+              settings.showPaths = value;
+              await this._plugin.saveData(this._plugin.settings);
+              this.update();
+            }),
+          );
+        },
+      },
+      {
+        name: 'Include paths in the search',
+        desc: `When enabled, include paths in the search. This setting is valid when "Show paths" is enabled.`,
+        render: (setting) => {
+          setting
+            .setDisabled(!settings.showPaths)
+            .addToggle((toggle) =>
+              toggle.setValue(settings.includePaths).onChange(async (value) => {
+                settings.includePaths = value;
+                await this._plugin.saveData(this._plugin.settings);
+              }),
+            );
+        },
+      },
+      {
+        name: 'Show legends',
+        desc: 'When enabled, show legends on modal.',
+        render: (setting) => {
+          setting.addToggle((toggle) =>
+            toggle.setValue(settings.showLegends).onChange(async (value) => {
+              settings.showLegends = value;
+              await this._plugin.saveData(this._plugin.settings);
+            }),
+          );
+        },
+      },
+      {
+        name: 'Color of button frame on focus',
+        desc: 'Choice your favorite color.',
+        render: (setting) => {
+          setting.addColorPicker((colorPicker) =>
+            colorPicker.setValue(settings.focusColor).onChange(async (value) => {
+              settings.focusColor = value;
+              await this._plugin.saveData(this._plugin.settings);
+            }),
+          );
+          const setDefaultValue = () =>
+            (settings.focusColor = DEFAULT_SETTINGS[settingType].focusColor);
+          this.addResetButton(setting, setDefaultValue, () => this.update());
+        },
+      },
+    ];
+  }
+
   private isDuplicateChars(chars: string[]): boolean {
     return chars.some((char, idx) => chars.slice(idx + 1).includes(char));
   }
@@ -774,7 +1328,7 @@ export class SettingTab extends PluginSettingTab {
   private addResetButton(
     settingEl: Setting,
     setDefaultValue: () => void,
-    refreshView = true,
+    refresh: (() => void) | null = () => this.display(),
   ): void {
     settingEl.addExtraButton((button) =>
       button
@@ -783,9 +1337,7 @@ export class SettingTab extends PluginSettingTab {
         .onClick(async () => {
           setDefaultValue();
           await this._plugin.saveSettings();
-          if (refreshView) {
-            this.display();
-          }
+          refresh?.();
         }),
     );
   }
