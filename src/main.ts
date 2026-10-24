@@ -72,12 +72,18 @@ export default class TabSelector extends Plugin {
   private openTabSelectorModal(): void {
     const enableMultiWIndow = this.settings.openTabSelector.enableMultiWIndow;
     const leaves = this.generateLeaves(enableMultiWIndow);
+    if (!leaves.length) {
+      return;
+    }
     new TabSelectorModal(this.app, this.settings, leaves).open();
   }
 
   private openTabHistoryModal(isPrevCommand: boolean): void {
     const enableMultiWIndow = this.settings.goToPreviousNextTab.enableMultiWIndow;
     const leaves = this.generateLeaves(enableMultiWIndow);
+    if (!leaves.length) {
+      return;
+    }
     new TabHistoryModal(this.app, this.settings, leaves, isPrevCommand).open();
   }
 
@@ -108,9 +114,11 @@ export default class TabSelector extends Plugin {
         targetLeaves.push(leaf);
       });
     } else {
-      const { id: rootId, type: rootType } = this.app.workspace
-        .getMostRecentLeaf()
-        ?.getRoot() as CustomWsItem;
+      const root = this.app.workspace.getMostRecentLeaf()?.getRoot() as CustomWsItem | undefined;
+      if (!root) {
+        return targetLeaves;
+      }
+      const { id: rootId, type: rootType } = root;
       this.app.workspace.iterateAllLeaves((leaf: CustomWsLeaf) => {
         if (rootId !== (leaf.getRoot() as CustomWsItem).id) {
           return;
