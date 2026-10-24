@@ -12,7 +12,6 @@ const compareActiveTime = (a: CustomWsLeaf, b: CustomWsLeaf): number => {
 
 export class TabHistoryModal extends Modal {
   private _leafButtonMap: Map<string, HTMLButtonElement> = new Map();
-  private _closeButtonMap: Map<string, HTMLButtonElement> = new Map();
   private _focusPosition = 0;
   private _isEnabled = false;
   private _eventListenerFunc: {
@@ -117,7 +116,6 @@ export class TabHistoryModal extends Modal {
           'touchend',
           (ev: MouseEvent) => (ev.stopPropagation(), this.clickCloseLeafButton(leaf, el)),
         );
-        this._closeButtonMap.set(leaf.id || '', closeBtnEl);
       });
     });
   }
