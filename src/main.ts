@@ -232,7 +232,7 @@ export default class TabSelector extends Plugin {
       if (typeof oldSettings.backActionKey === 'string') {
         delete oldSettings.backActionKey;
       }
-      if (typeof oldSettings.howToPreviousTab === 'string') {
+      if (oldSettings.howToPreviousTab !== undefined) {
         delete oldSettings.howToPreviousTab;
       }
       if (typeof oldSettings.showPaginationButton === 'boolean') {
