@@ -112,11 +112,11 @@ export class TabSelectorModal extends Modal {
         const shortcutBtnEl = el.createEl('button', { text: this._chars.at(idx) });
         shortcutBtnEl.setAttr('tabIndex', -1);
         shortcutBtnEl.addClass('ts-shortcut-btn');
-        shortcutBtnEl.addEventListener('click', () => this.clickLeafButton(leaf, shortcutBtnEl));
+        shortcutBtnEl.addEventListener('click', () => this.clickLeafButton(leaf));
 
         const itemBtnEl = el.createEl('button');
         itemBtnEl.addClass('ts-leaf-name-btn');
-        itemBtnEl.addEventListener('click', () => this.clickLeafButton(leaf, itemBtnEl));
+        itemBtnEl.addEventListener('click', () => this.clickLeafButton(leaf));
 
         const itemNameEl = itemBtnEl.createSpan('ts-leaf-name');
         itemNameEl.setText(leaf.name || '');
@@ -257,8 +257,8 @@ export class TabSelectorModal extends Modal {
     this._pageCounterEl.setText(`${this._pagePosition + 1}`);
   }
 
-  private clickLeafButton(leaf: CustomWsLeaf, itemBtnEl: HTMLButtonElement): void {
-    if (itemBtnEl.classList.contains('deleted')) {
+  private clickLeafButton(leaf: CustomWsLeaf): void {
+    if (leaf.deleted) {
       return;
     }
     this.close();
