@@ -196,10 +196,7 @@ export class TabHistoryModal extends Modal {
 
   private addMarkOfFocus(): void {
     this._leafButtonMap.forEach((leafButton) => leafButton.removeClass('is-focus'));
-    const focusLeafEl = this._leafButtonMap.get(
-      this._leaves[this._focusPosition]?.id || '',
-    ) as HTMLElement;
-    focusLeafEl.addClass('is-focus');
+    this._leafButtonMap.get(this._leaves[this._focusPosition]?.id || '')?.addClass('is-focus');
   }
 
   private switchToFocusedTab(leaf: CustomWsLeaf): void {
@@ -209,22 +206,30 @@ export class TabHistoryModal extends Modal {
 
   private clickCloseLeafButton(leaf: CustomWsLeaf, divEl: HTMLDivElement): void {
     const idx = this._leaves.findIndex(({ id }) => id === leaf.id);
-    this._focusPosition = idx < this._focusPosition ? this._focusPosition - 1 : this._focusPosition;
+    if (idx < 0) {
+      // Already closed (e.g. the same close event fired twice).
+      return;
+    }
 
     this._leafButtonMap.delete(leaf.id || '');
     this._leaves = this._leaves.filter(({ id }) => id !== leaf.id);
     divEl.remove();
     leaf.detach();
-    this.addMarkOfFocus();
 
     if (!this._leaves.length) {
       this.close();
       return;
     }
 
+    if (idx < this._focusPosition) {
+      this._focusPosition -= 1;
+    }
+    this._focusPosition = Math.min(this._focusPosition, this._leaves.length - 1);
+    this.addMarkOfFocus();
+
     window.setTimeout(() => {
       const focusLeaf = this._leaves[this._focusPosition];
-      (this._leafButtonMap.get(focusLeaf?.id || '') as HTMLElement).focus();
+      this._leafButtonMap.get(focusLeaf?.id || '')?.focus();
     }, 1);
   }
 }
