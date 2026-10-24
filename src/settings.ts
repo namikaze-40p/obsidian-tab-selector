@@ -501,7 +501,7 @@ export class SettingTab extends PluginSettingTab {
                 }),
             )
             .setDisabled(settings.howToNextTab !== HOW_TO_NEXT_TAB.useReverseActionKey);
-          if (settings.howToNextTab === HOW_TO_NEXT_TAB.useSubModifierKey) {
+          if (settings.howToNextTab === HOW_TO_NEXT_TAB.useReverseActionKey) {
             const setDefaultValue = () =>
               (settings.reverseActionKey = DEFAULT_SETTINGS[settingType].reverseActionKey);
             this.addResetButton(setting, setDefaultValue);
