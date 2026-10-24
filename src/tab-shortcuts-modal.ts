@@ -68,7 +68,7 @@ export class TabShortcutsModal extends Modal {
 
   private generateWindows(leaves: CustomWsLeaf[]): WindowItem[] {
     return leaves.reduce((acc, cur) => {
-      const win = acc.find((window) => window.id === cur.parent?.id || '');
+      const win = acc.find((window) => window.id === (cur.parent?.id || ''));
       if (win) {
         win.leaves = [...win.leaves, cur];
         return acc;
