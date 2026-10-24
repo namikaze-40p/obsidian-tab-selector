@@ -37,7 +37,8 @@ export class TabSearchModal extends FuzzySuggestModal<CustomWsLeaf> {
         .filter((value) => value != null);
 
       const file = leaf.getViewState().state?.['file'];
-      const fullPath = typeof file === 'string' ? file.split(leaf.getDisplayText())[0] || '/' : '-';
+      const fullPath =
+        typeof file === 'string' ? file.slice(0, file.lastIndexOf('/') + 1) || '/' : '-';
       leaf.path = fullPath;
 
       return leaf;
