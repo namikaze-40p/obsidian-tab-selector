@@ -52,7 +52,16 @@ export default class TabSelector extends Plugin {
   }
 
   async loadSettings(): Promise<void> {
-    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+    const data: Partial<Settings> = (await this.loadData()) ?? {};
+    // Merge per section so that DEFAULT_SETTINGS is never shared by reference
+    // and keys added in newer versions are filled in for existing users.
+    this.settings = {
+      ...data,
+      goToPreviousNextTab: { ...DEFAULT_SETTINGS.goToPreviousNextTab, ...data.goToPreviousNextTab },
+      openTabSelector: { ...DEFAULT_SETTINGS.openTabSelector, ...data.openTabSelector },
+      showTabShortcuts: { ...DEFAULT_SETTINGS.showTabShortcuts, ...data.showTabShortcuts },
+      searchTab: { ...DEFAULT_SETTINGS.searchTab, ...data.searchTab },
+    };
     await this.migrateSettingValues();
   }
 
